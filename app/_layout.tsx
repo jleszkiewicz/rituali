@@ -1,39 +1,40 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import { Slot } from "expo-router";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { View, ActivityIndicator } from "react-native";
+import { AuthProvider, useAuth } from "../src/context/AuthContext"; // Importuj AuthProvider
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  return (
+    <AuthProvider>
+      <AuthWrapper />
+    </AuthProvider>
+  );
+}
+
+function AuthWrapper() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth(); // Teraz korzystamy z useAuth po opakowaniu w AuthProvider
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    if (!isLoading) {
+      if (!isAuthenticated) {
+        // Dopiero po zakończeniu ładowania, przekierowujemy do /login, jeśli użytkownik nie jest zalogowany
+        router.replace("/(auth)/login"); // Pamiętaj o poprawnej ścieżce
+      } else {
+        // Jeśli użytkownik jest zalogowany, możemy przekierować na główną stronę
+        router.replace("/(tabs)/index"); // Przykładowa strona główna po zalogowaniu
+      }
     }
-  }, [loaded]);
+  }, [isLoading, isAuthenticated, router]);
 
-  if (!loaded) {
-    return null;
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+  return <Slot />; // Jeśli zalogowany, renderujemy resztę aplikacji
 }
