@@ -2,6 +2,8 @@ import { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/src/context/AuthContext";
+import { AuthRoutes } from "@/src/routes/AuthRoutes";
+import { AppRoutes } from "@/src/routes/AppRoutes";
 
 export default function LoginScreen() {
   const { login, isLoading } = useAuth();
@@ -11,7 +13,7 @@ export default function LoginScreen() {
 
   const handleLogin = () => {
     login(email, password).then(() => {
-      router.replace("/");
+      router.replace(AppRoutes.Home);
     });
   };
 
@@ -34,7 +36,7 @@ export default function LoginScreen() {
       <Button title="Zaloguj się" onPress={handleLogin} disabled={isLoading} />
       <Button
         title="Załóż konto"
-        onPress={() => router.push("/(auth)/register")}
+        onPress={() => router.push(AuthRoutes.Register)}
         disabled={isLoading}
       />
     </View>

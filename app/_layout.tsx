@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { AuthProvider, useAuth } from "../src/context/AuthContext"; // Importuj AuthProvider
+import { AuthRoutes } from "@/src/routes/AuthRoutes";
 
 export default function RootLayout() {
   return (
@@ -20,7 +21,7 @@ function AuthWrapper() {
     if (!isLoading) {
       if (!isAuthenticated) {
         // Dopiero po zakończeniu ładowania, przekierowujemy do /login, jeśli użytkownik nie jest zalogowany
-        router.replace("/(auth)/login"); // Pamiętaj o poprawnej ścieżce
+        router.replace(AuthRoutes.Login); // Pamiętaj o poprawnej ścieżce
       } else {
         // Jeśli użytkownik jest zalogowany, możemy przekierować na główną stronę
         router.replace("/(tabs)/index"); // Przykładowa strona główna po zalogowaniu
