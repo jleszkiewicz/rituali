@@ -1,0 +1,10 @@
+{
+  "login_title": "Einloggen",
+  "email_placeholder": "E-Mail",
+  "password_placeholder": "Passwort",
+  "login_button": "Einloggen",
+  "register_redirect": "Noch kein Konto? Registrieren",
+  "register_title": "Registrieren",
+  "register_button": "Registrieren",
+  "login_redirect": "Schon ein Konto? Einloggen"
+}

@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { AuthProvider, useAuth } from "../src/context/AuthContext"; // Importuj AuthProvider
 import { AuthRoutes } from "@/src/routes/AuthRoutes";
+import { AppRoutes } from "@/src/routes/AppRoutes";
+import "../src/service/translateService";
 
 export default function RootLayout() {
   return (
@@ -15,16 +17,14 @@ export default function RootLayout() {
 
 function AuthWrapper() {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth(); // Teraz korzystamy z useAuth po opakowaniu w AuthProvider
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     if (!isLoading) {
       if (!isAuthenticated) {
-        // Dopiero po zakończeniu ładowania, przekierowujemy do /login, jeśli użytkownik nie jest zalogowany
-        router.replace(AuthRoutes.Login); // Pamiętaj o poprawnej ścieżce
+        router.replace(AuthRoutes.Login);
       } else {
-        // Jeśli użytkownik jest zalogowany, możemy przekierować na główną stronę
-        router.replace("/(tabs)/index"); // Przykładowa strona główna po zalogowaniu
+        router.replace(AppRoutes.Home);
       }
     }
   }, [isLoading, isAuthenticated, router]);
@@ -37,5 +37,5 @@ function AuthWrapper() {
     );
   }
 
-  return <Slot />; // Jeśli zalogowany, renderujemy resztę aplikacji
+  return <Slot />;
 }

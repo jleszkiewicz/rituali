@@ -5,7 +5,7 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { supabase } from "../service/supabaseClient"; // Zakładam, że masz już ustawionego Supabase
+import { supabase } from "../service/supabaseClient";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -21,7 +21,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Sprawdzanie, czy użytkownik jest zalogowany
   useEffect(() => {
     const checkAuth = async () => {
       const {
@@ -33,12 +32,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else {
         setIsAuthenticated(false);
       }
-      setIsLoading(false); // Ładowanie zakończone
+      setIsLoading(false);
     };
     checkAuth();
   }, []);
 
-  // Metoda logowania
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -49,12 +47,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (error) {
       console.error("Logowanie nie powiodło się:", error.message);
     } else {
-      setIsAuthenticated(true); // Zalogowano
+      setIsAuthenticated(true);
     }
     setIsLoading(false);
   };
 
-  // Metoda rejestracji
   const register = async (email: string, password: string) => {
     setIsLoading(true);
     const { data, error } = await supabase.auth.signUp({
@@ -65,12 +62,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (error) {
       console.error("Rejestracja nie powiodła się:", error.message);
     } else {
-      setIsAuthenticated(true); // Zarejestrowano i od razu zalogowano
+      setIsAuthenticated(true);
     }
     setIsLoading(false);
   };
 
-  // Metoda wylogowania
   const logout = async () => {
     await supabase.auth.signOut();
     setIsAuthenticated(false);
