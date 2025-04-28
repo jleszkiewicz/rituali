@@ -1,0 +1,13 @@
+{
+  "login_title": "Zaloguj się",
+  "email_placeholder": "Email",
+  "password_placeholder": "Hasło",
+  "login_button": "Zaloguj się",
+  "register_redirect": "Nie masz konta? Zarejestruj się",
+  "register_title": "Utwórz konto",
+  "register_button": "Zarejestruj się",
+  "login_redirect": "Masz już konto? Zaloguj się",
+  "today": "Dzisiaj",
+  "tomorrow": "Jutro",
+  "yesterday": "Wczoraj"
+}

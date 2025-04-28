@@ -10,7 +10,7 @@ import { useRouter } from "expo-router";
 import { useAuth } from "@/src/context/AuthContext";
 import { AppRoutes } from "@/src/routes/AppRoutes";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "../../assets/colors";
+import { Colors } from "../../constants/Colors";
 import { AuthRoutes } from "@/src/routes/AuthRoutes";
 import { useTranslation } from "react-i18next";
 

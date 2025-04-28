@@ -6,5 +6,8 @@
   "register_redirect": "Noch kein Konto? Registrieren",
   "register_title": "Registrieren",
   "register_button": "Registrieren",
-  "login_redirect": "Schon ein Konto? Einloggen"
+  "login_redirect": "Schon ein Konto? Einloggen",
+  "today": "Heute",
+  "tomorrow": "Morgen",
+  "yesterday": "Gestern"
 }
