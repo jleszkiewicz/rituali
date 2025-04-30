@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -26,7 +26,7 @@ const AddHabitModal = ({
   onClose,
   onSubmit,
 }: AddHabitModalProps) => {
-  const [habitData, setHabitData] = useState<HabitData>({
+  const habitDataInitialState: HabitData = {
     name: "",
     isPartOfChallenge: false,
     challengeId: null,
@@ -34,13 +34,21 @@ const AddHabitModal = ({
     selectedDays: [],
     startDate: new Date(),
     endDate: new Date(),
-  });
+  };
+  const [habitData, setHabitData] = useState<HabitData>(habitDataInitialState);
 
   const [errors, setErrors] = useState<{
     name?: string;
     selectedDays?: string;
     challenge?: string;
   }>({});
+
+  useEffect(() => {
+    if (isVisible) {
+      setHabitData(habitDataInitialState);
+      setErrors({});
+    }
+  }, [isVisible]);
 
   const validateForm = (): boolean => {
     const newErrors: typeof errors = {};
@@ -86,31 +94,8 @@ const AddHabitModal = ({
     }
   };
 
-  const getValidationMessage = () => {
-    if (!habitData.name.trim()) {
-      return t("habit_name_required");
-    }
-    if (
-      habitData.frequency === "selected_days" &&
-      habitData.selectedDays.length === 0
-    ) {
-      return t("select_at_least_one_day");
-    }
-    if (habitData.isPartOfChallenge && !habitData.challengeId) {
-      return t("select_challenge_required");
-    }
-    return null;
-  };
-
-  const validationMessage = getValidationMessage();
-
   return (
-    <Modal
-      visible={isVisible}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal visible={isVisible} transparent={true} onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Text style={styles.title}>{t("add_habit")}</Text>

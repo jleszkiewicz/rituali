@@ -17,12 +17,7 @@ const AddOptionsModal = ({
   onAddChallenge,
 }: AddOptionsModalProps) => {
   return (
-    <Modal
-      visible={isVisible}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal visible={isVisible} transparent={true} onRequestClose={onClose}>
       <TouchableOpacity
         style={styles.modalOverlay}
         activeOpacity={1}

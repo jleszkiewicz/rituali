@@ -34,7 +34,6 @@ const challengesSlice = createSlice({
 
 export const { setChallenges, setLoading, setError } = challengesSlice.actions;
 
-// Selectors
 export const selectChallenges = (state: { challenges: ChallengesState }) => state.challenges.challenges;
 export const selectChallengesLoading = (state: { challenges: ChallengesState }) => state.challenges.isLoading;
 export const selectChallengesError = (state: { challenges: ChallengesState }) => state.challenges.error;
