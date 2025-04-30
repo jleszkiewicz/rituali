@@ -23,13 +23,21 @@ const resources = {
   de: { translation: deTranslation },
   fr: { translation: frTranslation },
   es: { translation: esTranslation },
-  pl: { translation: plTranslation}
+  pl: { translation: plTranslation},
+  start_date: "Start Date",
+  end_date: "End Date",
+  cancel: "Cancel",
+  submit: "Submit"
 };
 
 export const getLocale = (language?: string) => {
   const lang =
     language || Localization.getLocales()[0]?.languageCode || "en";
   return locales[lang] || enUS;
+};
+
+export const t = (key: string): string => {
+  return i18n.t(key);
 };
 
 i18n

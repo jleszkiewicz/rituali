@@ -5,5 +5,6 @@ export const Colors = {
     Black: "#000",
     PrimaryGray: "#222222",
     LightGray: "#f0f0f0",
-    HotPink: "#ff6b81"
+    HotPink: "#ff6b81",
+    LightPink: "#fababa",
 };
