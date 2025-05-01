@@ -5,6 +5,7 @@ import { Tabs } from "expo-router";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import AddOptionsModal from "@/components/modals/AddOptionsModal";
 import AddHabitModal from "@/components/modals/AddHabitModal";
+import AddChallengeModal from "@/components/modals/AddChallengeModal";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { addHabit } from "@/src/service/apiService";
 import { useSelector } from "react-redux";
@@ -13,6 +14,8 @@ import { selectUserId } from "@/src/store/userSlice";
 export default function TabsLayout() {
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
+  const [isAddChallengeModalVisible, setIsAddChallengeModalVisible] =
+    useState(false);
   const userId = useSelector(selectUserId);
 
   const handleAddHabit = () => {
@@ -22,7 +25,7 @@ export default function TabsLayout() {
 
   const handleAddChallenge = () => {
     setIsAddModalVisible(false);
-    // TODO: Open new modal for adding challenge
+    setIsAddChallengeModalVisible(true);
   };
 
   const handleHabitSubmit = (habit: HabitData) => {
@@ -65,6 +68,11 @@ export default function TabsLayout() {
         isVisible={isAddHabitModalVisible}
         onClose={() => setIsAddHabitModalVisible(false)}
         onSubmit={handleHabitSubmit}
+      />
+
+      <AddChallengeModal
+        isVisible={isAddChallengeModalVisible}
+        onClose={() => setIsAddChallengeModalVisible(false)}
       />
     </>
   );

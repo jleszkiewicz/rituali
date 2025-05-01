@@ -13,7 +13,7 @@
   "no_habits": "Brak dodanych nawyków",
   "add_habit_to_start": "Dodaj nawyk, aby rozpocząć śledzenie.",
   "add_new_habit": "Dodaj nowy nawyk",
-  "add_and_start_challenge": "Dodaj i rozpocznij wyzwanie",
+  "add_and_start_challenge": "Dodaj nowe wyzwanie",
   "start_date": "Data rozpoczęcia",
   "end_date": "Data zakończenia",
   "cancel": "Anuluj",
@@ -37,5 +37,8 @@
   "select_at_least_one_day": "Wybierz przynajmniej jeden dzień",
   "habit_name_required": "Nazwa jest wymagana",
   "select_challenge": "Wybierz wyzwanie",
-  "select_challenge_required": "Wybierz wyzwanie lub odznacz opcję \"Część wyzwania\""
+  "select_challenge_required": "Wybierz wyzwanie lub odznacz opcję \"Część wyzwania\"",
+  "add_challenge": "Dodaj wyzwanie",
+  "challenge_name": "Nazwa wyzwania",
+  "challenge_name_required": "Nazwa wyzwania jest wymagana"
 }
