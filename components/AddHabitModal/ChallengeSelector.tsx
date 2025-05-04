@@ -103,7 +103,7 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
                   <TouchableOpacity
                     key={challenge.id}
                     style={[
-                      styles.challengeItem,
+                      styles.dropdownItem,
                       challengeId === challenge.id && styles.selectedChallenge,
                     ]}
                     onPress={() => {
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 15,
   },
   dropdownHeader: {
     flexDirection: "row",
@@ -136,34 +136,40 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
     borderWidth: 1,
-    borderColor: Colors.LightGray,
-    borderRadius: 10,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    marginBottom: 5,
   },
   dropdownHeaderText: {
-    flex: 1,
+    fontSize: 16,
   },
   dropdownArrow: {
-    marginLeft: 10,
+    fontSize: 12,
   },
   dropdownContent: {
-    maxHeight: 150,
+    position: "absolute",
+    top: "100%",
+    left: 0,
+    right: 0,
+    backgroundColor: "#fff",
+    maxHeight: 200,
     borderWidth: 1,
-    borderColor: Colors.LightGray,
-    borderRadius: 10,
-    marginTop: 5,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    zIndex: 2,
   },
-  challengeItem: {
+  dropdownItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.LightGray,
+    borderBottomColor: "#ddd",
   },
   selectedChallenge: {
     backgroundColor: Colors.LightPink,
   },
   noChallenges: {
+    padding: 10,
     textAlign: "center",
     color: Colors.PrimaryGray,
-    padding: 10,
   },
 });
 

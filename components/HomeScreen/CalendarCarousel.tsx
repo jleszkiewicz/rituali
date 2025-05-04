@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import {
   FlatList,
   Dimensions,
@@ -8,11 +8,12 @@ import {
 import { format, subDays, addDays } from "date-fns";
 import CalendarElement from "./CalendarElement";
 import { dateFormat } from "@/constants/Constants";
+import debounce from "lodash/debounce";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const ITEMS_PER_PAGE = 7;
-const ITEM_WIDTH = SCREEN_WIDTH / ITEMS_PER_PAGE;
-const PAGE_WIDTH = SCREEN_WIDTH;
+const ITEM_WIDTH = (SCREEN_WIDTH - 40) / ITEMS_PER_PAGE;
+const PAGE_WIDTH = SCREEN_WIDTH - 40;
 
 const generateDays = (daysBefore = 30, daysAfter = 30) => {
   const days = [];
@@ -53,16 +54,24 @@ const CalendarCarousel = ({ selectedDate, setSelectedDate }: Props) => {
     }, 0);
   }, []);
 
-  const onMomentumScrollEnd = (
-    event: NativeSyntheticEvent<NativeScrollEvent>
-  ) => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    const pageIndex = Math.round(offsetX / PAGE_WIDTH);
-    flatListRef.current?.scrollToOffset({
-      offset: pageIndex * PAGE_WIDTH,
-      animated: true,
-    });
-  };
+  const debouncedSetSelectedDate = useCallback(
+    debounce((date: Date) => {
+      setSelectedDate(date);
+    }, 100),
+    [setSelectedDate]
+  );
+
+  const onMomentumScrollEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const offsetX = event.nativeEvent.contentOffset.x;
+      const pageIndex = Math.round(offsetX / PAGE_WIDTH);
+      flatListRef.current?.scrollToOffset({
+        offset: pageIndex * PAGE_WIDTH,
+        animated: true,
+      });
+    },
+    []
+  );
 
   return (
     <FlatList
@@ -73,7 +82,7 @@ const CalendarCarousel = ({ selectedDate, setSelectedDate }: Props) => {
           item={item}
           selectedDate={selectedDate}
           itemWidth={ITEM_WIDTH}
-          setSelectedDate={setSelectedDate}
+          setSelectedDate={debouncedSetSelectedDate}
         />
       )}
       keyExtractor={(item) => item.toISOString()}
@@ -89,6 +98,9 @@ const CalendarCarousel = ({ selectedDate, setSelectedDate }: Props) => {
       style={{ flexGrow: 0 }}
       onMomentumScrollEnd={onMomentumScrollEnd}
       initialScrollIndex={initialScrollIndex}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={7}
+      windowSize={5}
     />
   );
 };

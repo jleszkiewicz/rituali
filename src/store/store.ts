@@ -1,13 +1,13 @@
-import { configureStore } from '@reduxjs/toolkit';
-import userReducer from './userSlice';
-import habitsReducer from './habitsSlice';
-import challengesReducer from './challengesSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import habitsReducer from "./habitsSlice";
+import challengesReducer from "./challengesSlice";
+import userReducer from "./userSlice";
 
 export const store = configureStore({
   reducer: {
-    user: userReducer,
     habits: habitsReducer,
     challenges: challengesReducer,
+    user: userReducer,
   },
 });
 

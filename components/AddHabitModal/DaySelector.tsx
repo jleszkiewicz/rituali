@@ -7,8 +7,8 @@ import { getLocale } from "@/src/service/translateService";
 import { useTranslation } from "react-i18next";
 
 interface DaySelectorProps {
-  selectedDays: number[];
-  onToggleDay: (day: number) => void;
+  selectedDays: string[];
+  onToggleDay: (day: string) => void;
 }
 
 const DaySelector: React.FC<DaySelectorProps> = ({
@@ -34,14 +34,14 @@ const DaySelector: React.FC<DaySelectorProps> = ({
             key={day}
             style={[
               styles.dayButton,
-              selectedDays.includes(day) && styles.selectedDay,
+              selectedDays.includes(day.toString()) && styles.selectedDay,
             ]}
-            onPress={() => onToggleDay(day)}
+            onPress={() => onToggleDay(day.toString())}
           >
             <Text
               style={[
                 styles.dayText,
-                selectedDays.includes(day) && styles.selectedDayText,
+                selectedDays.includes(day.toString()) && styles.selectedDayText,
               ]}
             >
               {getDayName(day)}

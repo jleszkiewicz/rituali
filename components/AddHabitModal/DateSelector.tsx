@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { t } from "@/src/service/translateService";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { dateFormat } from "@/constants/Constants";
 
@@ -22,6 +21,23 @@ const DateSelector: React.FC<DateSelectorProps> = ({
   maxDate,
 }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [displayDate, setDisplayDate] = useState<Date>(
+    isValid(date) ? date : new Date()
+  );
+
+  useEffect(() => {
+    if (isValid(date)) {
+      setDisplayDate(date);
+    }
+  }, [date]);
+
+  const handleDateChange = (newDate: Date) => {
+    if (isValid(newDate)) {
+      setDisplayDate(newDate);
+      onDateChange(newDate);
+    }
+    setShowDatePicker(false);
+  };
 
   return (
     <View style={styles.dateContainer}>
@@ -30,18 +46,15 @@ const DateSelector: React.FC<DateSelectorProps> = ({
         onPress={() => setShowDatePicker(true)}
         style={styles.dateButton}
       >
-        <Text>{format(date, dateFormat)}</Text>
+        <Text>{format(displayDate, dateFormat)}</Text>
       </TouchableOpacity>
       <DateTimePickerModal
         minimumDate={minDate}
         maximumDate={maxDate}
         isVisible={showDatePicker}
         mode="date"
-        date={date}
-        onConfirm={(date) => {
-          onDateChange(date);
-          setShowDatePicker(false);
-        }}
+        date={displayDate}
+        onConfirm={handleDateChange}
         onCancel={() => setShowDatePicker(false)}
         pickerContainerStyleIOS={{ backgroundColor: "#fff" }}
       />
