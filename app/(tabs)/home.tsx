@@ -235,6 +235,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: Colors.PrimaryGray,
     marginBottom: 10,
-    marginStart: 10,
   },
 });

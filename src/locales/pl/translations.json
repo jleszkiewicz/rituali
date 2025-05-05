@@ -60,5 +60,7 @@
   "streak_months": "{{count}} miesięcy",
   "delete_habit_confirmation": "Czy jesteś pewien, że chcesz usunąć nawyk?",
   "delete_habit_description": "Jeśli go usuniesz, zniknie również jego historia. Jeśli chcesz żeby nawyk nie pojawiał się dzisiaj lub w przyszłych dniach, zmień jego datę zakończenia.",
-  "delete": "Usuń"
+  "delete": "Usuń",
+  "edit": "Edytuj",
+  "loading": "Ładowanie..."
 }

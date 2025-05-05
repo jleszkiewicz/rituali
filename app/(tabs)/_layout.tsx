@@ -30,6 +30,32 @@ export default function TabsLayout() {
           name="home"
           options={{
             headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? "home" : "home-outline"}
+                size={30}
+                color={color}
+              />
+            ),
+            tabBarShowLabel: false,
+            tabBarActiveTintColor: Colors.HotPink,
+            tabBarInactiveTintColor: Colors.PrimaryGray,
+          }}
+        />
+        <Tabs.Screen
+          name="challenges"
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? "trophy" : "trophy-outline"}
+                color={color}
+                size={30}
+              />
+            ),
+            tabBarActiveTintColor: Colors.HotPink,
+            tabBarInactiveTintColor: Colors.PrimaryGray,
+            tabBarShowLabel: false,
           }}
         />
         <Tabs.Screen
@@ -40,9 +66,41 @@ export default function TabsLayout() {
                 style={styles.button}
                 onPress={() => setIsAddModalVisible(true)}
               >
-                <Ionicons name="add" size={30} color="#fff" />
+                <Ionicons name="add" size={30} color={Colors.White} />
               </TouchableOpacity>
             ),
+          }}
+        />
+        <Tabs.Screen
+          name="statistics"
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? "bar-chart" : "bar-chart-outline"}
+                color={color}
+                size={26}
+              />
+            ),
+            tabBarActiveTintColor: Colors.HotPink,
+            tabBarInactiveTintColor: Colors.PrimaryGray,
+            tabBarShowLabel: false,
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? "person" : "person-outline"}
+                color={color}
+                size={28}
+              />
+            ),
+            tabBarActiveTintColor: Colors.HotPink,
+            tabBarInactiveTintColor: Colors.PrimaryGray,
+            tabBarShowLabel: false,
           }}
         />
       </Tabs>
@@ -70,7 +128,7 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   button: {
     position: "absolute",
-    bottom: 18,
+    top: -10,
     left: "50%",
     transform: [{ translateX: -30 }],
     backgroundColor: Colors.HotPink,
