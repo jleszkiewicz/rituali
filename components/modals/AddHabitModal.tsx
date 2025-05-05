@@ -59,17 +59,9 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
   const [isCategoryExpanded, setIsCategoryExpanded] = useState(false);
 
   useEffect(() => {
-    console.log("Received habit prop:", habit);
     if (habit) {
       const startDate = new Date(habit.startDate);
       const endDate = new Date(habit.endDate);
-
-      console.log("Parsed dates:", {
-        startDate: startDate,
-        endDate: endDate,
-        startDateString: habit.startDate,
-        endDateString: habit.endDate,
-      });
 
       if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
         console.error("Invalid dates in habit:", habit);
@@ -396,7 +388,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: Colors.Gray,
     borderRadius: 5,
     padding: 10,
     fontSize: 16,
@@ -407,7 +399,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: Colors.Gray,
     borderRadius: 5,
     marginBottom: 5,
   },
@@ -422,23 +414,23 @@ const styles = StyleSheet.create({
     top: "100%",
     left: 0,
     right: 0,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.White,
     maxHeight: 200,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: Colors.Gray,
     borderRadius: 5,
     zIndex: 2,
   },
   dropdownItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    borderBottomColor: Colors.Gray,
   },
   inputError: {
-    borderColor: "red",
+    borderColor: Colors.PrimaryRed,
   },
   errorText: {
-    color: "red",
+    color: Colors.PrimaryRed,
     fontSize: 12,
     marginTop: 5,
   },
@@ -454,13 +446,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: "#ccc",
+    backgroundColor: Colors.Gray,
   },
   submitButton: {
     backgroundColor: Colors.HotPink,
   },
   buttonText: {
-    color: "#fff",
+    color: Colors.White,
     fontSize: 16,
     fontWeight: "bold",
   },

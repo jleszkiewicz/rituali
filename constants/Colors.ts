@@ -12,11 +12,12 @@ export const Colors = {
     LightGreen: "#E0FFE0",
     Green: "#008000",
     LightYellow: "#FFFFE0",
-    Yellow: "#FFFF00",
+    Yellow: "#E3A329",
     LightPurple: "#F0E0FF",
     Purple: "#800080",
     LightOrange: "#FFE0B0",
     Orange: "#FFA500",
     LightBrown: "#F0D0B0",
     Brown: "#A52A2A",
+    Gray: "#ccc"
 };

@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingLeft: 15,
     fontSize: 16,
-    color: "black",
+    color: Colors.Black,
   },
   button: {
     width: "100%",
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   buttonText: {
-    color: "white",
+    color: Colors.White,
     fontSize: 18,
     fontWeight: "500",
   },

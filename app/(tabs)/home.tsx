@@ -58,14 +58,8 @@ export default function HomeScreen() {
       if (userId) {
         try {
           dispatch(setLoading(true));
-
-          const [habitsData, challengesData] = await Promise.all([
-            fetchUserHabits(userId),
-            fetchUserChallenges(userId),
-          ]);
-
+          const habitsData = await fetchUserHabits(userId);
           dispatch(setHabits(habitsData));
-          dispatch(setChallenges(challengesData));
         } catch (error) {
           console.error("Error loading data:", error);
         } finally {
@@ -75,7 +69,22 @@ export default function HomeScreen() {
     };
 
     loadData();
-  }, [userId, dispatch, isAddHabitModalVisible]);
+  }, [userId, dispatch]);
+
+  useEffect(() => {
+    const loadChallenges = async () => {
+      if (userId) {
+        try {
+          const challengesData = await fetchUserChallenges(userId);
+          dispatch(setChallenges(challengesData));
+        } catch (error) {
+          console.error("Error loading challenges:", error);
+        }
+      }
+    };
+
+    loadChallenges();
+  }, [userId, dispatch]);
 
   const getTitle = () => {
     if (isToday(selectedDate)) return t("today");
@@ -139,16 +148,54 @@ export default function HomeScreen() {
         {emptyChallenges.length > 0 && activeHabits.length !== 0 && (
           <EmptyChallengeCard onPress={handleAddHabit} />
         )}
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           {activeHabits.length === 0 && <EmptyHabitsList />}
-          {activeHabits.map((habit: HabitData) => (
-            <HabitCard
-              key={habit.id}
-              habit={habit}
-              selectedDate={format(selectedDate, "yyyy-MM-dd")}
-              onEdit={handleEditHabit}
-            />
-          ))}
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {/* Jeśli nie ma żadnych aktywnych habitów */}
+            {activeHabits.length === 0 && <EmptyHabitsList />}
+
+            {/* Wyświetl habity przypisane do wyzwań */}
+            {challenges.map((challenge: Challenge) => {
+              const habitsInChallenge = activeHabits.filter(
+                (habit) => habit.challengeId === challenge.id
+              );
+
+              if (habitsInChallenge.length === 0) return null;
+
+              return (
+                <View key={challenge.id} style={{ marginBottom: 20 }}>
+                  <Text
+                    style={styles.sectionTitle}
+                  >{`Wyzwanie: ${challenge.name}`}</Text>
+                  {habitsInChallenge.map((habit) => (
+                    <HabitCard
+                      key={habit.id}
+                      habit={habit}
+                      selectedDate={format(selectedDate, "yyyy-MM-dd")}
+                      onEdit={handleEditHabit}
+                    />
+                  ))}
+                </View>
+              );
+            })}
+
+            {/* Pozostałe habity bez challengeId */}
+            {activeHabits.some((habit) => !habit.challengeId) && (
+              <View style={{ marginBottom: 20 }}>
+                <Text style={styles.sectionTitle}>Pozostałe</Text>
+                {activeHabits
+                  .filter((habit) => !habit.challengeId)
+                  .map((habit) => (
+                    <HabitCard
+                      key={habit.id}
+                      habit={habit}
+                      selectedDate={format(selectedDate, "yyyy-MM-dd")}
+                      onEdit={handleEditHabit}
+                    />
+                  ))}
+              </View>
+            )}
+          </ScrollView>
         </ScrollView>
         <AddHabitModal
           isVisible={isAddHabitModalVisible}
@@ -182,5 +229,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: Colors.PrimaryGray,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: Colors.PrimaryGray,
+    marginBottom: 10,
+    marginStart: 10,
   },
 });

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Colors } from "@/constants/Colors";
+import { HabitData } from "../AddHabitModal/types";
 import { Ionicons } from "@expo/vector-icons";
 import {
   View,
@@ -9,7 +10,6 @@ import {
   Animated,
   PanResponder,
 } from "react-native";
-import { HabitData } from "../AddHabitModal/types";
 import { getIconForCategory } from "./methods/methods";
 import { t } from "@/src/service/translateService";
 import { calculateStreak } from "@/src/utils/streakUtils";
@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectHabits, setHabits } from "@/src/store/habitsSlice";
 import { updateHabitCompletion } from "@/src/service/apiService";
 import { isAfter, parseISO, isToday } from "date-fns";
+import DeleteHabitModal from "../modals/DeleteHabitModal";
 
 interface HabitCardProps {
   habit: HabitData;
@@ -32,6 +33,7 @@ const HabitCard: React.FC<HabitCardProps> = ({
   const dispatch = useDispatch();
   const habits = useSelector(selectHabits);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const pan = useRef(new Animated.ValueXY()).current;
 
   const isFutureDate = isAfter(parseISO(selectedDate), new Date());
@@ -75,7 +77,7 @@ const HabitCard: React.FC<HabitCardProps> = ({
       onPanResponderRelease: (_, gestureState) => {
         if (gestureState.dx < -50) {
           Animated.spring(pan, {
-            toValue: { x: -80, y: 0 },
+            toValue: { x: -160, y: 0 },
             useNativeDriver: true,
             tension: 50,
             friction: 7,
@@ -107,6 +109,16 @@ const HabitCard: React.FC<HabitCardProps> = ({
           styles.card,
           {
             transform: [{ translateX: pan.x }, { translateY: pan.y }],
+            borderTopEndRadius: pan.x.interpolate({
+              inputRange: [-160, 0],
+              outputRange: [0, 10],
+              extrapolate: "clamp",
+            }),
+            borderBottomEndRadius: pan.x.interpolate({
+              inputRange: [-160, 0],
+              outputRange: [0, 10],
+              extrapolate: "clamp",
+            }),
           },
         ]}
         {...panResponder.panHandlers}
@@ -142,7 +154,7 @@ const HabitCard: React.FC<HabitCardProps> = ({
           styles.editButtonContainer,
           {
             opacity: pan.x.interpolate({
-              inputRange: [-80, -40, 0],
+              inputRange: [-160, -80, 0],
               outputRange: [1, 0.5, 0],
               extrapolate: "clamp",
             }),
@@ -165,6 +177,39 @@ const HabitCard: React.FC<HabitCardProps> = ({
           <Text style={styles.editButtonText}>{t("edit")}</Text>
         </TouchableOpacity>
       </Animated.View>
+      <Animated.View
+        style={[
+          styles.deleteButtonContainer,
+          {
+            opacity: pan.x.interpolate({
+              inputRange: [-160, -80, 0],
+              outputRange: [1, 0.5, 0],
+              extrapolate: "clamp",
+            }),
+          },
+        ]}
+      >
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => {
+            Animated.spring(pan, {
+              toValue: { x: 0, y: 0 },
+              useNativeDriver: true,
+              tension: 50,
+              friction: 7,
+            }).start();
+            setIsDeleteModalVisible(true);
+          }}
+        >
+          <Ionicons name="trash-outline" size={24} color={Colors.White} />
+          <Text style={styles.deleteButtonText}>{t("delete")}</Text>
+        </TouchableOpacity>
+      </Animated.View>
+      <DeleteHabitModal
+        isVisible={isDeleteModalVisible}
+        onClose={() => setIsDeleteModalVisible(false)}
+        habitId={habit.id}
+      />
     </View>
   );
 };
@@ -176,7 +221,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginVertical: 5,
     overflow: "hidden",
-    height: 65,
+    height: 80,
   },
   card: {
     flexDirection: "row",
@@ -234,7 +279,7 @@ const styles = StyleSheet.create({
   },
   editButtonContainer: {
     position: "absolute",
-    right: 0,
+    right: 80,
     top: 0,
     bottom: 0,
     width: 80,
@@ -245,10 +290,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     height: "100%",
+    borderRadius: 0,
+  },
+  editButtonText: {
+    color: Colors.White,
+    marginLeft: 5,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  deleteButtonContainer: {
+    position: "absolute",
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: 80,
+  },
+  deleteButton: {
+    backgroundColor: Colors.PrimaryRed,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    height: "100%",
     borderTopEndRadius: 10,
     borderBottomEndRadius: 10,
   },
-  editButtonText: {
+  deleteButtonText: {
     color: Colors.White,
     marginLeft: 5,
     fontSize: 14,

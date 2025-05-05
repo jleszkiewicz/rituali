@@ -60,13 +60,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   text: {
-    color: "#fff",
+    color: Colors.White,
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "left",
   },
   textDescription: {
-    color: "#fff",
+    color: Colors.White,
     fontSize: 14,
     textAlign: "left",
     marginTop: 5,

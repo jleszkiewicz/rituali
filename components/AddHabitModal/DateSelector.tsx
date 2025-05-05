@@ -56,7 +56,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
         date={displayDate}
         onConfirm={handleDateChange}
         onCancel={() => setShowDatePicker(false)}
-        pickerContainerStyleIOS={{ backgroundColor: "#fff" }}
+        pickerContainerStyleIOS={{ backgroundColor: Colors.White }}
       />
     </View>
   );

@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.White,
     borderRadius: 10,
     padding: 20,
     width: "80%",
@@ -155,19 +155,20 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 5,
+    fontWeight: "bold",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: Colors.Gray,
     borderRadius: 5,
     padding: 10,
     fontSize: 16,
   },
   inputError: {
-    borderColor: "red",
+    borderColor: Colors.PrimaryRed,
   },
   errorText: {
-    color: "red",
+    color: Colors.PrimaryRed,
     fontSize: 12,
     marginTop: 5,
   },
@@ -183,13 +184,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: "#ccc",
+    backgroundColor: Colors.Gray,
   },
   submitButton: {
     backgroundColor: Colors.HotPink,
   },
   buttonText: {
-    color: "#fff",
+    color: Colors.White,
     fontSize: 16,
     fontWeight: "bold",
   },

@@ -217,19 +217,13 @@ export const getHabits = async (userId: string): Promise<HabitData[]> => {
   }
 };
 
-export const deleteHabit = async (habitId: string): Promise<void> => {
-  try {
-    const { error } = await supabase
-      .from("habits")
-      .delete()
-      .eq("id", habitId);
+export const deleteHabit = async (habitId: string) => {
+  const { error } = await supabase
+    .from("habits")
+    .delete()
+    .eq("id", habitId);
 
-    if (error) {
-      console.error("Error deleting habit:", error);
-      throw error;
-    }
-  } catch (error) {
-    console.error("Error deleting habit:", error);
+  if (error) {
     throw error;
   }
 };
