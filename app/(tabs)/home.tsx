@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  View,
-} from "react-native";
+import { SafeAreaView, Text, StyleSheet, ScrollView, View } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import {
@@ -20,17 +13,8 @@ import { fetchUserHabits, fetchUserChallenges } from "@/src/service/apiService";
 import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
 import EmptyChallengeCard from "@/components/EmptyChallengeCard";
 import CalendarCarousel from "@/components/HomeScreen/CalendarCarousel";
-import { getLocale, t } from "@/src/service/translateService";
-import {
-  format,
-  isToday,
-  isTomorrow,
-  isYesterday,
-  isAfter,
-  isBefore,
-  parseISO,
-  isSameDay,
-} from "date-fns";
+import { t } from "@/src/service/translateService";
+import { format, isAfter, isBefore, parseISO, isSameDay } from "date-fns";
 import { Colors } from "@/constants/Colors";
 import type {
   HabitData,
@@ -39,9 +23,14 @@ import type {
 import AddHabitModal from "@/components/modals/AddHabitModal";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import HabitCard from "@/components/HomeScreen/HabitCard";
+import { dateFormat } from "@/constants/Constants";
+import {
+  getChallengeDayLabel,
+  getTitle,
+} from "@/components/HomeScreen/methods/methods";
+import Loading from "@/components/Commons/Loading";
 
 export default function HomeScreen() {
-  const locale = getLocale();
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
   const habits = useSelector(selectHabits);
@@ -55,43 +44,25 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const loadData = async () => {
-      if (userId) {
-        try {
-          dispatch(setLoading(true));
-          const habitsData = await fetchUserHabits(userId);
-          dispatch(setHabits(habitsData));
-        } catch (error) {
-          console.error("Error loading data:", error);
-        } finally {
-          dispatch(setLoading(false));
-        }
+      if (!userId) return;
+
+      try {
+        dispatch(setLoading(true));
+        const [habitsData, challengesData] = await Promise.all([
+          fetchUserHabits(userId),
+          fetchUserChallenges(userId),
+        ]);
+        dispatch(setHabits(habitsData));
+        dispatch(setChallenges(challengesData));
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        dispatch(setLoading(false));
       }
     };
 
     loadData();
   }, [userId, dispatch]);
-
-  useEffect(() => {
-    const loadChallenges = async () => {
-      if (userId) {
-        try {
-          const challengesData = await fetchUserChallenges(userId);
-          dispatch(setChallenges(challengesData));
-        } catch (error) {
-          console.error("Error loading challenges:", error);
-        }
-      }
-    };
-
-    loadChallenges();
-  }, [userId, dispatch]);
-
-  const getTitle = () => {
-    if (isToday(selectedDate)) return t("today");
-    if (isTomorrow(selectedDate)) return t("tomorrow");
-    if (isYesterday(selectedDate)) return t("yesterday");
-    return format(selectedDate, "d MMMM", { locale });
-  };
 
   const handleAddHabit = () => {
     setIsAddHabitModalVisible(true);
@@ -124,22 +95,13 @@ export default function HomeScreen() {
   });
 
   if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ScreenWrapper>
-          <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color={Colors.PrimaryPink} />
-            <Text style={styles.loadingText}>{t("loading")}</Text>
-          </View>
-        </ScreenWrapper>
-      </SafeAreaView>
-    );
+    return <Loading />;
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <ScreenWrapper>
-        <Text style={styles.selectedDateText}>{getTitle()}</Text>
+        <Text style={styles.selectedDateText}>{getTitle(selectedDate)}</Text>
         <CalendarCarousel
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
@@ -148,54 +110,53 @@ export default function HomeScreen() {
         {emptyChallenges.length > 0 && activeHabits.length !== 0 && (
           <EmptyChallengeCard onPress={handleAddHabit} />
         )}
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={{ marginTop: 20 }}
+        >
           {activeHabits.length === 0 && <EmptyHabitsList />}
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {/* Jeśli nie ma żadnych aktywnych habitów */}
-            {activeHabits.length === 0 && <EmptyHabitsList />}
 
-            {/* Wyświetl habity przypisane do wyzwań */}
-            {challenges.map((challenge: Challenge) => {
-              const habitsInChallenge = activeHabits.filter(
-                (habit) => habit.challengeId === challenge.id
-              );
+          {challenges.map((challenge: Challenge) => {
+            const habitsInChallenge = activeHabits.filter(
+              (habit) => habit.challengeId === challenge.id
+            );
 
-              if (habitsInChallenge.length === 0) return null;
+            if (habitsInChallenge.length === 0) return null;
 
-              return (
-                <View key={challenge.id} style={{ marginBottom: 20 }}>
-                  <Text
-                    style={styles.sectionTitle}
-                  >{`Wyzwanie: ${challenge.name}`}</Text>
-                  {habitsInChallenge.map((habit) => (
-                    <HabitCard
-                      key={habit.id}
-                      habit={habit}
-                      selectedDate={format(selectedDate, "yyyy-MM-dd")}
-                      onEdit={handleEditHabit}
-                    />
-                  ))}
-                </View>
-              );
-            })}
-
-            {/* Pozostałe habity bez challengeId */}
-            {activeHabits.some((habit) => !habit.challengeId) && (
-              <View style={{ marginBottom: 20 }}>
-                <Text style={styles.sectionTitle}>Pozostałe</Text>
-                {activeHabits
-                  .filter((habit) => !habit.challengeId)
-                  .map((habit) => (
-                    <HabitCard
-                      key={habit.id}
-                      habit={habit}
-                      selectedDate={format(selectedDate, "yyyy-MM-dd")}
-                      onEdit={handleEditHabit}
-                    />
-                  ))}
+            return (
+              <View key={challenge.id} style={{ marginBottom: 20 }}>
+                <Text style={styles.sectionTitle}>
+                  {`${t("challenge_title")} ${
+                    challenge.name
+                  } (${getChallengeDayLabel(challenge, selectedDate)})`}
+                </Text>
+                {habitsInChallenge.map((habit) => (
+                  <HabitCard
+                    key={habit.id}
+                    habit={habit}
+                    selectedDate={format(selectedDate, dateFormat)}
+                    onEdit={handleEditHabit}
+                  />
+                ))}
               </View>
-            )}
-          </ScrollView>
+            );
+          })}
+
+          {activeHabits.some((habit) => !habit.challengeId) && (
+            <View style={{ marginBottom: 20 }}>
+              <Text style={styles.sectionTitle}>{t("other_habits")}</Text>
+              {activeHabits
+                .filter((habit) => !habit.challengeId)
+                .map((habit) => (
+                  <HabitCard
+                    key={habit.id}
+                    habit={habit}
+                    selectedDate={format(selectedDate, dateFormat)}
+                    onEdit={handleEditHabit}
+                  />
+                ))}
+            </View>
+          )}
         </ScrollView>
         <AddHabitModal
           isVisible={isAddHabitModalVisible}
@@ -218,16 +179,6 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     fontSize: 18,
     fontWeight: "600",
-    color: Colors.PrimaryGray,
-  },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
     color: Colors.PrimaryGray,
   },
   sectionTitle: {

@@ -49,7 +49,7 @@ export default function EmptyChallengeCard({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 20,
+    marginBottom: 20,
     borderRadius: 10,
     overflow: "hidden",
   },

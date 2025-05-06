@@ -62,5 +62,11 @@
   "delete_habit_description": "Jeśli go usuniesz, zniknie również jego historia. Jeśli chcesz żeby nawyk nie pojawiał się dzisiaj lub w przyszłych dniach, zmień jego datę zakończenia.",
   "delete": "Usuń",
   "edit": "Edytuj",
-  "loading": "Ładowanie..."
+  "loading": "Ładowanie...",
+  "challenge_title": "Wyzwanie:",
+  "other_habits": "Pozostałe",
+  "starts_in": "Rozpocznie się za",
+  "days": "dni",
+  "day": "Dzień",
+  "completed": "Zakończone"
 }
