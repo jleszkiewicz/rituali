@@ -11,10 +11,9 @@ import {
 import { setChallenges, selectChallenges } from "@/src/store/challengesSlice";
 import { fetchUserHabits, fetchUserChallenges } from "@/src/service/apiService";
 import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
-import EmptyChallengeCard from "@/components/EmptyChallengeCard";
 import CalendarCarousel from "@/components/HomeScreen/CalendarCarousel";
 import { t } from "@/src/service/translateService";
-import { format, isAfter, isBefore, parseISO, isSameDay } from "date-fns";
+import { format } from "date-fns";
 import { Colors } from "@/constants/Colors";
 import type {
   HabitData,
@@ -64,10 +63,6 @@ export default function HomeScreen() {
     loadData();
   }, [userId, dispatch]);
 
-  const handleAddHabit = () => {
-    setIsAddHabitModalVisible(true);
-  };
-
   const handleEditHabit = (habit: HabitData) => {
     setEditingHabit(habit);
     setIsAddHabitModalVisible(true);
@@ -78,20 +73,13 @@ export default function HomeScreen() {
     setEditingHabit(undefined);
   };
 
-  const emptyChallenges = challenges.filter(
-    (challenge: Challenge) =>
-      !habits.some((habit: HabitData) => habit.challengeId === challenge.id)
-  );
-
   const activeHabits = habits.filter((habit: HabitData) => {
-    if (!habit.startDate || !habit.endDate) return false;
-    const startDate = parseISO(habit.startDate);
-    const endDate = parseISO(habit.endDate);
-    return (
-      (isBefore(startDate, selectedDate) ||
-        isSameDay(startDate, selectedDate)) &&
-      (isAfter(endDate, selectedDate) || isSameDay(endDate, selectedDate))
-    );
+    if (habit.status === "deleted" && habit.endDate) {
+      return new Date(habit.endDate) > selectedDate;
+    }
+    if (habit.status === "active") {
+      return new Date(habit.startDate) <= selectedDate;
+    }
   });
 
   if (isLoading) {
@@ -106,14 +94,7 @@ export default function HomeScreen() {
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
         />
-
-        {emptyChallenges.length > 0 && activeHabits.length !== 0 && (
-          <EmptyChallengeCard onPress={handleAddHabit} />
-        )}
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          style={{ marginTop: 20 }}
-        >
+        <ScrollView showsVerticalScrollIndicator={false}>
           {activeHabits.length === 0 && <EmptyHabitsList />}
 
           {challenges.map((challenge: Challenge) => {

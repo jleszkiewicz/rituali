@@ -95,7 +95,7 @@ const CalendarCarousel = ({ selectedDate, setSelectedDate }: Props) => {
         offset: ITEM_WIDTH * index,
         index,
       })}
-      style={{ flexGrow: 0 }}
+      style={{ flexGrow: 0, marginBottom: 20 }}
       onMomentumScrollEnd={onMomentumScrollEnd}
       initialScrollIndex={initialScrollIndex}
       removeClippedSubviews={true}

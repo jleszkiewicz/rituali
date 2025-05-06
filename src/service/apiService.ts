@@ -15,6 +15,7 @@ const mapHabitFromDb = (dbHabit: any): HabitData => ({
   isPartOfChallenge: dbHabit.is_part_of_challenge,
   startDate: dbHabit.start_date,
   endDate: dbHabit.end_date,
+  status: dbHabit.status,
 });
 
 const mapHabitToDb = (habit: HabitData): any => ({
@@ -27,6 +28,7 @@ const mapHabitToDb = (habit: HabitData): any => ({
   is_part_of_challenge: habit.isPartOfChallenge,
   start_date: habit.startDate,
   end_date: habit.endDate,
+  status: habit.status,
 });
 
 export const fetchUserHabits = async (userId: string | null): Promise<HabitData[]> => {
@@ -43,9 +45,7 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
       throw error;
     }
 
-    console.log("Raw habits from database:", data);
     const mappedHabits = data.map(mapHabitFromDb);
-    console.log("Mapped habits:", mappedHabits);
     return mappedHabits;
   } catch (error) {
     console.error("Error fetching user habits:", error);
@@ -89,8 +89,9 @@ export const addHabit = async (userId: string | null, habit: HabitData) => {
     completion_dates: habit.completionDates,
     category: habit.category,
     is_part_of_challenge: habit.isPartOfChallenge,
-    start_date: habit.startDate,
-    end_date: habit.endDate,
+    start_date: new Date().toISOString(),
+    end_date: null,
+    status: habit.status,
   };
 
   const { data, error } = await supabase
@@ -110,7 +111,6 @@ export const addChallenge = async (userId: string, challenge: ChallengeData) => 
   const dbChallenge = {
     user_id: userId,
     name: challenge.name,
-    description: challenge.description,
     start_date: new Date(challenge.startDate).toISOString(),
     end_date: new Date(challenge.endDate).toISOString(),
   };
@@ -128,7 +128,6 @@ export const addChallenge = async (userId: string, challenge: ChallengeData) => 
   return data.map((challenge: any) => ({
     id: challenge.id,
     name: challenge.name,
-    description: challenge.description,
     startDate: new Date(challenge.start_date).toISOString(),
     endDate: new Date(challenge.end_date).toISOString(),
   }));
@@ -152,30 +151,6 @@ export const updateHabitCompletion = async (habitId: string, completionDates: st
   }
 };
 
-export const createHabit = async (userId: string, habit: Omit<HabitData, "id">): Promise<HabitData> => {
-  try {
-    const dbHabit = {
-      user_id: userId,
-      ...mapHabitToDb(habit as HabitData),
-    };
-
-    const { data, error } = await supabase
-      .from("habits")
-      .insert([dbHabit])
-      .select();
-
-    if (error) {
-      console.error("Error creating habit:", error);
-      throw error;
-    }
-
-    return mapHabitFromDb(data[0]);
-  } catch (error) {
-    console.error("Error creating habit:", error);
-    throw error;
-  }
-};
-
 export const updateHabit = async (habitId: string, habit: Omit<HabitData, "id">): Promise<HabitData> => {
   try {
     const dbHabit = mapHabitToDb(habit as HabitData);
@@ -194,75 +169,6 @@ export const updateHabit = async (habitId: string, habit: Omit<HabitData, "id">)
     return mapHabitFromDb(data[0]);
   } catch (error) {
     console.error("Error updating habit:", error);
-    throw error;
-  }
-};
-
-export const getHabits = async (userId: string): Promise<HabitData[]> => {
-  try {
-    const { data, error } = await supabase
-      .from("habits")
-      .select("*")
-      .eq("user_id", userId);
-
-    if (error) {
-      console.error("Error fetching habits:", error);
-      throw error;
-    }
-
-    return data.map(mapHabitFromDb);
-  } catch (error) {
-    console.error("Error fetching habits:", error);
-    throw error;
-  }
-};
-
-export const deleteHabit = async (habitId: string) => {
-  const { error } = await supabase
-    .from("habits")
-    .delete()
-    .eq("id", habitId);
-
-  if (error) {
-    throw error;
-  }
-};
-
-export const toggleHabitCompletion = async (habitId: string, date: Date): Promise<HabitData> => {
-  try {
-    const { data: habit, error: fetchError } = await supabase
-      .from("habits")
-      .select("*")
-      .eq("id", habitId)
-      .single();
-
-    if (fetchError) {
-      console.error("Error fetching habit:", fetchError);
-      throw fetchError;
-    }
-
-    const completionDates = habit.completion_dates || [];
-    const dateString = date.toISOString();
-    const isCompleted = completionDates.includes(dateString);
-
-    const updatedCompletionDates = isCompleted
-      ? completionDates.filter((d: string) => d !== dateString)
-      : [...completionDates, dateString];
-
-    const { data, error } = await supabase
-      .from("habits")
-      .update({ completion_dates: updatedCompletionDates })
-      .eq("id", habitId)
-      .select();
-
-    if (error) {
-      console.error("Error updating habit completion:", error);
-      throw error;
-    }
-
-    return mapHabitFromDb(data[0]);
-  } catch (error) {
-    console.error("Error toggling habit completion:", error);
     throw error;
   }
 };

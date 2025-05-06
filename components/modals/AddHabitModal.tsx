@@ -11,15 +11,20 @@ import {
 import { Colors } from "@/constants/Colors";
 import DaySelector from "../AddHabitModal/DaySelector";
 import FrequencySelector from "../AddHabitModal/FrequencySelector";
-import DateSelector from "../AddHabitModal/DateSelector";
 import ChallengeSelector from "../AddHabitModal/ChallengeSelector";
-import { Frequency, HabitCategory, HabitData } from "../AddHabitModal/types";
+import {
+  Frequency,
+  HabitCategory,
+  HabitData,
+  HabitStatus,
+} from "../AddHabitModal/types";
 import { useTranslation } from "react-i18next";
 import { addHabit, updateHabit } from "@/src/service/apiService";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
-import { selectHabits, setHabits } from "@/src/store/habitsSlice";
+import { setHabits } from "@/src/store/habitsSlice";
 import { fetchUserHabits } from "@/src/service/apiService";
+import CategoriesSelector from "../AddHabitModal/CategoriesSelector";
 
 interface AddHabitModalProps {
   isVisible: boolean;
@@ -29,7 +34,6 @@ interface AddHabitModalProps {
 
 const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
   const dispatch = useDispatch();
-  const habits = useSelector(selectHabits);
   const habitDataInitialState = {
     id: "",
     name: "",
@@ -38,9 +42,10 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
     challengeId: null,
     category: "other" as HabitCategory,
     isPartOfChallenge: false,
-    startDate: "01.01.2025",
-    endDate: "01.01.2025",
+    startDate: new Date().toISOString(),
+    endDate: null,
     completionDates: [],
+    status: "active" as HabitStatus,
   };
   const { t } = useTranslation();
   const userId = useSelector(selectUserId);
@@ -49,36 +54,25 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
   );
   const [errors, setErrors] = useState<{
     name: string;
-    category: string;
     challenge?: string;
     selectedDays?: string;
   }>({
     name: "",
-    category: "",
   });
-  const [isCategoryExpanded, setIsCategoryExpanded] = useState(false);
 
   useEffect(() => {
+    const today = new Date();
     if (habit) {
-      const startDate = new Date(habit.startDate);
-      const endDate = new Date(habit.endDate);
-
-      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        console.error("Invalid dates in habit:", habit);
-        return;
-      }
-
       setHabitData({
         ...habit,
-        startDate: startDate.toISOString().split("T")[0],
-        endDate: endDate.toISOString().split("T")[0],
+        startDate: today.toISOString().split("T")[0],
+        endDate: null,
       });
     } else {
-      const today = new Date();
       setHabitData({
         ...habitDataInitialState,
         startDate: today.toISOString().split("T")[0],
-        endDate: today.toISOString().split("T")[0],
+        endDate: null,
       });
     }
   }, [habit]);
@@ -86,17 +80,12 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
   const validateForm = () => {
     const newErrors = {
       name: "",
-      category: "",
       challenge: "",
       selectedDays: "",
     };
 
     if (!habitData.name.trim()) {
       newErrors.name = t("habit_name_required");
-    }
-
-    if (!habitData.category) {
-      newErrors.category = t("category_required");
     }
 
     if (
@@ -111,12 +100,7 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
     }
 
     setErrors(newErrors);
-    return (
-      !newErrors.name &&
-      !newErrors.category &&
-      !newErrors.selectedDays &&
-      !newErrors.challenge
-    );
+    return !newErrors.name && !newErrors.selectedDays && !newErrors.challenge;
   };
 
   const handleSubmit = async () => {
@@ -126,18 +110,13 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
       if (habit) {
         await updateHabit(habit.id, {
           ...habitData,
-          startDate: new Date(habitData.startDate).toISOString().split("T")[0],
-          endDate: new Date(habitData.endDate).toISOString().split("T")[0],
         });
       } else {
         await addHabit(userId, {
           ...habitData,
-          startDate: new Date(habitData.startDate).toISOString().split("T")[0],
-          endDate: new Date(habitData.endDate).toISOString().split("T")[0],
         });
       }
 
-      // Pobierz najnowsze dane z serwera
       const updatedHabits = await fetchUserHabits(userId);
       dispatch(setHabits(updatedHabits));
 
@@ -172,9 +151,10 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
             <TextInput
               style={[styles.input, errors.name ? styles.inputError : null]}
               value={habitData.name}
-              onChangeText={(text) =>
-                setHabitData({ ...habitData, name: text })
-              }
+              onChangeText={(text) => {
+                setHabitData({ ...habitData, name: text });
+                setErrors({ ...errors, name: "" });
+              }}
               placeholder={t("habit_name")}
             />
             {errors.name ? (
@@ -182,100 +162,12 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
             ) : null}
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>{t("category")}</Text>
-            <TouchableOpacity
-              style={[
-                styles.dropdownHeader,
-                errors.category ? styles.inputError : null,
-              ]}
-              onPress={() => setIsCategoryExpanded(!isCategoryExpanded)}
-            >
-              <Text style={styles.dropdownHeaderText}>
-                {habitData.category
-                  ? t(`category_${habitData.category}`)
-                  : t("select_category")}
-              </Text>
-              <Text style={styles.dropdownArrow}>
-                {isCategoryExpanded ? "▲" : "▼"}
-              </Text>
-            </TouchableOpacity>
-
-            {isCategoryExpanded && (
-              <ScrollView style={styles.dropdownContent}>
-                <TouchableOpacity
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setHabitData({ ...habitData, category: "health" });
-                    setIsCategoryExpanded(false);
-                  }}
-                >
-                  <Text>{t("category_health")}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setHabitData({ ...habitData, category: "fitness" });
-                    setIsCategoryExpanded(false);
-                  }}
-                >
-                  <Text>{t("category_fitness")}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setHabitData({ ...habitData, category: "beauty" });
-                    setIsCategoryExpanded(false);
-                  }}
-                >
-                  <Text>{t("category_beauty")}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setHabitData({ ...habitData, category: "mindfulness" });
-                    setIsCategoryExpanded(false);
-                  }}
-                >
-                  <Text>{t("category_mindfulness")}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setHabitData({ ...habitData, category: "education" });
-                    setIsCategoryExpanded(false);
-                  }}
-                >
-                  <Text>{t("category_education")}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setHabitData({
-                      ...habitData,
-                      category: "self-development",
-                    });
-                    setIsCategoryExpanded(false);
-                  }}
-                >
-                  <Text>{t("category_self-development")}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setHabitData({ ...habitData, category: "other" });
-                    setIsCategoryExpanded(false);
-                  }}
-                >
-                  <Text>{t("category_other")}</Text>
-                </TouchableOpacity>
-              </ScrollView>
-            )}
-
-            {errors.category ? (
-              <Text style={styles.errorText}>{errors.category}</Text>
-            ) : null}
-          </View>
+          <CategoriesSelector
+            onCategoryChange={(category) => {
+              setHabitData({ ...habitData, category });
+            }}
+            initialCategory={habitData.category}
+          />
 
           <ChallengeSelector
             isPartOfChallenge={habitData.isPartOfChallenge}
@@ -312,31 +204,6 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
             </>
           )}
 
-          <DateSelector
-            label={t("start_date")}
-            date={new Date(habitData.startDate)}
-            onDateChange={(date) =>
-              setHabitData((prev) => ({
-                ...prev,
-                startDate: date.toISOString().split("T")[0],
-              }))
-            }
-            minDate={new Date()}
-            maxDate={new Date(habitData.endDate)}
-          />
-
-          <DateSelector
-            label={t("end_date")}
-            date={new Date(habitData.endDate)}
-            onDateChange={(date) =>
-              setHabitData((prev) => ({
-                ...prev,
-                endDate: date.toISOString().split("T")[0],
-              }))
-            }
-            minDate={new Date(habitData.startDate)}
-          />
-
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
@@ -367,14 +234,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 20,
+    padding: 40,
     width: "100%",
     maxHeight: "90%",
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 40,
     textAlign: "center",
   },
   inputContainer: {
@@ -393,39 +260,6 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 16,
   },
-  dropdownHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-    borderWidth: 1,
-    borderColor: Colors.Gray,
-    borderRadius: 5,
-    marginBottom: 5,
-  },
-  dropdownHeaderText: {
-    fontSize: 16,
-  },
-  dropdownArrow: {
-    fontSize: 12,
-  },
-  dropdownContent: {
-    position: "absolute",
-    top: "100%",
-    left: 0,
-    right: 0,
-    backgroundColor: Colors.White,
-    maxHeight: 200,
-    borderWidth: 1,
-    borderColor: Colors.Gray,
-    borderRadius: 5,
-    zIndex: 2,
-  },
-  dropdownItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.Gray,
-  },
   inputError: {
     borderColor: Colors.PrimaryRed,
   },
@@ -436,13 +270,13 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     marginVertical: 20,
   },
   button: {
     padding: 10,
     borderRadius: 5,
-    minWidth: 120,
+    minWidth: "40%",
     alignItems: "center",
   },
   cancelButton: {

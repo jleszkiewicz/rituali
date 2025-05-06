@@ -31,33 +31,50 @@ export default function AddChallengeModal({
     startDate: new Date(),
     endDate: new Date(),
   });
+  const [durationDays, setDurationDays] = useState("30");
   const [errors, setErrors] = useState({
     name: "",
+    durationDays: "",
   });
 
   const validateForm = () => {
     const newErrors = {
       name: "",
+      durationDays: "",
     };
 
     if (!challengeData.name.trim()) {
       newErrors.name = t("challenge_name_required");
     }
 
+    const days = parseInt(durationDays);
+    if (!days || days < 1 || days > 1000) {
+      newErrors.durationDays = t("duration_days_required");
+    }
+
     setErrors(newErrors);
-    return !newErrors.name;
+    return !newErrors.name && !newErrors.durationDays;
   };
 
   const handleSubmit = async () => {
     if (!validateForm() || !userId) return;
 
     try {
-      await addChallenge(userId, challengeData);
+      const days = parseInt(durationDays);
+      const endDate = new Date(challengeData.startDate);
+      endDate.setDate(endDate.getDate() + days - 1);
+
+      await addChallenge(userId, {
+        ...challengeData,
+        endDate,
+      });
+
       setChallengeData({
         name: "",
         startDate: new Date(),
         endDate: new Date(),
       });
+      setDurationDays("30");
       onClose();
     } catch (error) {
       console.error("Error adding challenge:", error);
@@ -68,10 +85,10 @@ export default function AddChallengeModal({
     <Modal
       visible={isVisible}
       transparent
-      animationType="fade"
+      animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
+      <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.title}>{t("add_challenge")}</Text>
 
@@ -80,9 +97,10 @@ export default function AddChallengeModal({
             <TextInput
               style={[styles.input, errors.name ? styles.inputError : null]}
               value={challengeData.name}
-              onChangeText={(text) =>
-                setChallengeData({ ...challengeData, name: text })
-              }
+              onChangeText={(text) => {
+                setChallengeData({ ...challengeData, name: text });
+                setErrors({ ...errors, name: "" });
+              }}
               placeholder={t("challenge_name")}
             />
             {errors.name ? (
@@ -100,14 +118,32 @@ export default function AddChallengeModal({
             maxDate={challengeData.endDate}
           />
 
-          <DateSelector
-            label={t("end_date")}
-            date={challengeData.endDate}
-            onDateChange={(date) =>
-              setChallengeData({ ...challengeData, endDate: date })
-            }
-            minDate={challengeData.startDate}
-          />
+          <View style={styles.numberInputContainer}>
+            <Text style={styles.label}>{t("duration_days")}</Text>
+            <TextInput
+              style={[
+                styles.input,
+                errors.durationDays ? styles.inputError : null,
+              ]}
+              value={durationDays}
+              onChangeText={(text) => {
+                const number = parseInt(text);
+                if (!isNaN(number) && number >= 1 && number <= 1000) {
+                  setDurationDays(text);
+                  const endDate = new Date(challengeData.startDate);
+                  endDate.setDate(endDate.getDate() + number - 1);
+                  setChallengeData({ ...challengeData, endDate });
+                  setErrors({ ...errors, durationDays: "" });
+                } else if (text === "") {
+                  setDurationDays(text);
+                }
+              }}
+              keyboardType="numeric"
+            />
+          </View>
+          {errors.durationDays ? (
+            <Text style={styles.errorText}>{errors.durationDays}</Text>
+          ) : null}
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity
@@ -130,27 +166,32 @@ export default function AddChallengeModal({
 }
 
 const styles = StyleSheet.create({
-  overlay: {
+  modalContainer: {
     flex: 1,
+    justifyContent: "flex-end",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
   },
   modalContent: {
     backgroundColor: Colors.White,
-    borderRadius: 10,
-    padding: 20,
-    width: "80%",
-    maxWidth: 400,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 40,
+    width: "100%",
+    maxHeight: "90%",
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 40,
     textAlign: "center",
   },
   inputContainer: {
     marginBottom: 15,
+  },
+  numberInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   label: {
     fontSize: 16,
@@ -163,6 +204,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     fontSize: 16,
+    minWidth: 60,
   },
   inputError: {
     borderColor: Colors.PrimaryRed,
@@ -175,12 +217,12 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20,
+    marginVertical: 20,
   },
   button: {
     padding: 10,
     borderRadius: 5,
-    minWidth: 100,
+    minWidth: "40%",
     alignItems: "center",
   },
   cancelButton: {

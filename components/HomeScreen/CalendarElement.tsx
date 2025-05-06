@@ -58,6 +58,7 @@ const CalendarElement: React.FC<CalendarElementProps> = ({
 const styles = StyleSheet.create({
   dayContainer: {
     alignItems: "center",
+    marginBottom: 10,
   },
   circle: {
     width: 40,

@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   dateButton: {
     padding: 10,
     borderWidth: 1,
-    borderColor: Colors.PrimaryPink,
+    borderColor: Colors.PrimaryGray,
     borderRadius: 10,
     marginBottom: 10,
   },

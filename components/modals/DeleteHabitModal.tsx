@@ -1,10 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { deleteHabit } from "@/src/service/apiService";
+import { updateHabit, fetchUserHabits } from "@/src/service/apiService";
 import { useDispatch, useSelector } from "react-redux";
 import { selectHabits, setHabits } from "@/src/store/habitsSlice";
 import { t } from "@/src/service/translateService";
+import { HabitStatus } from "../AddHabitModal/types";
+import { selectUserId } from "@/src/store/userSlice";
 
 interface DeleteHabitModalProps {
   isVisible: boolean;
@@ -19,12 +21,24 @@ const DeleteHabitModal = ({
 }: DeleteHabitModalProps) => {
   const dispatch = useDispatch();
   const habits = useSelector(selectHabits);
+  const userId = useSelector(selectUserId);
 
   const handleDelete = async () => {
     try {
-      await deleteHabit(habitId);
-      const updatedHabits = habits.filter((habit) => habit.id !== habitId);
-      dispatch(setHabits(updatedHabits));
+      const habitToUpdate = habits.find((h) => h.id === habitId);
+
+      if (habitToUpdate && userId) {
+        const updatedHabit = {
+          ...habitToUpdate,
+          status: "deleted" as HabitStatus,
+          endDate: new Date().toISOString(),
+        };
+        await updateHabit(habitId, updatedHabit);
+
+        // Fetch fresh habits from the server
+        const updatedHabits = await fetchUserHabits(userId);
+        dispatch(setHabits(updatedHabits));
+      }
       onClose();
     } catch (error) {
       console.error("Error deleting habit:", error);

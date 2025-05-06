@@ -68,5 +68,7 @@
   "starts_in": "Rozpocznie się za",
   "days": "dni",
   "day": "Dzień",
-  "completed": "Zakończone"
+  "completed": "Zakończone",
+  "duration_days": "Ile dni trwa wyzwanie",
+  "duration_days_required": "Wybierz liczbę dni od 1 do 1000"
 }

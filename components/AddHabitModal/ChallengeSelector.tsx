@@ -66,7 +66,7 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
   return (
     <>
       <View style={styles.switchContainer}>
-        <Text>{t("part_of_challenge")}</Text>
+        <Text style={styles.switchText}>{t("part_of_challenge")}</Text>
         <Switch
           value={isPartOfChallenge}
           onValueChange={(value) => {
@@ -170,6 +170,9 @@ const styles = StyleSheet.create({
     padding: 10,
     textAlign: "center",
     color: Colors.PrimaryGray,
+  },
+  switchText: {
+    fontSize: 16,
   },
 });
 
