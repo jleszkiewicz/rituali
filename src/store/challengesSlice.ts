@@ -1,8 +1,8 @@
-import { Challenge } from '@/components/AddHabitModal/types';
+import { ChallengeData } from '@/components/AddChallengeModal/types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface ChallengesState {
-  challenges: Challenge[];
+  challenges: ChallengeData[];
   isLoading: boolean;
   error: string | null;
 }
@@ -17,7 +17,7 @@ const challengesSlice = createSlice({
   name: 'challenges',
   initialState,
   reducers: {
-    setChallenges: (state, action: PayloadAction<Challenge[]>) => {
+    setChallenges: (state, action: PayloadAction<ChallengeData[]>) => {
       state.challenges = action.payload;
       state.isLoading = false;
       state.error = null;

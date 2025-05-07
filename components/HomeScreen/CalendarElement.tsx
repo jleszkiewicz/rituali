@@ -1,11 +1,10 @@
 import React from "react";
 import { TouchableOpacity, Text, View, StyleSheet } from "react-native";
 import { format } from "date-fns";
-import { useTranslation } from "react-i18next";
 import { getLocale } from "@/src/service/translateService";
 import { Colors } from "../../constants/Colors";
 import { dateFormat } from "@/constants/Constants";
-
+import { t } from "@/src/service/translateService";
 interface CalendarElementProps {
   item: Date;
   selectedDate: Date;
@@ -19,8 +18,7 @@ const CalendarElement: React.FC<CalendarElementProps> = ({
   itemWidth,
   setSelectedDate,
 }) => {
-  const { t, i18n } = useTranslation();
-  const locale = getLocale(i18n.language);
+  const locale = getLocale();
 
   const isSelected =
     format(item, dateFormat) === format(selectedDate, dateFormat);

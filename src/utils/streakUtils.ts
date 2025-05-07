@@ -75,3 +75,4 @@ export const calculateStreak = (
 
   return streak;
 };
+ 

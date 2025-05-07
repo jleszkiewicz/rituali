@@ -12,10 +12,9 @@ import { AppRoutes } from "@/src/routes/AppRoutes";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
 import { AuthRoutes } from "@/src/routes/AuthRoutes";
-import { useTranslation } from "react-i18next";
+import { t } from "@/src/service/translateService";
 
 export default function LoginScreen() {
-  const { t } = useTranslation();
   const { login, isLoading } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");

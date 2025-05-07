@@ -4,15 +4,6 @@ export type HabitCategory = "health" | "fitness" | "beauty" | "mindfulness" | "e
 
 export type HabitStatus = "active" | "deleted";
 
-export interface Challenge {
-  id: string;
-  name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  isActive: boolean;
-}
-
 export interface HabitData {
   id: string;
   name: string;
@@ -23,6 +14,6 @@ export interface HabitData {
   selectedDays: string[];
   completionDates: string[];
   isPartOfChallenge: boolean;
-  challengeId: string | null;
+  challenges: string[];
   status: HabitStatus;
 } 

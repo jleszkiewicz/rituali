@@ -70,5 +70,8 @@
   "day": "Dzień",
   "completed": "Zakończone",
   "duration_days": "Ile dni trwa wyzwanie",
-  "duration_days_required": "Wybierz liczbę dni od 1 do 1000"
+  "duration_days_required": "Wybierz liczbę dni od 1 do 1000",
+  "select_habits": "Wybierz nawyki",
+  "habits_selected": "Wybrane nawyki",
+  "select_at_least_one_habit": "Wybierz przynajmniej jeden nawyk"
 }

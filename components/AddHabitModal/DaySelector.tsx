@@ -4,7 +4,6 @@ import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
 import { format } from "date-fns";
 import { getLocale } from "@/src/service/translateService";
-import { useTranslation } from "react-i18next";
 
 interface DaySelectorProps {
   selectedDays: string[];
@@ -15,8 +14,7 @@ const DaySelector: React.FC<DaySelectorProps> = ({
   selectedDays,
   onToggleDay,
 }) => {
-  const { i18n } = useTranslation();
-  const locale = getLocale(i18n.language);
+  const locale = getLocale();
 
   const getDayName = (day: number) => {
     const date = new Date();

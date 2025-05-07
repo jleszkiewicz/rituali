@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, Text, StyleSheet, ScrollView, View } from "react-native";
+import { SafeAreaView, Text, StyleSheet, ScrollView } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import {
@@ -8,32 +8,24 @@ import {
   setLoading,
   selectHabitsLoading,
 } from "@/src/store/habitsSlice";
-import { setChallenges, selectChallenges } from "@/src/store/challengesSlice";
+import { setChallenges } from "@/src/store/challengesSlice";
 import { fetchUserHabits, fetchUserChallenges } from "@/src/service/apiService";
 import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
 import CalendarCarousel from "@/components/HomeScreen/CalendarCarousel";
-import { t } from "@/src/service/translateService";
 import { format } from "date-fns";
 import { Colors } from "@/constants/Colors";
-import type {
-  HabitData,
-  Challenge,
-} from "../../components/AddHabitModal/types";
+import type { HabitData } from "../../components/AddHabitModal/types";
 import AddHabitModal from "@/components/modals/AddHabitModal";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import HabitCard from "@/components/HomeScreen/HabitCard";
 import { dateFormat } from "@/constants/Constants";
-import {
-  getChallengeDayLabel,
-  getTitle,
-} from "@/components/HomeScreen/methods/methods";
+import { getTitle } from "@/components/HomeScreen/methods/methods";
 import Loading from "@/components/Commons/Loading";
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
   const habits = useSelector(selectHabits);
-  const challenges = useSelector(selectChallenges);
   const isLoading = useSelector(selectHabitsLoading);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
@@ -73,14 +65,16 @@ export default function HomeScreen() {
     setEditingHabit(undefined);
   };
 
-  const activeHabits = habits.filter((habit: HabitData) => {
-    if (habit.status === "deleted" && habit.endDate) {
-      return new Date(habit.endDate) > selectedDate;
-    }
-    if (habit.status === "active") {
-      return new Date(habit.startDate) <= selectedDate;
-    }
-  });
+  const activeHabits = habits
+    .filter((habit: HabitData) => {
+      if (habit.status === "deleted" && habit.endDate) {
+        return new Date(habit.endDate) > selectedDate;
+      }
+      if (habit.status === "active") {
+        return new Date(habit.startDate) <= selectedDate;
+      }
+    })
+    .sort((a: HabitData, b: HabitData) => a.name.localeCompare(b.name));
 
   if (isLoading) {
     return <Loading />;
@@ -97,47 +91,14 @@ export default function HomeScreen() {
         <ScrollView showsVerticalScrollIndicator={false}>
           {activeHabits.length === 0 && <EmptyHabitsList />}
 
-          {challenges.map((challenge: Challenge) => {
-            const habitsInChallenge = activeHabits.filter(
-              (habit) => habit.challengeId === challenge.id
-            );
-
-            if (habitsInChallenge.length === 0) return null;
-
-            return (
-              <View key={challenge.id} style={{ marginBottom: 20 }}>
-                <Text style={styles.sectionTitle}>
-                  {`${t("challenge_title")} ${
-                    challenge.name
-                  } (${getChallengeDayLabel(challenge, selectedDate)})`}
-                </Text>
-                {habitsInChallenge.map((habit) => (
-                  <HabitCard
-                    key={habit.id}
-                    habit={habit}
-                    selectedDate={format(selectedDate, dateFormat)}
-                    onEdit={handleEditHabit}
-                  />
-                ))}
-              </View>
-            );
-          })}
-
-          {activeHabits.some((habit) => !habit.challengeId) && (
-            <View style={{ marginBottom: 20 }}>
-              <Text style={styles.sectionTitle}>{t("other_habits")}</Text>
-              {activeHabits
-                .filter((habit) => !habit.challengeId)
-                .map((habit) => (
-                  <HabitCard
-                    key={habit.id}
-                    habit={habit}
-                    selectedDate={format(selectedDate, dateFormat)}
-                    onEdit={handleEditHabit}
-                  />
-                ))}
-            </View>
-          )}
+          {activeHabits.map((habit) => (
+            <HabitCard
+              key={habit.id}
+              habit={habit}
+              selectedDate={format(selectedDate, dateFormat)}
+              onEdit={handleEditHabit}
+            />
+          ))}
         </ScrollView>
         <AddHabitModal
           isVisible={isAddHabitModalVisible}
@@ -161,11 +122,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: Colors.PrimaryGray,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: Colors.PrimaryGray,
-    marginBottom: 10,
   },
 });

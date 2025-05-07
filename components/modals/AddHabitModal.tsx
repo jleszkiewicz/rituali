@@ -6,7 +6,6 @@ import {
   Modal,
   TextInput,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
 import DaySelector from "../AddHabitModal/DaySelector";
@@ -18,13 +17,13 @@ import {
   HabitData,
   HabitStatus,
 } from "../AddHabitModal/types";
-import { useTranslation } from "react-i18next";
 import { addHabit, updateHabit } from "@/src/service/apiService";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import { setHabits } from "@/src/store/habitsSlice";
 import { fetchUserHabits } from "@/src/service/apiService";
 import CategoriesSelector from "../AddHabitModal/CategoriesSelector";
+import { t } from "@/src/service/translateService";
 
 interface AddHabitModalProps {
   isVisible: boolean;
@@ -39,7 +38,7 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
     name: "",
     frequency: "daily" as Frequency,
     selectedDays: [],
-    challengeId: null,
+    challenges: [],
     category: "other" as HabitCategory,
     isPartOfChallenge: false,
     startDate: new Date().toISOString(),
@@ -47,7 +46,6 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
     completionDates: [],
     status: "active" as HabitStatus,
   };
-  const { t } = useTranslation();
   const userId = useSelector(selectUserId);
   const [habitData, setHabitData] = useState<HabitData>(
     habit ? habit : habitDataInitialState
@@ -95,7 +93,7 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
       newErrors.selectedDays = t("select_at_least_one_day");
     }
 
-    if (habitData.isPartOfChallenge && !habitData.challengeId) {
+    if (habitData.isPartOfChallenge && !habitData.challenges.length) {
       newErrors.challenge = t("select_challenge_required");
     }
 
@@ -171,12 +169,12 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
 
           <ChallengeSelector
             isPartOfChallenge={habitData.isPartOfChallenge}
-            challengeId={habitData.challengeId}
-            onChallengeChange={(isPartOfChallenge, challengeId) => {
+            initialChallenges={habitData.challenges}
+            onChallengeChange={(isPartOfChallenge, challenges) => {
               setHabitData((prev) => ({
                 ...prev,
                 isPartOfChallenge,
-                challengeId,
+                challenges,
               }));
               setErrors((prev) => ({ ...prev, challenge: undefined }));
             }}

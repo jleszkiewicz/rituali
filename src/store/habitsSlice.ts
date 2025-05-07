@@ -34,6 +34,8 @@ const habitsSlice = createSlice({
 
 export const { setHabits, addHabit, setLoading, setError } = habitsSlice.actions;
 export const selectHabits = (state: { habits: HabitsState }) => state.habits.habits;
+export const selectActiveHabits = (state: { habits: HabitsState }) => 
+  state.habits.habits.filter(habit => habit.status === 'active');
 export const selectHabitsLoading = (state: { habits: HabitsState }) => state.habits.loading;
 export const selectHabitsError = (state: { habits: HabitsState }) => state.habits.error;
 

@@ -11,10 +11,9 @@ import { useAuth } from "@/src/context/AuthContext";
 import { AppRoutes } from "@/src/routes/AppRoutes";
 import { Colors } from "../../constants/Colors";
 import { AuthRoutes } from "@/src/routes/AuthRoutes";
-import { useTranslation } from "react-i18next";
+import { t } from "@/src/service/translateService";
 
 export default function RegisterScreen() {
-  const { t } = useTranslation();
   const { register } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");

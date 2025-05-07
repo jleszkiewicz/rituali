@@ -22,16 +22,16 @@ import { AppDispatch } from "@/src/store";
 
 interface ChallengeSelectorProps {
   isPartOfChallenge: boolean;
-  challengeId: string | null;
+  initialChallenges: string[];
   onChallengeChange: (
     isPartOfChallenge: boolean,
-    challengeId: string | null
+    selectedChallenges: string[]
   ) => void;
 }
 
 const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
   isPartOfChallenge,
-  challengeId,
+  initialChallenges,
   onChallengeChange,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -63,6 +63,27 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
     }
   };
 
+  const toggleChallenge = (challengeId: string) => {
+    const newSelectedChallenges = initialChallenges.includes(challengeId)
+      ? initialChallenges.filter((id) => id !== challengeId)
+      : [...initialChallenges, challengeId];
+
+    onChallengeChange(true, newSelectedChallenges);
+  };
+
+  const getSelectedChallengesText = () => {
+    if (initialChallenges.length === 0) {
+      return t("select_challenge");
+    }
+
+    const selectedNames = challenges
+      .filter((c) => initialChallenges.includes(c.id))
+      .map((c) => c.name)
+      .join(", ");
+
+    return selectedNames || t("select_challenge");
+  };
+
   return (
     <>
       <View style={styles.switchContainer}>
@@ -70,7 +91,7 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
         <Switch
           value={isPartOfChallenge}
           onValueChange={(value) => {
-            onChallengeChange(value, null);
+            onChallengeChange(value, []);
             if (!value) {
               setIsExpanded(false);
             }
@@ -86,10 +107,7 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
             onPress={toggleDropdown}
           >
             <Text style={styles.dropdownHeaderText}>
-              {challengeId
-                ? challenges.find((c) => c.id === challengeId)?.name ||
-                  t("select_challenge")
-                : t("select_challenge")}
+              {getSelectedChallengesText()}
             </Text>
             <Text style={styles.dropdownArrow}>{isExpanded ? "▲" : "▼"}</Text>
           </TouchableOpacity>
@@ -104,14 +122,20 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
                     key={challenge.id}
                     style={[
                       styles.dropdownItem,
-                      challengeId === challenge.id && styles.selectedChallenge,
+                      initialChallenges.includes(challenge.id) &&
+                        styles.selectedChallenge,
                     ]}
-                    onPress={() => {
-                      onChallengeChange(true, challenge.id);
-                      setIsExpanded(false);
-                    }}
+                    onPress={() => toggleChallenge(challenge.id)}
                   >
-                    <Text>{challenge.name}</Text>
+                    <Text
+                      style={[
+                        styles.dropdownItemText,
+                        initialChallenges.includes(challenge.id) &&
+                          styles.selectedChallengeText,
+                      ]}
+                    >
+                      {challenge.name}
+                    </Text>
                   </TouchableOpacity>
                 ))
               )}
@@ -164,7 +188,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.Gray,
   },
   selectedChallenge: {
-    backgroundColor: Colors.LightPink,
+    backgroundColor: Colors.PrimaryPink,
   },
   noChallenges: {
     padding: 10,
@@ -173,6 +197,13 @@ const styles = StyleSheet.create({
   },
   switchText: {
     fontSize: 16,
+  },
+  dropdownItemText: {
+    fontSize: 14,
+  },
+  selectedChallengeText: {
+    fontWeight: "bold",
+    color: Colors.White,
   },
 });
 

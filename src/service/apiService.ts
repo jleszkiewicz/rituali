@@ -9,7 +9,7 @@ const mapHabitFromDb = (dbHabit: any): HabitData => ({
   name: dbHabit.name,
   frequency: dbHabit.frequency,
   selectedDays: dbHabit.selected_days,
-  challengeId: dbHabit.challenge_id,
+  challenges: dbHabit.challenges,
   completionDates: dbHabit.completion_dates,
   category: dbHabit.category,
   isPartOfChallenge: dbHabit.is_part_of_challenge,
@@ -22,7 +22,7 @@ const mapHabitToDb = (habit: HabitData): any => ({
   name: habit.name,
   frequency: habit.frequency,
   selected_days: habit.selectedDays,
-  challenge_id: habit.challengeId,
+  challenges: habit.challenges,
   completion_dates: habit.completionDates,
   category: habit.category,
   is_part_of_challenge: habit.isPartOfChallenge,
@@ -69,9 +69,10 @@ export const fetchUserChallenges = async (userId: string | null) => {
     return data.map((challenge: any) => ({
       id: challenge.id,
       name: challenge.name,
-      description: challenge.description,
       startDate: new Date(challenge.start_date).toISOString(),
       endDate: new Date(challenge.end_date).toISOString(),
+      habits: challenge.habits,
+      challenges: challenge.challenges,
     }));
   } catch (err) {
     console.error("Error fetching challenges:", err);
@@ -85,7 +86,7 @@ export const addHabit = async (userId: string | null, habit: HabitData) => {
     name: habit.name,
     frequency: habit.frequency,
     selected_days: habit.selectedDays,
-    challenge_id: habit.challengeId,
+    challenges: habit.challenges,
     completion_dates: habit.completionDates,
     category: habit.category,
     is_part_of_challenge: habit.isPartOfChallenge,
@@ -113,6 +114,7 @@ export const addChallenge = async (userId: string, challenge: ChallengeData) => 
     name: challenge.name,
     start_date: new Date(challenge.startDate).toISOString(),
     end_date: new Date(challenge.endDate).toISOString(),
+    habits: challenge.habits,
   };
 
   const { data, error } = await supabase
@@ -130,6 +132,8 @@ export const addChallenge = async (userId: string, challenge: ChallengeData) => 
     name: challenge.name,
     startDate: new Date(challenge.start_date).toISOString(),
     endDate: new Date(challenge.end_date).toISOString(),
+    habits: challenge.habits,
+    challenges: challenge.challenges,
   }));
 };
 

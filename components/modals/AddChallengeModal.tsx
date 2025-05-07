@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Modal, Animated } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { useTranslation } from "react-i18next";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { addChallenge } from "@/src/service/apiService";
 import { useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
+import { selectHabits } from "@/src/store/habitsSlice";
 import DateSelector from "../AddHabitModal/DateSelector";
+import { HabitData } from "@/components/AddHabitModal/types";
+import AddHabitModal from "./AddHabitModal";
+import ChallengeNameInput from "../AddChallengeModal/ChallengeNameInput";
+import DurationInput from "../AddChallengeModal/DurationInput";
+import HabitsSelector from "../AddChallengeModal/HabitsSelector";
+import ModalButtons from "../AddChallengeModal/ModalButtons";
+import { t } from "@/src/service/translateService";
 
 interface AddChallengeModalProps {
   isVisible: boolean;
@@ -24,23 +24,62 @@ export default function AddChallengeModal({
   isVisible,
   onClose,
 }: AddChallengeModalProps) {
-  const { t } = useTranslation();
   const userId = useSelector(selectUserId);
+  const habits = useSelector(selectHabits);
   const [challengeData, setChallengeData] = useState<ChallengeData>({
+    id: "",
     name: "",
-    startDate: new Date(),
-    endDate: new Date(),
+    startDate: new Date().toISOString(),
+    endDate: new Date().toISOString(),
+    habits: [],
   });
   const [durationDays, setDurationDays] = useState("30");
   const [errors, setErrors] = useState({
     name: "",
     durationDays: "",
+    habits: "",
   });
+  const [isHabitsExpanded, setIsHabitsExpanded] = useState(false);
+  const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
+  const [modalHeight] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    if (isVisible) {
+      Animated.timing(modalHeight, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    } else {
+      Animated.timing(modalHeight, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (isAddHabitModalVisible) {
+      Animated.timing(modalHeight, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    } else {
+      Animated.timing(modalHeight, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [isAddHabitModalVisible]);
 
   const validateForm = () => {
     const newErrors = {
       name: "",
       durationDays: "",
+      habits: "",
     };
 
     if (!challengeData.name.trim()) {
@@ -52,8 +91,12 @@ export default function AddChallengeModal({
       newErrors.durationDays = t("duration_days_required");
     }
 
+    if (challengeData.habits.length === 0) {
+      newErrors.habits = t("select_at_least_one_habit");
+    }
+
     setErrors(newErrors);
-    return !newErrors.name && !newErrors.durationDays;
+    return !newErrors.name && !newErrors.durationDays && !newErrors.habits;
   };
 
   const handleSubmit = async () => {
@@ -66,18 +109,50 @@ export default function AddChallengeModal({
 
       await addChallenge(userId, {
         ...challengeData,
-        endDate,
+        endDate: endDate.toISOString(),
       });
 
       setChallengeData({
+        id: "",
         name: "",
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: new Date().toISOString(),
+        endDate: new Date().toISOString(),
+        habits: [],
       });
       setDurationDays("30");
       onClose();
     } catch (error) {
       console.error("Error adding challenge:", error);
+    }
+  };
+
+  const toggleHabit = (habitId: string) => {
+    setChallengeData((prev) => ({
+      ...prev,
+      habits: prev.habits.includes(habitId)
+        ? prev.habits.filter((id) => id !== habitId)
+        : [...prev.habits, habitId],
+    }));
+    setErrors((prev) => ({ ...prev, habits: "" }));
+  };
+
+  const handleAddHabit = () => {
+    setIsAddHabitModalVisible(false);
+  };
+
+  const handleDurationChange = (text: string) => {
+    const number = parseInt(text);
+    if (!isNaN(number) && number >= 1 && number <= 1000) {
+      setDurationDays(text);
+      const endDate = new Date(challengeData.startDate);
+      endDate.setDate(endDate.getDate() + number - 1);
+      setChallengeData({
+        ...challengeData,
+        endDate: endDate.toISOString(),
+      });
+      setErrors({ ...errors, durationDays: "" });
+    } else if (text === "") {
+      setDurationDays(text);
     }
   };
 
@@ -89,78 +164,69 @@ export default function AddChallengeModal({
       onRequestClose={onClose}
     >
       <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+        <Animated.View
+          style={[
+            styles.modalContent,
+            {
+              transform: [
+                {
+                  translateY: modalHeight.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1000, 0],
+                  }),
+                },
+              ],
+              opacity: modalHeight,
+            },
+          ]}
+        >
           <Text style={styles.title}>{t("add_challenge")}</Text>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>{t("challenge_name")}</Text>
-            <TextInput
-              style={[styles.input, errors.name ? styles.inputError : null]}
-              value={challengeData.name}
-              onChangeText={(text) => {
-                setChallengeData({ ...challengeData, name: text });
-                setErrors({ ...errors, name: "" });
-              }}
-              placeholder={t("challenge_name")}
-            />
-            {errors.name ? (
-              <Text style={styles.errorText}>{errors.name}</Text>
-            ) : null}
-          </View>
+          <ChallengeNameInput
+            value={challengeData.name}
+            error={errors.name}
+            onChange={(text) => {
+              setChallengeData({ ...challengeData, name: text });
+              setErrors({ ...errors, name: "" });
+            }}
+          />
 
           <DateSelector
             label={t("start_date")}
-            date={challengeData.startDate}
+            date={new Date(challengeData.startDate)}
             onDateChange={(date) =>
-              setChallengeData({ ...challengeData, startDate: date })
+              setChallengeData({
+                ...challengeData,
+                startDate: date.toISOString(),
+              })
             }
             minDate={new Date()}
-            maxDate={challengeData.endDate}
+            maxDate={new Date(challengeData.endDate)}
           />
 
-          <View style={styles.numberInputContainer}>
-            <Text style={styles.label}>{t("duration_days")}</Text>
-            <TextInput
-              style={[
-                styles.input,
-                errors.durationDays ? styles.inputError : null,
-              ]}
-              value={durationDays}
-              onChangeText={(text) => {
-                const number = parseInt(text);
-                if (!isNaN(number) && number >= 1 && number <= 1000) {
-                  setDurationDays(text);
-                  const endDate = new Date(challengeData.startDate);
-                  endDate.setDate(endDate.getDate() + number - 1);
-                  setChallengeData({ ...challengeData, endDate });
-                  setErrors({ ...errors, durationDays: "" });
-                } else if (text === "") {
-                  setDurationDays(text);
-                }
-              }}
-              keyboardType="numeric"
-            />
-          </View>
-          {errors.durationDays ? (
-            <Text style={styles.errorText}>{errors.durationDays}</Text>
-          ) : null}
+          <DurationInput
+            value={durationDays}
+            error={errors.durationDays}
+            onChange={handleDurationChange}
+          />
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={onClose}
-            >
-              <Text style={styles.buttonText}>{t("cancel")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.submitButton]}
-              onPress={handleSubmit}
-            >
-              <Text style={styles.buttonText}>{t("submit")}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+          <HabitsSelector
+            selectedHabits={challengeData.habits}
+            error={errors.habits}
+            isExpanded={isHabitsExpanded}
+            onToggleExpanded={() => setIsHabitsExpanded(!isHabitsExpanded)}
+            onToggleHabit={toggleHabit}
+            onAddHabit={() => setIsAddHabitModalVisible(true)}
+          />
+
+          <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
+        </Animated.View>
       </View>
+
+      <AddHabitModal
+        isVisible={isAddHabitModalVisible}
+        onClose={handleAddHabit}
+      />
     </Modal>
   );
 }
@@ -184,56 +250,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 40,
     textAlign: "center",
-  },
-  inputContainer: {
-    marginBottom: 15,
-  },
-  numberInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 5,
-    fontWeight: "bold",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: Colors.Gray,
-    borderRadius: 5,
-    padding: 10,
-    fontSize: 16,
-    minWidth: 60,
-  },
-  inputError: {
-    borderColor: Colors.PrimaryRed,
-  },
-  errorText: {
-    color: Colors.PrimaryRed,
-    fontSize: 12,
-    marginTop: 5,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 20,
-  },
-  button: {
-    padding: 10,
-    borderRadius: 5,
-    minWidth: "40%",
-    alignItems: "center",
-  },
-  cancelButton: {
-    backgroundColor: Colors.Gray,
-  },
-  submitButton: {
-    backgroundColor: Colors.HotPink,
-  },
-  buttonText: {
-    color: Colors.White,
-    fontSize: 16,
-    fontWeight: "bold",
   },
 });
