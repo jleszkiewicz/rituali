@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginVertical: 5,
     overflow: "hidden",
-    height: 80,
+    height: 60,
   },
   card: {
     flexDirection: "row",

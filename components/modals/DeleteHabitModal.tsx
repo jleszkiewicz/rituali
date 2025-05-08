@@ -35,7 +35,6 @@ const DeleteHabitModal = ({
         };
         await updateHabit(habitId, updatedHabit);
 
-        // Fetch fresh habits from the server
         const updatedHabits = await fetchUserHabits(userId);
         dispatch(setHabits(updatedHabits));
       }

@@ -19,5 +19,5 @@ export const Colors = {
     Orange: "#FFA500",
     LightBrown: "#F0D0B0",
     Brown: "#A52A2A",
-    Gray: "#ccc"
+    DarkPink: "#e65a70",
 };

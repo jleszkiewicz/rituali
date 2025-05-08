@@ -2,12 +2,11 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Modal, Animated } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
-import { addChallenge } from "@/src/service/apiService";
-import { useSelector } from "react-redux";
+import { addChallenge, fetchUserChallenges } from "@/src/service/apiService";
+import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
-import { selectHabits } from "@/src/store/habitsSlice";
+import { setChallenges } from "@/src/store/challengesSlice";
 import DateSelector from "../AddHabitModal/DateSelector";
-import { HabitData } from "@/components/AddHabitModal/types";
 import AddHabitModal from "./AddHabitModal";
 import ChallengeNameInput from "../AddChallengeModal/ChallengeNameInput";
 import DurationInput from "../AddChallengeModal/DurationInput";
@@ -24,8 +23,8 @@ export default function AddChallengeModal({
   isVisible,
   onClose,
 }: AddChallengeModalProps) {
+  const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
-  const habits = useSelector(selectHabits);
   const [challengeData, setChallengeData] = useState<ChallengeData>({
     id: "",
     name: "",
@@ -111,6 +110,9 @@ export default function AddChallengeModal({
         ...challengeData,
         endDate: endDate.toISOString(),
       });
+
+      const updatedChallenges = await fetchUserChallenges(userId);
+      dispatch(setChallenges(updatedChallenges));
 
       setChallengeData({
         id: "",

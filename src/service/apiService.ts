@@ -2,8 +2,6 @@ import { supabase } from "./supabaseClient";
 import { HabitData } from "../../components/AddHabitModal/types";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 
-const API_URL = "http://localhost:3000/api";
-
 const mapHabitFromDb = (dbHabit: any): HabitData => ({
   id: dbHabit.id,
   name: dbHabit.name,

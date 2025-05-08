@@ -5,6 +5,7 @@ import { getLocale } from "@/src/service/translateService";
 import { Colors } from "../../constants/Colors";
 import { dateFormat } from "@/constants/Constants";
 import { t } from "@/src/service/translateService";
+
 interface CalendarElementProps {
   item: Date;
   selectedDate: Date;
@@ -22,10 +23,17 @@ const CalendarElement: React.FC<CalendarElementProps> = ({
 
   const isSelected =
     format(item, dateFormat) === format(selectedDate, dateFormat);
+  const isToday = format(item, dateFormat) === format(new Date(), dateFormat);
 
   const getDayName = () => {
     const dayKey = format(item, "eee", { locale }).toLowerCase();
     return t(dayKey);
+  };
+
+  const getCircleColor = () => {
+    if (isSelected) return Colors.HotPink;
+    if (isToday && !isSelected) return Colors.LightPink;
+    return Colors.LightGray;
   };
 
   return (
@@ -34,16 +42,11 @@ const CalendarElement: React.FC<CalendarElementProps> = ({
       style={{ ...styles.dayContainer, width: itemWidth }}
     >
       <Text style={styles.dayName}>{getDayName()}</Text>
-      <View
-        style={[
-          styles.circle,
-          { backgroundColor: isSelected ? Colors.HotPink : Colors.LightGray },
-        ]}
-      >
+      <View style={[styles.circle, { backgroundColor: getCircleColor() }]}>
         <Text
           style={[
             styles.dayText,
-            { color: isSelected ? Colors.White : Colors.Black },
+            { color: isSelected || isToday ? Colors.White : Colors.Black },
           ]}
         >
           {format(item, "d")}
@@ -56,7 +59,6 @@ const CalendarElement: React.FC<CalendarElementProps> = ({
 const styles = StyleSheet.create({
   dayContainer: {
     alignItems: "center",
-    marginBottom: 10,
   },
   circle: {
     width: 40,

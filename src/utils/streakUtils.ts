@@ -10,7 +10,7 @@ export const calculateStreak = (
   const today = new Date();
   const parsedStartDate = parseISO(startDate);
   const sortedDates = completionDates
-    .filter(date => date) // Filter out undefined or null dates
+    .filter(date => date)
     .map(date => parseISO(date))
     .sort((a, b) => a.getTime() - b.getTime());
 
