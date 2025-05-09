@@ -1,9 +1,10 @@
 import React from "react";
 import { Colors } from "@/constants/Colors";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import CurvedArrow from "./CurvedArrow";
 import { t } from "@/src/service/translateService";
+import { ThemedText } from "../Commons/ThemedText";
 
 const EmptyHabitsList = () => {
   return (
@@ -16,9 +17,11 @@ const EmptyHabitsList = () => {
           style={styles.icon}
         />
         <View style={styles.textContainer}>
-          <Text style={styles.text}>{t("no_habits")}</Text>
+          <ThemedText style={styles.text}>{t("no_habits")}</ThemedText>
         </View>
-        <Text style={styles.description}>{t("add_habit_to_start")}</Text>
+        <ThemedText style={styles.description}>
+          {t("add_habit_to_start")}
+        </ThemedText>
         <CurvedArrow />
       </View>
     </>

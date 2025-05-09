@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  Text,
   TouchableOpacity,
   ScrollView,
   Switch,
@@ -19,6 +18,7 @@ import {
   setError,
 } from "@/src/store/challengesSlice";
 import { AppDispatch } from "@/src/store";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface ChallengeSelectorProps {
   isPartOfChallenge: boolean;
@@ -87,7 +87,9 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
   return (
     <>
       <View style={styles.switchContainer}>
-        <Text style={styles.switchText}>{t("part_of_challenge")}</Text>
+        <ThemedText style={styles.switchText}>
+          {t("part_of_challenge")}
+        </ThemedText>
         <Switch
           value={isPartOfChallenge}
           onValueChange={(value) => {
@@ -106,16 +108,20 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
             style={styles.dropdownHeader}
             onPress={toggleDropdown}
           >
-            <Text style={styles.dropdownHeaderText}>
+            <ThemedText style={styles.dropdownHeaderText}>
               {getSelectedChallengesText()}
-            </Text>
-            <Text style={styles.dropdownArrow}>{isExpanded ? "▲" : "▼"}</Text>
+            </ThemedText>
+            <ThemedText style={styles.dropdownArrow}>
+              {isExpanded ? "▲" : "▼"}
+            </ThemedText>
           </TouchableOpacity>
 
           {isExpanded && (
             <ScrollView style={styles.dropdownContent}>
               {challenges.length === 0 ? (
-                <Text style={styles.noChallenges}>{t("no_challenges")}</Text>
+                <ThemedText style={styles.noChallenges}>
+                  {t("no_challenges")}
+                </ThemedText>
               ) : (
                 challenges.map((challenge) => (
                   <TouchableOpacity
@@ -127,7 +133,7 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
                     ]}
                     onPress={() => toggleChallenge(challenge.id)}
                   >
-                    <Text
+                    <ThemedText
                       style={[
                         styles.dropdownItemText,
                         initialChallenges.includes(challenge.id) &&
@@ -135,7 +141,7 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
                       ]}
                     >
                       {challenge.name}
-                    </Text>
+                    </ThemedText>
                   </TouchableOpacity>
                 ))
               )}
@@ -160,7 +166,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
     borderWidth: 1,
-    borderColor: Colors.Gray,
+    borderColor: Colors.DarkGray,
     borderRadius: 5,
     marginBottom: 5,
   },
@@ -178,14 +184,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     maxHeight: 200,
     borderWidth: 1,
-    borderColor: Colors.Gray,
+    borderColor: Colors.DarkGray,
     borderRadius: 5,
     zIndex: 2,
   },
   dropdownItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.Gray,
+    borderBottomColor: Colors.DarkGray,
   },
   selectedChallenge: {
     backgroundColor: Colors.PrimaryPink,

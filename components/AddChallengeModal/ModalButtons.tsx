@@ -1,56 +1,58 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface ModalButtonsProps {
   onCancel: () => void;
   onSubmit: () => void;
 }
 
-export default function ModalButtons({
-  onCancel,
-  onSubmit,
-}: ModalButtonsProps) {
+const ModalButtons = ({ onCancel, onSubmit }: ModalButtonsProps) => {
   return (
-    <View style={styles.buttonContainer}>
-      <TouchableOpacity
-        style={[styles.button, styles.cancelButton]}
-        onPress={onCancel}
-      >
-        <Text style={styles.buttonText}>{t("cancel")}</Text>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+        <ThemedText style={styles.cancelButtonText}>{t("cancel")}</ThemedText>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.button, styles.submitButton]}
-        onPress={onSubmit}
-      >
-        <Text style={styles.buttonText}>{t("submit")}</Text>
+      <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
+        <ThemedText style={styles.submitButtonText}>{t("add")}</ThemedText>
       </TouchableOpacity>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  buttonContainer: {
+  container: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginVertical: 20,
-  },
-  button: {
-    padding: 10,
-    borderRadius: 5,
-    minWidth: "40%",
-    alignItems: "center",
+    marginTop: 20,
   },
   cancelButton: {
-    backgroundColor: Colors.DarkGray,
+    flex: 1,
+    marginRight: 10,
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.PrimaryPink,
+    alignItems: "center",
   },
   submitButton: {
-    backgroundColor: Colors.HotPink,
+    flex: 1,
+    marginLeft: 10,
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: Colors.PrimaryPink,
+    alignItems: "center",
   },
-  buttonText: {
+  cancelButtonText: {
+    color: Colors.PrimaryPink,
+    fontSize: 16,
+  },
+  submitButtonText: {
     color: Colors.White,
     fontSize: 16,
-    fontWeight: "bold",
   },
 });
+
+export default ModalButtons;

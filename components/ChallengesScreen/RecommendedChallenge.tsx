@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import { ThemedText } from "../Commons/ThemedText";
 
 const RecommendedChallenge = () => {
   const zasady = [
@@ -12,15 +13,15 @@ const RecommendedChallenge = () => {
   ];
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Recommended Challenge</Text>
-      <Text style={styles.duration}>{"30 dni"}</Text>
+      <ThemedText style={styles.title}>Recommended Challenge</ThemedText>
+      <ThemedText style={styles.duration}>{"30 dni"}</ThemedText>
       <View style={styles.rulesContainer}>
         {zasady.map((zasada) => (
-          <Text style={styles.rule}>{`• ${zasada}`}</Text>
+          <ThemedText style={styles.rule}>{`• ${zasada}`}</ThemedText>
         ))}
       </View>
       <TouchableOpacity style={styles.buttonContainer}>
-        <Text style={styles.buttonText}>Start</Text>
+        <ThemedText style={styles.buttonText}>Start</ThemedText>
         <Ionicons name="arrow-forward" size={24} color={Colors.White} />
       </TouchableOpacity>
     </View>

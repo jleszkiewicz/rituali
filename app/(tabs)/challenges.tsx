@@ -1,16 +1,20 @@
+import React from "react";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import { t } from "@/src/service/translateService";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
 import RecommendedChallenge from "@/components/ChallengesScreen/RecommendedChallenge";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { ThemedText } from "@/components/Commons/ThemedText";
 
 const ChallengesScreen = () => {
   return (
     <ScreenWrapper>
       <ScreenHeader title={t("challenges")} />
-      <RecommendedChallenge />
       <View style={styles.challengesContainer}>
-        <Text style={styles.challengesTitle}>Your Challenges</Text>
+        <ThemedText bold style={styles.challengesTitle}>
+          Recommended Challenges
+        </ThemedText>
+        <RecommendedChallenge />
       </View>
     </ScreenWrapper>
   );
@@ -22,7 +26,6 @@ const styles = StyleSheet.create({
   },
   challengesTitle: {
     fontSize: 20,
-    fontWeight: "bold",
     marginBottom: 10,
   },
 });

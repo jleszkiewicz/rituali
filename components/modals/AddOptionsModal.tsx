@@ -1,7 +1,8 @@
 import React from "react";
-import { TouchableOpacity, StyleSheet, Modal, View, Text } from "react-native";
+import { TouchableOpacity, StyleSheet, Modal, View } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface AddOptionsModalProps {
   isVisible: boolean;
@@ -17,53 +18,68 @@ const AddOptionsModal = ({
   onAddChallenge,
 }: AddOptionsModalProps) => {
   return (
-    <Modal visible={isVisible} transparent={true} onRequestClose={onClose}>
-      <TouchableOpacity
-        style={styles.modalOverlay}
-        activeOpacity={1}
-        onPress={onClose}
-      >
+    <Modal
+      visible={isVisible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <TouchableOpacity style={styles.modalButton} onPress={onAddHabit}>
-            <Text style={styles.buttonText}>{t("add_new_habit")}</Text>
+          <ThemedText style={styles.title}>{t("add_new")}</ThemedText>
+          <TouchableOpacity style={styles.option} onPress={onAddHabit}>
+            <ThemedText style={styles.optionText}>{t("add_habit")}</ThemedText>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.modalButton} onPress={onAddChallenge}>
-            <Text style={styles.buttonText}>
-              {t("add_and_start_challenge")}
-            </Text>
+          <TouchableOpacity style={styles.option} onPress={onAddChallenge}>
+            <ThemedText style={styles.optionText}>
+              {t("add_challenge")}
+            </ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+            <ThemedText style={styles.cancelButtonText}>
+              {t("cancel")}
+            </ThemedText>
           </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  modalOverlay: {
+  modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "flex-end",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     backgroundColor: Colors.White,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    paddingBottom: 40,
-    alignItems: "center",
   },
-  modalButton: {
-    backgroundColor: Colors.PrimaryPink,
+  title: {
+    fontSize: 20,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  option: {
     padding: 15,
-    borderRadius: 10,
-    width: "100%",
-    marginVertical: 10,
-    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.PrimaryGray,
   },
-  buttonText: {
-    color: Colors.White,
+  optionText: {
     fontSize: 16,
-    fontWeight: "600",
+    color: Colors.PrimaryGray,
+  },
+  cancelButton: {
+    padding: 15,
+    marginTop: 10,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: Colors.PrimaryRed,
+    textAlign: "center",
   },
 });
 

@@ -1,14 +1,9 @@
-import {
-  ScrollView,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  View,
-} from "react-native";
+import { ScrollView, TouchableOpacity, StyleSheet, View } from "react-native";
 import { Colors } from "../../constants/Colors";
 import { HabitCategory } from "./types";
 import { t } from "@/src/service/translateService";
 import { useState } from "react";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface CategoriesSelectorProps {
   initialCategory: HabitCategory;
@@ -31,19 +26,19 @@ const CategoriesSelector = ({
   ];
   return (
     <View style={styles.inputContainer}>
-      <Text style={styles.label}>{t("category")}</Text>
+      <ThemedText style={styles.label}>{t("category")}</ThemedText>
       <TouchableOpacity
         style={styles.dropdownHeader}
         onPress={() => setIsCategoryExpanded(!isCategoryExpanded)}
       >
-        <Text style={styles.dropdownHeaderText}>
+        <ThemedText style={styles.dropdownHeaderText}>
           {initialCategory
             ? t(`category_${initialCategory}`)
             : t("select_category")}
-        </Text>
-        <Text style={styles.dropdownArrow}>
+        </ThemedText>
+        <ThemedText style={styles.dropdownArrow}>
           {isCategoryExpanded ? "▲" : "▼"}
-        </Text>
+        </ThemedText>
       </TouchableOpacity>
 
       {isCategoryExpanded && (
@@ -57,7 +52,7 @@ const CategoriesSelector = ({
                 setIsCategoryExpanded(false);
               }}
             >
-              <Text>{t(`category_${category}`)}</Text>
+              <ThemedText>{t(`category_${category}`)}</ThemedText>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -73,7 +68,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
     borderWidth: 1,
-    borderColor: Colors.Gray,
+    borderColor: Colors.PrimaryGray,
     borderRadius: 5,
     marginBottom: 5,
   },
@@ -91,14 +86,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     maxHeight: 200,
     borderWidth: 1,
-    borderColor: Colors.Gray,
+    borderColor: Colors.PrimaryGray,
     borderRadius: 5,
     zIndex: 2,
   },
   dropdownItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.Gray,
+    borderBottomColor: Colors.PrimaryGray,
   },
   inputContainer: {
     marginBottom: 15,
@@ -107,7 +102,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 5,
-    fontWeight: "bold",
   },
 });
 

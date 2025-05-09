@@ -1,17 +1,12 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
+import { View, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { Ionicons } from "@expo/vector-icons";
 import { t } from "@/src/service/translateService";
 import { useSelector } from "react-redux";
 import { selectActiveHabits } from "@/src/store/habitsSlice";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface HabitsSelectorProps {
   selectedHabits: string[];
@@ -38,18 +33,22 @@ export default function HabitsSelector({
         style={styles.dropdownHeader}
         onPress={onToggleExpanded}
       >
-        <Text style={styles.dropdownHeaderText}>
+        <ThemedText style={styles.dropdownHeaderText}>
           {selectedHabits.length > 0
             ? `${t("habits_selected")}: ${selectedHabits.length}`
             : t("select_habits")}
-        </Text>
-        <Text style={styles.dropdownArrow}>{isExpanded ? "▲" : "▼"}</Text>
+        </ThemedText>
+        <ThemedText style={styles.dropdownArrow}>
+          {isExpanded ? "▲" : "▼"}
+        </ThemedText>
       </TouchableOpacity>
 
       {isExpanded && (
         <ScrollView style={styles.dropdownContent}>
           {activeHabits.length === 0 ? (
-            <Text style={styles.noHabits}>{t("no_active_habits")}</Text>
+            <ThemedText style={styles.noHabits}>
+              {t("no_active_habits")}
+            </ThemedText>
           ) : (
             <>
               {activeHabits.map((habit) => (
@@ -61,7 +60,7 @@ export default function HabitsSelector({
                   ]}
                   onPress={() => onToggleHabit(habit.id)}
                 >
-                  <Text
+                  <ThemedText
                     style={[
                       styles.dropdownItemText,
                       selectedHabits.includes(habit.id) &&
@@ -69,7 +68,7 @@ export default function HabitsSelector({
                     ]}
                   >
                     {habit.name}
-                  </Text>
+                  </ThemedText>
                 </TouchableOpacity>
               ))}
               <TouchableOpacity
@@ -77,15 +76,15 @@ export default function HabitsSelector({
                 onPress={onAddHabit}
               >
                 <Ionicons name="add" size={20} color={Colors.White} />
-                <Text style={styles.addHabitButtonText}>
+                <ThemedText style={styles.addHabitButtonText}>
                   {t("add_new_habit")}
-                </Text>
+                </ThemedText>
               </TouchableOpacity>
             </>
           )}
         </ScrollView>
       )}
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <ThemedText style={styles.errorText}>{error}</ThemedText> : null}
     </View>
   );
 }

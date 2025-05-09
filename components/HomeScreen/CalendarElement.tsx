@@ -1,10 +1,11 @@
 import React from "react";
-import { TouchableOpacity, Text, View, StyleSheet } from "react-native";
+import { TouchableOpacity, View, StyleSheet } from "react-native";
 import { format } from "date-fns";
 import { getLocale } from "@/src/service/translateService";
 import { Colors } from "../../constants/Colors";
 import { dateFormat } from "@/constants/Constants";
 import { t } from "@/src/service/translateService";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface CalendarElementProps {
   item: Date;
@@ -41,16 +42,16 @@ const CalendarElement: React.FC<CalendarElementProps> = ({
       onPress={() => setSelectedDate(item)}
       style={{ ...styles.dayContainer, width: itemWidth }}
     >
-      <Text style={styles.dayName}>{getDayName()}</Text>
+      <ThemedText style={styles.dayName}>{getDayName()}</ThemedText>
       <View style={[styles.circle, { backgroundColor: getCircleColor() }]}>
-        <Text
+        <ThemedText
           style={[
             styles.dayText,
             { color: isSelected || isToday ? Colors.White : Colors.Black },
           ]}
         >
           {format(item, "d")}
-        </Text>
+        </ThemedText>
       </View>
     </TouchableOpacity>
   );
@@ -59,6 +60,7 @@ const CalendarElement: React.FC<CalendarElementProps> = ({
 const styles = StyleSheet.create({
   dayContainer: {
     alignItems: "center",
+    marginBottom: 10,
   },
   circle: {
     width: 40,

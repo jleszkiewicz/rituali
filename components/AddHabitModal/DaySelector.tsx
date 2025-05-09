@@ -1,49 +1,38 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
-import { format } from "date-fns";
-import { getLocale } from "@/src/service/translateService";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface DaySelectorProps {
   selectedDays: string[];
-  onToggleDay: (day: string) => void;
+  onDayToggle: (day: string) => void;
 }
 
-const DaySelector: React.FC<DaySelectorProps> = ({
-  selectedDays,
-  onToggleDay,
-}) => {
-  const locale = getLocale();
-
-  const getDayName = (day: number) => {
-    const date = new Date();
-    date.setDate(date.getDate() - date.getDay() + day);
-    const dayKey = format(date, "eee", { locale }).toLowerCase();
-    return t(dayKey);
-  };
+const DaySelector = ({ selectedDays, onDayToggle }: DaySelectorProps) => {
+  const days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
   return (
-    <View style={styles.daysContainer}>
-      <Text style={styles.sectionTitle}>{t("select_days")}</Text>
-      <View style={styles.daysGrid}>
-        {[0, 1, 2, 3, 4, 5, 6].map((day) => (
+    <View style={styles.container}>
+      <ThemedText style={styles.label}>{t("select_days")}</ThemedText>
+      <View style={styles.daysContainer}>
+        {days.map((day) => (
           <TouchableOpacity
             key={day}
             style={[
               styles.dayButton,
-              selectedDays.includes(day.toString()) && styles.selectedDay,
+              selectedDays.includes(day) && styles.selectedDay,
             ]}
-            onPress={() => onToggleDay(day.toString())}
+            onPress={() => onDayToggle(day)}
           >
-            <Text
+            <ThemedText
               style={[
                 styles.dayText,
-                selectedDays.includes(day.toString()) && styles.selectedDayText,
+                selectedDays.includes(day) && styles.selectedDayText,
               ]}
             >
-              {getDayName(day)}
-            </Text>
+              {t(day)}
+            </ThemedText>
           </TouchableOpacity>
         ))}
       </View>
@@ -52,28 +41,25 @@ const DaySelector: React.FC<DaySelectorProps> = ({
 };
 
 const styles = StyleSheet.create({
-  daysContainer: {
-    marginBottom: 20,
+  container: {
+    marginBottom: 15,
   },
-  sectionTitle: {
+  label: {
     fontSize: 16,
-    fontWeight: "600",
     marginBottom: 10,
   },
-  daysGrid: {
+  daysContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
     flexWrap: "wrap",
+    gap: 10,
   },
   dayButton: {
-    height: 35,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 10,
     borderWidth: 1,
+    borderRadius: 10,
+    minWidth: "45%",
+    alignItems: "center",
     borderColor: Colors.PrimaryPink,
-    borderRadius: 5,
-    margin: 2,
-    padding: 5,
   },
   selectedDay: {
     backgroundColor: Colors.PrimaryPink,
@@ -86,4 +72,5 @@ const styles = StyleSheet.create({
     color: Colors.White,
   },
 });
+
 export default DaySelector;

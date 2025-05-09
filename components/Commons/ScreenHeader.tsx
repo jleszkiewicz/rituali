@@ -1,10 +1,13 @@
 import { Colors } from "@/constants/Colors";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { ThemedText } from "./ThemedText";
 
 const ScreenHeader = ({ title }: { title: string }) => {
   return (
     <View>
-      <Text style={styles.header}>{title}</Text>
+      <ThemedText bold style={styles.header}>
+        {title}
+      </ThemedText>
     </View>
   );
 };
@@ -15,7 +18,6 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     fontSize: 18,
     color: Colors.PrimaryGray,
-    fontFamily: "Poppins-Bold",
   },
 });
 

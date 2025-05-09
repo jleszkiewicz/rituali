@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TextProps, StyleSheet, Platform, TextStyle } from "react-native";
+import { Text, TextProps, StyleSheet, TextStyle } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { FontStyles } from "@/src/constants/Fonts";
 
@@ -12,20 +12,11 @@ export const ThemedText: React.FC<ThemedTextProps> = ({
   bold = false,
   ...props
 }) => {
-  const fontStyle: TextStyle = Platform.select({
-    ios: {
-      fontFamily: "System",
-      fontWeight: bold ? "700" : "400",
-    },
-    android: {
-      fontFamily: bold ? "sans-serif-medium" : "sans-serif",
-    },
-    default: {
-      fontFamily: bold
-        ? FontStyles.bold.fontFamily
-        : FontStyles.regular.fontFamily,
-    },
-  }) as TextStyle;
+  const fontStyle: TextStyle = {
+    fontFamily: bold
+      ? FontStyles.bold.fontFamily
+      : FontStyles.regular.fontFamily,
+  };
 
   return <Text style={[styles.defaultText, fontStyle, style]} {...props} />;
 };

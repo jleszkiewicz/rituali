@@ -1,51 +1,46 @@
 import React from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import { View, TextInput, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
+import { ThemedText } from "../Commons/ThemedText";
+
 interface DurationInputProps {
   value: string;
-  error: string;
+  error?: string;
   onChange: (text: string) => void;
 }
 
-export default function DurationInput({
-  value,
-  error,
-  onChange,
-}: DurationInputProps) {
+const DurationInput = ({ value, error, onChange }: DurationInputProps) => {
   return (
-    <View style={styles.numberInputContainer}>
-      <Text style={styles.label}>{t("duration_days")}</Text>
+    <View style={styles.container}>
+      <ThemedText style={styles.label}>{t("duration_days")}</ThemedText>
       <TextInput
-        style={[styles.input, error ? styles.inputError : null]}
+        style={[styles.input, error && styles.inputError]}
         value={value}
         onChangeText={onChange}
         keyboardType="numeric"
+        placeholder={t("enter_duration")}
+        placeholderTextColor={Colors.PrimaryGray}
       />
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error && <ThemedText style={styles.errorText}>{error}</ThemedText>}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  numberInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  container: {
     marginBottom: 15,
   },
   label: {
     fontSize: 16,
     marginBottom: 5,
-    fontWeight: "bold",
   },
   input: {
     borderWidth: 1,
-    borderColor: Colors.Gray,
+    borderColor: Colors.PrimaryGray,
     borderRadius: 5,
     padding: 10,
     fontSize: 16,
-    minWidth: 60,
   },
   inputError: {
     borderColor: Colors.PrimaryRed,
@@ -56,3 +51,5 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
 });
+
+export default DurationInput;

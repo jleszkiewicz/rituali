@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/src/context/AuthContext";
 import { AppRoutes } from "@/src/routes/AppRoutes";
@@ -13,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
 import { AuthRoutes } from "@/src/routes/AuthRoutes";
 import { t } from "@/src/service/translateService";
+import { ThemedText } from "@/components/Commons/ThemedText";
 
 export default function LoginScreen() {
   const { login, isLoading } = useAuth();
@@ -29,7 +24,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.innerContainer}>
-      <Text style={styles.title}>{t("login_title")}</Text>
+      <ThemedText style={styles.title}>{t("login_title")}</ThemedText>
       <TextInput
         style={styles.input}
         placeholder={t("email_placeholder")}
@@ -62,14 +57,16 @@ export default function LoginScreen() {
         onPress={handleLogin}
         disabled={isLoading}
       >
-        <Text style={styles.buttonText}>{t("login_button")}</Text>
+        <ThemedText style={styles.buttonText}>{t("login_button")}</ThemedText>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.registerButton}
         onPress={() => router.push(AuthRoutes.Register)}
         disabled={isLoading}
       >
-        <Text style={styles.registerButtonText}>{t("register_redirect")}</Text>
+        <ThemedText style={styles.registerButtonText}>
+          {t("register_redirect")}
+        </ThemedText>
       </TouchableOpacity>
     </View>
   );
@@ -87,7 +84,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "600",
     color: Colors.PrimaryRed,
     marginBottom: 40,
   },
@@ -116,7 +112,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: Colors.White,
     fontSize: 18,
-    fontWeight: "500",
   },
   registerButton: {
     marginTop: 10,

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { HabitData } from "@/components/AddHabitModal/types";
@@ -7,6 +7,7 @@ import { Svg, Circle } from "react-native-svg";
 import { format, differenceInDays } from "date-fns";
 import { t } from "@/src/service/translateService";
 import { LinearGradient } from "expo-linear-gradient";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface ChallengeCardProps {
   challenge: ChallengeData;
@@ -54,7 +55,7 @@ export default function ChallengeCard({
       end={{ x: 1, y: 1 }}
       style={[styles.container, { width }]}
     >
-      <Text style={styles.title}>{challenge.name}</Text>
+      <ThemedText style={styles.title}>{challenge.name}</ThemedText>
 
       <View style={styles.progressContainer}>
         <View style={styles.circularProgressContainer}>
@@ -81,9 +82,9 @@ export default function ChallengeCard({
             />
           </Svg>
           <View style={styles.progressTextContainer}>
-            <Text style={styles.progressText}>
+            <ThemedText style={styles.progressText}>
               {completedHabits}/{totalHabits}
-            </Text>
+            </ThemedText>
           </View>
         </View>
       </View>
@@ -97,9 +98,9 @@ export default function ChallengeCard({
             ]}
           />
         </View>
-        <Text style={styles.timeProgressText}>
+        <ThemedText style={styles.timeProgressText}>
           {daysPassed}/{totalDays} {t("days")}
-        </Text>
+        </ThemedText>
       </View>
     </LinearGradient>
   );
@@ -122,7 +123,6 @@ const styles = StyleSheet.create({
   title: {
     marginBottom: 8,
     fontSize: 17,
-    fontWeight: "bold",
     textAlign: "left",
     color: Colors.White,
   },
@@ -141,7 +141,6 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 16,
-    fontWeight: "bold",
     color: Colors.White,
   },
   progressLabel: {
@@ -167,6 +166,5 @@ const styles = StyleSheet.create({
     color: Colors.White,
     textAlign: "center",
     marginTop: 5,
-    fontWeight: "bold",
   },
 });

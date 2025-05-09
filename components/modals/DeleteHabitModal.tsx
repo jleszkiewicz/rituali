@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Modal, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { updateHabit, fetchUserHabits } from "@/src/service/apiService";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,6 +7,7 @@ import { selectHabits, setHabits } from "@/src/store/habitsSlice";
 import { t } from "@/src/service/translateService";
 import { HabitStatus } from "../AddHabitModal/types";
 import { selectUserId } from "@/src/store/userSlice";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface DeleteHabitModalProps {
   isVisible: boolean;
@@ -53,22 +54,24 @@ const DeleteHabitModal = ({
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>{t("delete_habit_confirmation")}</Text>
-          <Text style={styles.description}>
-            {t("delete_habit_description")}
-          </Text>
+          <ThemedText style={styles.title}>{t("delete_habit")}</ThemedText>
+          <ThemedText style={styles.message}>
+            {t("delete_habit_confirmation", {
+              habitName: habits.find((h) => h.id === habitId)?.name,
+            })}
+          </ThemedText>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
               onPress={onClose}
             >
-              <Text style={styles.buttonText}>{t("cancel")}</Text>
+              <ThemedText style={styles.buttonText}>{t("cancel")}</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, styles.deleteButton]}
               onPress={handleDelete}
             >
-              <Text style={styles.buttonText}>{t("delete")}</Text>
+              <ThemedText style={styles.buttonText}>{t("delete")}</ThemedText>
             </TouchableOpacity>
           </View>
         </View>
@@ -97,7 +100,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: "center",
   },
-  description: {
+  message: {
     fontSize: 16,
     color: Colors.PrimaryGray,
     marginBottom: 20,

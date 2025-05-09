@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
+import { ThemedText } from "../Commons/ThemedText";
 interface ChallengeNameInputProps {
   value: string;
   error: string;
@@ -15,14 +16,16 @@ export default function ChallengeNameInput({
 }: ChallengeNameInputProps) {
   return (
     <View style={styles.inputContainer}>
-      <Text style={styles.label}>{t("challenge_name")}</Text>
+      <ThemedText style={styles.label} bold>
+        {t("challenge_name")}
+      </ThemedText>
       <TextInput
         style={[styles.input, error ? styles.inputError : null]}
         value={value}
         onChangeText={onChange}
         placeholder={t("challenge_name")}
       />
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <ThemedText style={styles.errorText}>{error}</ThemedText> : null}
     </View>
   );
 }
@@ -34,11 +37,10 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 5,
-    fontWeight: "bold",
   },
   input: {
     borderWidth: 1,
-    borderColor: Colors.Gray,
+    borderColor: Colors.PrimaryGray,
     borderRadius: 5,
     padding: 10,
     fontSize: 16,

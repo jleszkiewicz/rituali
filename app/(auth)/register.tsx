@@ -12,6 +12,7 @@ import { AppRoutes } from "@/src/routes/AppRoutes";
 import { Colors } from "../../constants/Colors";
 import { AuthRoutes } from "@/src/routes/AuthRoutes";
 import { t } from "@/src/service/translateService";
+import { ThemedText } from "@/components/Commons/ThemedText";
 
 export default function RegisterScreen() {
   const { register } = useAuth();
@@ -27,7 +28,7 @@ export default function RegisterScreen() {
 
   return (
     <View style={styles.innerContainer}>
-      <Text style={styles.title}>{t("register_title")}</Text>
+      <ThemedText style={styles.title}>{t("register_title")}</ThemedText>
       <TextInput
         style={styles.input}
         placeholder={t("email_placeholder")}
@@ -44,13 +45,17 @@ export default function RegisterScreen() {
         placeholderTextColor={Colors.PrimaryGray}
       />
       <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>{t("register_button")}</Text>
+        <ThemedText style={styles.buttonText} bold>
+          {t("register_button")}
+        </ThemedText>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.loginButton}
         onPress={() => router.push(AuthRoutes.Login)}
       >
-        <Text style={styles.loginButtonText}>{t("login_redirect")}</Text>
+        <ThemedText style={styles.loginButtonText}>
+          {t("login_redirect")}
+        </ThemedText>
       </TouchableOpacity>
     </View>
   );
@@ -68,7 +73,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "600",
     color: Colors.PrimaryRed,
     marginBottom: 40,
   },
@@ -97,7 +101,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: Colors.White,
     fontSize: 18,
-    fontWeight: "500",
   },
   loginButton: {
     marginTop: 10,

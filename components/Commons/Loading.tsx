@@ -1,30 +1,17 @@
-import { View, Text, StyleSheet } from "react-native";
-import ScreenWrapper from "./ScreenWrapper";
-import { SafeAreaView } from "react-native";
-import { ActivityIndicator } from "react-native";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { t } from "@/src/service/translateService";
+import { ThemedText } from "./ThemedText";
+
 const Loading = () => {
   return (
-    <SafeAreaView style={styles.container}>
-      <ScreenWrapper>
-        <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color={Colors.PrimaryPink} />
-          <Text style={styles.loadingText}>{t("loading")}</Text>
-        </View>
-      </ScreenWrapper>
-    </SafeAreaView>
+    <View style={styles.loaderContainer}>
+      <ActivityIndicator size="large" color={Colors.PrimaryPink} />
+      <ThemedText style={styles.loadingText}>Loading...</ThemedText>
+    </View>
   );
 };
 
-export default Loading;
-
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: Colors.White,
-    flex: 1,
-    marginTop: 10,
-  },
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
@@ -36,3 +23,5 @@ const styles = StyleSheet.create({
     color: Colors.PrimaryGray,
   },
 });
+
+export default Loading;

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   Modal,
   TextInput,
@@ -25,6 +24,7 @@ import { fetchUserHabits } from "@/src/service/apiService";
 import CategoriesSelector from "../AddHabitModal/CategoriesSelector";
 import { t } from "@/src/service/translateService";
 import ModalButtons from "../AddChallengeModal/ModalButtons";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface AddHabitModalProps {
   isVisible: boolean;
@@ -143,10 +143,10 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>{t("add_habit")}</Text>
+          <ThemedText style={styles.title}>{t("add_habit")}</ThemedText>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>{t("habit_name")}</Text>
+            <ThemedText style={styles.label}>{t("habit_name")}</ThemedText>
             <TextInput
               style={[styles.input, errors.name ? styles.inputError : null]}
               value={habitData.name}
@@ -157,7 +157,7 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
               placeholder={t("habit_name")}
             />
             {errors.name ? (
-              <Text style={styles.errorText}>{errors.name}</Text>
+              <ThemedText style={styles.errorText}>{errors.name}</ThemedText>
             ) : null}
           </View>
 
@@ -181,7 +181,7 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
             }}
           />
           {errors.challenge && (
-            <Text style={styles.errorText}>{errors.challenge}</Text>
+            <ThemedText style={styles.errorText}>{errors.challenge}</ThemedText>
           )}
 
           <FrequencySelector
@@ -195,10 +195,12 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
             <>
               <DaySelector
                 selectedDays={habitData.selectedDays}
-                onToggleDay={handleDaySelect}
+                onDayToggle={handleDaySelect}
               />
               {errors.selectedDays && (
-                <Text style={styles.errorText}>{errors.selectedDays}</Text>
+                <ThemedText style={styles.errorText}>
+                  {errors.selectedDays}
+                </ThemedText>
               )}
             </>
           )}
@@ -241,7 +243,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: Colors.Gray,
+    borderColor: Colors.DarkGray,
     borderRadius: 5,
     padding: 10,
     fontSize: 16,
@@ -266,7 +268,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: Colors.Gray,
+    backgroundColor: Colors.DarkGray,
   },
   submitButton: {
     backgroundColor: Colors.HotPink,

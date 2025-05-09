@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { format, isValid } from "date-fns";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { dateFormat } from "@/constants/Constants";
+import { t } from "@/src/service/translateService";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface DateSelectorProps {
   label: string;
@@ -13,13 +15,13 @@ interface DateSelectorProps {
   maxDate?: Date;
 }
 
-const DateSelector: React.FC<DateSelectorProps> = ({
+const DateSelector = ({
   label,
   date,
   onDateChange,
   minDate,
   maxDate,
-}) => {
+}: DateSelectorProps) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [displayDate, setDisplayDate] = useState<Date>(
     isValid(date) ? date : new Date()
@@ -40,13 +42,15 @@ const DateSelector: React.FC<DateSelectorProps> = ({
   };
 
   return (
-    <View style={styles.dateContainer}>
-      <Text style={styles.sectionTitle}>{label}</Text>
+    <View style={styles.container}>
+      <ThemedText style={styles.label}>{label}</ThemedText>
       <TouchableOpacity
         onPress={() => setShowDatePicker(true)}
         style={styles.dateButton}
       >
-        <Text>{format(displayDate, dateFormat)}</Text>
+        <ThemedText style={styles.dateText}>
+          {format(displayDate, dateFormat)}
+        </ThemedText>
       </TouchableOpacity>
       <DateTimePickerModal
         minimumDate={minDate}
@@ -63,23 +67,21 @@ const DateSelector: React.FC<DateSelectorProps> = ({
 };
 
 const styles = StyleSheet.create({
-  dateContainer: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
+  container: {
+    marginBottom: 15,
   },
-  sectionTitle: {
+  label: {
     fontSize: 16,
-    fontWeight: "600",
+    marginBottom: 5,
   },
   dateButton: {
-    padding: 10,
     borderWidth: 1,
     borderColor: Colors.PrimaryGray,
-    borderRadius: 10,
-    marginBottom: 10,
+    borderRadius: 5,
+    padding: 10,
+  },
+  dateText: {
+    fontSize: 16,
   },
 });
 

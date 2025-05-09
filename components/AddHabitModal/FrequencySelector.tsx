@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
 import { Frequency } from "./types";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface FrequencySelectorProps {
   frequency: Frequency;
@@ -15,7 +16,7 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({
 }) => {
   return (
     <View style={styles.frequencyContainer}>
-      <Text style={styles.sectionTitle}>{t("frequency")}</Text>
+      <ThemedText style={styles.sectionTitle}>{t("frequency")}</ThemedText>
       <View style={styles.frequencyButtons}>
         <TouchableOpacity
           style={[
@@ -24,14 +25,14 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({
           ]}
           onPress={() => onFrequencyChange("daily")}
         >
-          <Text
+          <ThemedText
             style={[
               styles.frequencyText,
               frequency === "daily" && styles.selectedFrequencyText,
             ]}
           >
             {t("daily")}
-          </Text>
+          </ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -40,14 +41,14 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({
           ]}
           onPress={() => onFrequencyChange("weekly")}
         >
-          <Text
+          <ThemedText
             style={[
               styles.frequencyText,
               frequency === "weekly" && styles.selectedFrequencyText,
             ]}
           >
             {t("weekly")}
-          </Text>
+          </ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -56,14 +57,14 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({
           ]}
           onPress={() => onFrequencyChange("monthly")}
         >
-          <Text
+          <ThemedText
             style={[
               styles.frequencyText,
               frequency === "monthly" && styles.selectedFrequencyText,
             ]}
           >
             {t("monthly")}
-          </Text>
+          </ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -72,14 +73,14 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({
           ]}
           onPress={() => onFrequencyChange("selected_days")}
         >
-          <Text
+          <ThemedText
             style={[
               styles.frequencyText,
               frequency === "selected_days" && styles.selectedFrequencyText,
             ]}
           >
             {t("selected_days")}
-          </Text>
+          </ThemedText>
         </TouchableOpacity>
       </View>
     </View>
@@ -93,7 +94,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "600",
     marginBottom: 10,
   },
   frequencyButtons: {

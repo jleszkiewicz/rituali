@@ -5,7 +5,6 @@ import { Ionicons } from "@expo/vector-icons";
 import {
   View,
   StyleSheet,
-  Text,
   TouchableOpacity,
   Animated,
   PanResponder,
@@ -18,6 +17,7 @@ import { selectHabits, setHabits } from "@/src/store/habitsSlice";
 import { updateHabitCompletion } from "@/src/service/apiService";
 import { isAfter, parseISO, isToday } from "date-fns";
 import DeleteHabitModal from "../modals/DeleteHabitModal";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface HabitCardProps {
   habit: HabitData;
@@ -128,9 +128,9 @@ const HabitCard: React.FC<HabitCardProps> = ({
             <Ionicons name={name as any} size={30} color={color} />
           </View>
           <View style={styles.textContainer}>
-            <Text style={styles.title}>{habit.name}</Text>
+            <ThemedText style={styles.title}>{habit.name}</ThemedText>
             {isTodayDate && streak > 0 && (
-              <Text style={styles.streak}>{`${streak} 🔥`}</Text>
+              <ThemedText style={styles.streak}>{`${streak} 🔥`}</ThemedText>
             )}
           </View>
           {!isFutureDate && (
@@ -180,7 +180,7 @@ const HabitCard: React.FC<HabitCardProps> = ({
           }}
         >
           <Ionicons name="create-outline" size={24} color={Colors.White} />
-          <Text style={styles.editButtonText}>{t("edit")}</Text>
+          <ThemedText style={styles.editButtonText}>{t("edit")}</ThemedText>
         </TouchableOpacity>
       </Animated.View>
       <Animated.View
@@ -208,7 +208,7 @@ const HabitCard: React.FC<HabitCardProps> = ({
           }}
         >
           <Ionicons name="trash-outline" size={24} color={Colors.White} />
-          <Text style={styles.deleteButtonText}>{t("delete")}</Text>
+          <ThemedText style={styles.deleteButtonText}>{t("delete")}</ThemedText>
         </TouchableOpacity>
       </Animated.View>
       <DeleteHabitModal

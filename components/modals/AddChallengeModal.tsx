@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Modal, Animated } from "react-native";
+import { View, StyleSheet, Modal, Animated } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { addChallenge, fetchUserChallenges } from "@/src/service/apiService";
@@ -13,6 +13,7 @@ import DurationInput from "../AddChallengeModal/DurationInput";
 import HabitsSelector from "../AddChallengeModal/HabitsSelector";
 import ModalButtons from "../AddChallengeModal/ModalButtons";
 import { t } from "@/src/service/translateService";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface AddChallengeModalProps {
   isVisible: boolean;
@@ -182,7 +183,7 @@ export default function AddChallengeModal({
             },
           ]}
         >
-          <Text style={styles.title}>{t("add_challenge")}</Text>
+          <ThemedText style={styles.title}>{t("add_challenge")}</ThemedText>
 
           <ChallengeNameInput
             value={challengeData.name}
@@ -249,7 +250,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: "bold",
     marginBottom: 40,
     textAlign: "center",
   },

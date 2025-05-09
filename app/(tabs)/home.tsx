@@ -26,6 +26,7 @@ import ChallengesList from "@/components/HomeScreen/ChallengesList";
 import { t } from "@/src/service/translateService";
 import ConditionalRenderer from "@/components/Commons/ConditionalRenderer";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
+import { ThemedText } from "@/components/Commons/ThemedText";
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
@@ -100,7 +101,7 @@ export default function HomeScreen() {
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <ConditionalRenderer condition={activeChallenges.length > 0}>
-          <Text style={styles.sectionTitle}>{t("challenges")}</Text>
+          <ThemedText style={styles.sectionTitle}>{t("challenges")}</ThemedText>
           {activeChallenges.length > 0 && (
             <ChallengesList
               challenges={activeChallenges}
@@ -110,7 +111,7 @@ export default function HomeScreen() {
           )}
         </ConditionalRenderer>
         <ConditionalRenderer condition={activeHabits.length > 0}>
-          <Text style={styles.sectionTitle}>{t("habits")}</Text>
+          <ThemedText style={styles.sectionTitle}>{t("habits")}</ThemedText>
           {activeHabits.map((habit) => (
             <HabitCard
               key={habit.id}
