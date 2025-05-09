@@ -56,9 +56,7 @@ const DeleteHabitModal = ({
         <View style={styles.modalContent}>
           <ThemedText style={styles.title}>{t("delete_habit")}</ThemedText>
           <ThemedText style={styles.message}>
-            {t("delete_habit_confirmation", {
-              habitName: habits.find((h) => h.id === habitId)?.name,
-            })}
+            {t("delete_habit_confirmation")}
           </ThemedText>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
@@ -119,7 +117,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: Colors.Gray,
+    backgroundColor: Colors.LightGray,
   },
   deleteButton: {
     backgroundColor: Colors.HotPink,

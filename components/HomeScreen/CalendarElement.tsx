@@ -33,8 +33,8 @@ const CalendarElement: React.FC<CalendarElementProps> = ({
 
   const getCircleColor = () => {
     if (isSelected) return Colors.HotPink;
-    if (isToday && !isSelected) return Colors.LightPink;
-    return Colors.LightGray;
+    if (isToday && !isSelected) return Colors.PrimaryGray;
+    return Colors.White;
   };
 
   return (

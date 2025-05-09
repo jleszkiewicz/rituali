@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 40,
+    marginBottom: 15,
     textAlign: "center",
   },
   inputContainer: {
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: Colors.DarkGray,
+    borderColor: Colors.LightGray,
     borderRadius: 5,
     padding: 10,
     fontSize: 16,

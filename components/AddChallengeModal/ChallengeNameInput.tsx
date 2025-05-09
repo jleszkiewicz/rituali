@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: Colors.PrimaryGray,
+    borderColor: Colors.LightGray,
     borderRadius: 5,
     padding: 10,
     fontSize: 16,

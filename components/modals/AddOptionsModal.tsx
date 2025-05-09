@@ -3,7 +3,7 @@ import { TouchableOpacity, StyleSheet, Modal, View } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
-
+import { LinearGradient } from "expo-linear-gradient";
 interface AddOptionsModalProps {
   isVisible: boolean;
   onClose: () => void;
@@ -17,6 +17,23 @@ const AddOptionsModal = ({
   onAddHabit,
   onAddChallenge,
 }: AddOptionsModalProps) => {
+  const Button = ({ onPress, text }: { onPress: () => void; text: string }) => {
+    return (
+      <LinearGradient
+        colors={[Colors.HotPink, Colors.ButterYellow]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.option}
+      >
+        <TouchableOpacity onPress={onPress}>
+          <ThemedText style={styles.optionText} bold>
+            {text}
+          </ThemedText>
+        </TouchableOpacity>
+      </LinearGradient>
+    );
+  };
+
   return (
     <Modal
       visible={isVisible}
@@ -26,15 +43,8 @@ const AddOptionsModal = ({
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <ThemedText style={styles.title}>{t("add_new")}</ThemedText>
-          <TouchableOpacity style={styles.option} onPress={onAddHabit}>
-            <ThemedText style={styles.optionText}>{t("add_habit")}</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.option} onPress={onAddChallenge}>
-            <ThemedText style={styles.optionText}>
-              {t("add_challenge")}
-            </ThemedText>
-          </TouchableOpacity>
+          <Button onPress={onAddHabit} text={t("add_habit")} />
+          <Button onPress={onAddChallenge} text={t("add_challenge")} />
           <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
             <ThemedText style={styles.cancelButtonText}>
               {t("cancel")}
@@ -65,12 +75,13 @@ const styles = StyleSheet.create({
   },
   option: {
     padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.PrimaryGray,
+    backgroundColor: Colors.HotPink,
+    borderRadius: 10,
+    marginBottom: 10,
   },
   optionText: {
     fontSize: 16,
-    color: Colors.PrimaryGray,
+    color: Colors.White,
   },
   cancelButton: {
     padding: 15,
@@ -78,7 +89,7 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     fontSize: 16,
-    color: Colors.PrimaryRed,
+    color: Colors.PrimaryGray,
     textAlign: "center",
   },
 });

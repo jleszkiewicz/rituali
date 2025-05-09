@@ -2,6 +2,7 @@ import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "../Commons/ThemedText";
+import { LinearGradient } from "expo-linear-gradient";
 
 const RecommendedChallenge = () => {
   const zasady = [
@@ -12,9 +13,21 @@ const RecommendedChallenge = () => {
     "Zrób 30 przysiadów dziennie",
   ];
   return (
-    <View style={styles.container}>
-      <ThemedText style={styles.title}>Recommended Challenge</ThemedText>
-      <ThemedText style={styles.duration}>{"30 dni"}</ThemedText>
+    <LinearGradient
+      colors={[Colors.PrimaryGray, Colors.PrimaryGray]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
+    >
+      <View style={styles.headerContainer}>
+        <ThemedText style={styles.title}>Recommended Challenge</ThemedText>
+        <View style={styles.durationContainer}>
+          <ThemedText style={styles.duration} bold>
+            {"30"}
+          </ThemedText>
+          <ThemedText style={styles.durationDays}>{"dni"}</ThemedText>
+        </View>
+      </View>
       <View style={styles.rulesContainer}>
         {zasady.map((zasada) => (
           <ThemedText style={styles.rule}>{`• ${zasada}`}</ThemedText>
@@ -22,9 +35,9 @@ const RecommendedChallenge = () => {
       </View>
       <TouchableOpacity style={styles.buttonContainer}>
         <ThemedText style={styles.buttonText}>Start</ThemedText>
-        <Ionicons name="arrow-forward" size={24} color={Colors.White} />
+        <Ionicons name="arrow-forward" size={24} color={Colors.HotPink} />
       </TouchableOpacity>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -35,14 +48,15 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 16,
+    fontSize: 26,
+    lineHeight: 30,
     fontWeight: "bold",
-    color: Colors.White,
+    color: Colors.HotPink,
   },
   duration: {
-    fontSize: 16,
+    fontSize: 26,
     color: Colors.White,
-    marginVertical: 10,
+    lineHeight: 30,
   },
   rulesContainer: {
     marginTop: 10,
@@ -57,16 +71,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    borderWidth: 1,
-    borderColor: Colors.White,
+    backgroundColor: Colors.ButterYellow,
     borderRadius: 10,
     padding: 10,
     alignSelf: "flex-end",
   },
   buttonText: {
     fontSize: 16,
-    color: Colors.White,
+    color: Colors.HotPink,
     fontWeight: "bold",
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  durationDays: {
+    fontSize: 16,
+    color: Colors.White,
+  },
+  durationContainer: {
+    justifyContent: "flex-start",
+    alignItems: "center",
   },
 });
 

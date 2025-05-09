@@ -2,10 +2,16 @@ import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Modal, Animated } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
-import { addChallenge, fetchUserChallenges } from "@/src/service/apiService";
+import {
+  addChallenge,
+  fetchUserChallenges,
+  updateHabit,
+  fetchUserHabits,
+} from "@/src/service/apiService";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import { setChallenges } from "@/src/store/challengesSlice";
+import { setHabits } from "@/src/store/habitsSlice";
 import DateSelector from "../AddHabitModal/DateSelector";
 import AddHabitModal from "./AddHabitModal";
 import ChallengeNameInput from "../AddChallengeModal/ChallengeNameInput";
@@ -107,13 +113,27 @@ export default function AddChallengeModal({
       const endDate = new Date(challengeData.startDate);
       endDate.setDate(endDate.getDate() + days - 1);
 
-      await addChallenge(userId, {
+      const newChallenge = await addChallenge(userId, {
         ...challengeData,
         endDate: endDate.toISOString(),
       });
 
+      const habits = await fetchUserHabits(userId);
+      const updatedHabits = await Promise.all(
+        habits
+          .filter((habit) => challengeData.habits.includes(habit.id))
+          .map((habit) =>
+            updateHabit(habit.id, {
+              ...habit,
+              isPartOfChallenge: true,
+              challenges: [...habit.challenges, newChallenge[0].id],
+            })
+          )
+      );
+
       const updatedChallenges = await fetchUserChallenges(userId);
       dispatch(setChallenges(updatedChallenges));
+      dispatch(setHabits(updatedHabits));
 
       setChallengeData({
         id: "",
@@ -183,7 +203,9 @@ export default function AddChallengeModal({
             },
           ]}
         >
-          <ThemedText style={styles.title}>{t("add_challenge")}</ThemedText>
+          <ThemedText style={styles.title} bold>
+            {t("add_challenge")}
+          </ThemedText>
 
           <ChallengeNameInput
             value={challengeData.name}
@@ -250,7 +272,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    marginBottom: 40,
+    marginBottom: 20,
     textAlign: "center",
   },
 });

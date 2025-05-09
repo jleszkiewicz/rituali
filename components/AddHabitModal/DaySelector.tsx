@@ -54,19 +54,19 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   dayButton: {
-    padding: 10,
+    padding: 4,
     borderWidth: 1,
     borderRadius: 10,
-    minWidth: "45%",
+    minWidth: "10%",
     alignItems: "center",
-    borderColor: Colors.PrimaryPink,
+    borderColor: Colors.HotPink,
   },
   selectedDay: {
-    backgroundColor: Colors.PrimaryPink,
+    backgroundColor: Colors.HotPink,
   },
   dayText: {
     color: Colors.Black,
-    fontSize: 14,
+    fontSize: 12,
   },
   selectedDayText: {
     color: Colors.White,

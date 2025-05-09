@@ -16,7 +16,7 @@ const ModalButtons = ({ onCancel, onSubmit }: ModalButtonsProps) => {
         <ThemedText style={styles.cancelButtonText}>{t("cancel")}</ThemedText>
       </TouchableOpacity>
       <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
-        <ThemedText style={styles.submitButtonText}>{t("add")}</ThemedText>
+        <ThemedText style={styles.submitButtonText}>{t("submit")}</ThemedText>
       </TouchableOpacity>
     </View>
   );
@@ -26,27 +26,28 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20,
+    marginTop: 10,
   },
   cancelButton: {
     flex: 1,
-    marginRight: 10,
-    padding: 15,
+    marginEnd: 10,
+    padding: 10,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: Colors.PrimaryPink,
+    borderColor: Colors.HotPink,
     alignItems: "center",
+    justifyContent: "center",
   },
   submitButton: {
     flex: 1,
-    marginLeft: 10,
-    padding: 15,
+    marginStart: 10,
+    padding: 10,
     borderRadius: 10,
-    backgroundColor: Colors.PrimaryPink,
+    backgroundColor: Colors.HotPink,
     alignItems: "center",
   },
   cancelButtonText: {
-    color: Colors.PrimaryPink,
+    color: Colors.HotPink,
     fontSize: 16,
   },
   submitButtonText: {

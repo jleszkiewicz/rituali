@@ -16,7 +16,9 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({
 }) => {
   return (
     <View style={styles.frequencyContainer}>
-      <ThemedText style={styles.sectionTitle}>{t("frequency")}</ThemedText>
+      <ThemedText style={styles.sectionTitle} bold>
+        {t("frequency")}
+      </ThemedText>
       <View style={styles.frequencyButtons}>
         <TouchableOpacity
           style={[
@@ -102,15 +104,15 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   frequencyButton: {
-    padding: 10,
+    padding: 6,
     borderWidth: 1,
     borderRadius: 10,
     minWidth: "45%",
     alignItems: "center",
-    borderColor: Colors.PrimaryPink,
+    borderColor: Colors.HotPink,
   },
   selectedFrequency: {
-    backgroundColor: Colors.PrimaryPink,
+    backgroundColor: Colors.HotPink,
     color: Colors.White,
   },
   frequencyText: {

@@ -43,7 +43,9 @@ const DateSelector = ({
 
   return (
     <View style={styles.container}>
-      <ThemedText style={styles.label}>{label}</ThemedText>
+      <ThemedText style={styles.label} bold>
+        {label}
+      </ThemedText>
       <TouchableOpacity
         onPress={() => setShowDatePicker(true)}
         style={styles.dateButton}
@@ -76,7 +78,7 @@ const styles = StyleSheet.create({
   },
   dateButton: {
     borderWidth: 1,
-    borderColor: Colors.PrimaryGray,
+    borderColor: Colors.LightGray,
     borderRadius: 5,
     padding: 10,
   },

@@ -1,12 +1,12 @@
 import React from "react";
-import { View, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { HabitData } from "@/components/AddHabitModal/types";
-import { Ionicons } from "@expo/vector-icons";
 import { t } from "@/src/service/translateService";
 import { useSelector } from "react-redux";
 import { selectActiveHabits } from "@/src/store/habitsSlice";
 import { ThemedText } from "../Commons/ThemedText";
+import Dropdown from "../Commons/Dropdown";
 
 interface HabitsSelectorProps {
   selectedHabits: string[];
@@ -29,62 +29,32 @@ export default function HabitsSelector({
 
   return (
     <View style={styles.inputContainer}>
-      <TouchableOpacity
-        style={styles.dropdownHeader}
-        onPress={onToggleExpanded}
-      >
-        <ThemedText style={styles.dropdownHeaderText}>
-          {selectedHabits.length > 0
+      <ThemedText style={styles.label} bold>
+        {t("habits")}
+      </ThemedText>
+      <Dropdown
+        isExpanded={isExpanded}
+        onToggle={onToggleExpanded}
+        selectedText={
+          selectedHabits.length > 0
             ? `${t("habits_selected")}: ${selectedHabits.length}`
-            : t("select_habits")}
-        </ThemedText>
-        <ThemedText style={styles.dropdownArrow}>
-          {isExpanded ? "▲" : "▼"}
-        </ThemedText>
-      </TouchableOpacity>
-
-      {isExpanded && (
-        <ScrollView style={styles.dropdownContent}>
-          {activeHabits.length === 0 ? (
-            <ThemedText style={styles.noHabits}>
-              {t("no_active_habits")}
-            </ThemedText>
-          ) : (
-            <>
-              {activeHabits.map((habit) => (
-                <TouchableOpacity
-                  key={habit.id}
-                  style={[
-                    styles.dropdownItem,
-                    selectedHabits.includes(habit.id) && styles.selectedHabit,
-                  ]}
-                  onPress={() => onToggleHabit(habit.id)}
-                >
-                  <ThemedText
-                    style={[
-                      styles.dropdownItemText,
-                      selectedHabits.includes(habit.id) &&
-                        styles.selectedHabitText,
-                    ]}
-                  >
-                    {habit.name}
-                  </ThemedText>
-                </TouchableOpacity>
-              ))}
-              <TouchableOpacity
-                style={styles.addHabitButton}
-                onPress={onAddHabit}
-              >
-                <Ionicons name="add" size={20} color={Colors.White} />
-                <ThemedText style={styles.addHabitButtonText}>
-                  {t("add_new_habit")}
-                </ThemedText>
-              </TouchableOpacity>
-            </>
-          )}
-        </ScrollView>
-      )}
-      {error ? <ThemedText style={styles.errorText}>{error}</ThemedText> : null}
+            : ""
+        }
+        placeholder={t("select_habits")}
+        items={activeHabits.map((habit) => ({
+          id: habit.id,
+          label: habit.name,
+          isSelected: selectedHabits.includes(habit.id),
+        }))}
+        onItemSelect={onToggleHabit}
+        noItemsText={t("no_active_habits")}
+        addButton={{
+          text: t("add_new_habit"),
+          onPress: onAddHabit,
+        }}
+        error={error}
+        expandHeight
+      />
     </View>
   );
 }
@@ -93,67 +63,8 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 15,
   },
-  dropdownHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-    borderWidth: 1,
-    borderColor: Colors.DarkGray,
-    borderRadius: 5,
-    marginBottom: 5,
-  },
-  dropdownHeaderText: {
+  label: {
     fontSize: 16,
-  },
-  dropdownArrow: {
-    fontSize: 12,
-  },
-  dropdownContent: {
-    maxHeight: 190,
-    borderWidth: 1,
-    borderColor: Colors.LightGray,
-    borderRadius: 5,
     marginBottom: 5,
-  },
-  dropdownItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.LightGray,
-  },
-  selectedHabit: {
-    backgroundColor: Colors.HotPink,
-  },
-  noHabits: {
-    padding: 10,
-    textAlign: "center",
-    color: Colors.PrimaryGray,
-  },
-  dropdownItemText: {
-    fontSize: 14,
-  },
-  selectedHabitText: {
-    color: Colors.White,
-    fontWeight: "bold",
-  },
-  addHabitButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.HotPink,
-    padding: 10,
-    borderBottomLeftRadius: 5,
-    borderBottomRightRadius: 5,
-  },
-  addHabitButtonText: {
-    color: Colors.White,
-    fontSize: 14,
-    fontWeight: "bold",
-    marginLeft: 5,
-  },
-  errorText: {
-    color: Colors.PrimaryRed,
-    fontSize: 12,
-    marginTop: 5,
   },
 });

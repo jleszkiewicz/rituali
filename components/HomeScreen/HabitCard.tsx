@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import {
   View,
   StyleSheet,
+  Text,
   TouchableOpacity,
   Animated,
   PanResponder,
@@ -100,7 +101,7 @@ const HabitCard: React.FC<HabitCardProps> = ({
     habit.completionDates,
     habit.selectedDays
   );
-  const { name, color, backgroundColor } = getIconForCategory(habit.category);
+  const iconName = getIconForCategory(habit.category);
 
   return (
     <View style={styles.container}>
@@ -124,11 +125,18 @@ const HabitCard: React.FC<HabitCardProps> = ({
         {...panResponder.panHandlers}
       >
         <View style={styles.cardContent}>
-          <View style={{ ...styles.iconContainer, backgroundColor }}>
-            <Ionicons name={name as any} size={30} color={color} />
+          <View
+            style={{
+              ...styles.iconContainer,
+              backgroundColor: Colors.LightPink,
+            }}
+          >
+            <Ionicons name={iconName as any} size={30} color={Colors.HotPink} />
           </View>
           <View style={styles.textContainer}>
-            <ThemedText style={styles.title}>{habit.name}</ThemedText>
+            <ThemedText style={styles.title} bold>
+              {habit.name}
+            </ThemedText>
             {isTodayDate && streak > 0 && (
               <ThemedText style={styles.streak}>{`${streak} 🔥`}</ThemedText>
             )}
@@ -145,11 +153,7 @@ const HabitCard: React.FC<HabitCardProps> = ({
               disabled={isLoading}
             >
               {isCompleted && (
-                <Ionicons
-                  name="checkmark-sharp"
-                  size={20}
-                  color={Colors.White}
-                />
+                <Ionicons name="checkmark" size={20} color={Colors.White} />
               )}
             </TouchableOpacity>
           )}
@@ -180,7 +184,9 @@ const HabitCard: React.FC<HabitCardProps> = ({
           }}
         >
           <Ionicons name="create-outline" size={24} color={Colors.White} />
-          <ThemedText style={styles.editButtonText}>{t("edit")}</ThemedText>
+          <ThemedText style={styles.editButtonText} bold>
+            {t("edit")}
+          </ThemedText>
         </TouchableOpacity>
       </Animated.View>
       <Animated.View
@@ -208,7 +214,9 @@ const HabitCard: React.FC<HabitCardProps> = ({
           }}
         >
           <Ionicons name="trash-outline" size={24} color={Colors.White} />
-          <ThemedText style={styles.deleteButtonText}>{t("delete")}</ThemedText>
+          <ThemedText style={styles.deleteButtonText} bold>
+            {t("delete")}
+          </ThemedText>
         </TouchableOpacity>
       </Animated.View>
       <DeleteHabitModal
@@ -226,16 +234,16 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     marginVertical: 5,
-    overflow: "hidden",
     height: 60,
   },
   card: {
+    margin: 1,
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
-    backgroundColor: Colors.LightGray,
     borderRadius: 10,
     flex: 1,
+    backgroundColor: Colors.White,
     height: "100%",
   },
   cardContent: {
@@ -265,12 +273,12 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: Colors.HotPink,
+    borderColor: Colors.PrimaryGray,
     alignItems: "center",
     justifyContent: "center",
   },
   checkboxChecked: {
-    backgroundColor: Colors.HotPink,
+    backgroundColor: Colors.PrimaryGray,
   },
   checkboxDisabled: {
     opacity: 0.5,
@@ -284,7 +292,7 @@ const styles = StyleSheet.create({
     width: 80,
   },
   editButton: {
-    backgroundColor: Colors.PrimaryPink,
+    backgroundColor: Colors.HotPink,
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
@@ -293,9 +301,8 @@ const styles = StyleSheet.create({
   },
   editButtonText: {
     color: Colors.White,
-    marginLeft: 5,
+    marginStart: 5,
     fontSize: 14,
-    fontWeight: "600",
   },
   deleteButtonContainer: {
     position: "absolute",

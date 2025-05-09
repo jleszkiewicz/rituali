@@ -4,9 +4,8 @@ import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { Svg, Circle } from "react-native-svg";
-import { format, differenceInDays } from "date-fns";
+import { differenceInDays } from "date-fns";
 import { t } from "@/src/service/translateService";
-import { LinearGradient } from "expo-linear-gradient";
 import { ThemedText } from "../Commons/ThemedText";
 
 interface ChallengeCardProps {
@@ -49,12 +48,7 @@ export default function ChallengeCard({
     circumference - (progressPercentage / 100) * circumference;
 
   return (
-    <LinearGradient
-      colors={[Colors.LightPink, Colors.HotPink]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[styles.container, { width }]}
-    >
+    <View style={[styles.container, { width }]}>
       <ThemedText style={styles.title} bold>
         {challenge.name}
       </ThemedText>
@@ -74,7 +68,7 @@ export default function ChallengeCard({
               cx={radius + 5}
               cy={radius + 5}
               r={radius}
-              stroke={Colors.DarkPink}
+              stroke={Colors.HotPink}
               strokeWidth={5}
               fill="none"
               strokeDasharray={circumference}
@@ -90,7 +84,6 @@ export default function ChallengeCard({
           </View>
         </View>
       </View>
-
       <View style={styles.timeProgressContainer}>
         <View style={styles.timeProgressBar}>
           <View
@@ -101,19 +94,33 @@ export default function ChallengeCard({
           />
         </View>
         <ThemedText style={styles.timeProgressText} bold>
-          {daysPassed}/{totalDays} {t("days")}
+          {daysPassed}/{totalDays} {totalDays === 1 ? t("days_one") : t("days")}
         </ThemedText>
       </View>
-    </LinearGradient>
+      <View style={styles.timeProgressContainer}>
+        <View style={styles.timeProgressBar}>
+          <View
+            style={[
+              styles.timeProgressFill,
+              { width: `${timeProgressPercentage}%` },
+            ]}
+          />
+        </View>
+        <ThemedText style={styles.timeProgressText} bold>
+          {daysPassed}/{totalDays} {totalDays === 1 ? t("days_one") : t("days")}
+        </ThemedText>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: Colors.PrimaryGray,
     borderRadius: 10,
     padding: 15,
     marginRight: 10,
-    shadowColor: "#000",
+    shadowColor: Colors.Black,
     shadowOffset: {
       width: 0,
       height: 2,

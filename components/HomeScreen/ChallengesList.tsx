@@ -46,14 +46,13 @@ export default function ChallengesList({
         data={chunkArray(challenges, cardsPerPage)}
         renderItem={({ item: pageItems }) => (
           <View style={{ flexDirection: "row", width: pageWidth }}>
-            {pageItems.map((challenge: ChallengeData, itemIndex: number) => (
+            {pageItems.map((challenge: ChallengeData) => (
               <ChallengeCard
                 key={challenge.id}
                 challenge={challenge}
                 habits={habits}
                 selectedDate={format(selectedDate, dateFormat)}
                 width={cardWidth}
-                isLastInPage={itemIndex % cardsPerPage === cardsPerPage - 1}
               />
             ))}
           </View>

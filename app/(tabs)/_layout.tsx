@@ -25,7 +25,17 @@ export default function TabsLayout() {
 
   return (
     <>
-      <Tabs>
+      <Tabs
+        screenOptions={{
+          tabBarIconStyle: {
+            color: Colors.PrimaryGray,
+            marginTop: 10,
+          },
+          tabBarShowLabel: false,
+          tabBarActiveTintColor: Colors.PrimaryGray,
+          tabBarInactiveTintColor: Colors.PrimaryGray,
+        }}
+      >
         <Tabs.Screen
           name="home"
           options={{
@@ -37,9 +47,6 @@ export default function TabsLayout() {
                 color={color}
               />
             ),
-            tabBarShowLabel: false,
-            tabBarActiveTintColor: Colors.HotPink,
-            tabBarInactiveTintColor: Colors.PrimaryGray,
           }}
         />
         <Tabs.Screen
@@ -53,9 +60,6 @@ export default function TabsLayout() {
                 size={30}
               />
             ),
-            tabBarActiveTintColor: Colors.HotPink,
-            tabBarInactiveTintColor: Colors.PrimaryGray,
-            tabBarShowLabel: false,
           }}
         />
         <Tabs.Screen
@@ -82,9 +86,6 @@ export default function TabsLayout() {
                 size={26}
               />
             ),
-            tabBarActiveTintColor: Colors.HotPink,
-            tabBarInactiveTintColor: Colors.PrimaryGray,
-            tabBarShowLabel: false,
           }}
         />
         <Tabs.Screen
@@ -98,9 +99,6 @@ export default function TabsLayout() {
                 size={28}
               />
             ),
-            tabBarActiveTintColor: Colors.HotPink,
-            tabBarInactiveTintColor: Colors.PrimaryGray,
-            tabBarShowLabel: false,
           }}
         />
       </Tabs>
@@ -128,7 +126,7 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   button: {
     position: "absolute",
-    top: -10,
+    top: -0,
     left: "50%",
     transform: [{ translateX: -30 }],
     backgroundColor: Colors.HotPink,

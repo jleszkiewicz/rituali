@@ -13,7 +13,9 @@ interface DurationInputProps {
 const DurationInput = ({ value, error, onChange }: DurationInputProps) => {
   return (
     <View style={styles.container}>
-      <ThemedText style={styles.label}>{t("duration_days")}</ThemedText>
+      <ThemedText style={styles.label} bold>
+        {t("duration_days")}
+      </ThemedText>
       <TextInput
         style={[styles.input, error && styles.inputError]}
         value={value}
@@ -37,7 +39,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: Colors.PrimaryGray,
+    borderColor: Colors.LightGray,
     borderRadius: 5,
     padding: 10,
     fontSize: 16,

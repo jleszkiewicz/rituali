@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, Text, StyleSheet, ScrollView, View } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import {
@@ -15,7 +15,6 @@ import CalendarCarousel from "@/components/HomeScreen/CalendarCarousel";
 import { format } from "date-fns";
 import { Colors } from "@/constants/Colors";
 import type { HabitData } from "../../components/AddHabitModal/types";
-import type { ChallengeData } from "@/components/AddChallengeModal/types";
 import AddHabitModal from "@/components/modals/AddHabitModal";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import HabitCard from "@/components/HomeScreen/HabitCard";
@@ -99,29 +98,35 @@ export default function HomeScreen() {
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
       />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <ConditionalRenderer condition={activeChallenges.length > 0}>
-          <ThemedText style={styles.sectionTitle}>{t("challenges")}</ThemedText>
-          {activeChallenges.length > 0 && (
-            <ChallengesList
-              challenges={activeChallenges}
-              habits={habits}
-              selectedDate={format(selectedDate, dateFormat)}
-            />
-          )}
-        </ConditionalRenderer>
-        <ConditionalRenderer condition={activeHabits.length > 0}>
-          <ThemedText style={styles.sectionTitle}>{t("habits")}</ThemedText>
-          {activeHabits.map((habit) => (
-            <HabitCard
-              key={habit.id}
-              habit={habit}
-              selectedDate={format(selectedDate, dateFormat)}
-              onEdit={handleEditHabit}
-            />
-          ))}
-        </ConditionalRenderer>
-      </ScrollView>
+      {activeHabits.length > 0 ? (
+        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+          <ConditionalRenderer condition={activeChallenges.length > 0}>
+            <ThemedText style={styles.sectionTitle}>
+              {t("challenges")}
+            </ThemedText>
+            {activeChallenges.length > 0 && (
+              <ChallengesList
+                challenges={activeChallenges}
+                habits={habits}
+                selectedDate={format(selectedDate, dateFormat)}
+              />
+            )}
+          </ConditionalRenderer>
+          <ConditionalRenderer condition={activeHabits.length > 0}>
+            <ThemedText style={styles.sectionTitle}>{t("habits")}</ThemedText>
+            {activeHabits.map((habit) => (
+              <HabitCard
+                key={habit.id}
+                habit={habit}
+                selectedDate={format(selectedDate, dateFormat)}
+                onEdit={handleEditHabit}
+              />
+            ))}
+          </ConditionalRenderer>
+        </ScrollView>
+      ) : (
+        <EmptyHabitsList />
+      )}
       <AddHabitModal
         isVisible={isAddHabitModalVisible}
         onClose={handleCloseModal}
