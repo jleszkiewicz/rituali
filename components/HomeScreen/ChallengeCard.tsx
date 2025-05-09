@@ -13,7 +13,6 @@ interface ChallengeCardProps {
   habits: HabitData[];
   selectedDate: string;
   width: number;
-  isLastInPage?: boolean;
 }
 
 export default function ChallengeCard({
@@ -21,7 +20,6 @@ export default function ChallengeCard({
   habits,
   selectedDate,
   width,
-  isLastInPage,
 }: ChallengeCardProps) {
   const challengeHabits = habits.filter((habit) =>
     challenge.habits.includes(habit.id)
@@ -54,7 +52,7 @@ export default function ChallengeCard({
       colors={[Colors.LightPink, Colors.HotPink]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={[styles.container, { width }, isLastInPage && styles.lastCard]}
+      style={[styles.container, { width }]}
     >
       <Text style={styles.title}>{challenge.name}</Text>
 
@@ -120,9 +118,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
-  },
-  lastCard: {
-    marginRight: 0,
   },
   title: {
     marginBottom: 8,

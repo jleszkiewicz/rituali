@@ -24,6 +24,7 @@ import { setHabits } from "@/src/store/habitsSlice";
 import { fetchUserHabits } from "@/src/service/apiService";
 import CategoriesSelector from "../AddHabitModal/CategoriesSelector";
 import { t } from "@/src/service/translateService";
+import ModalButtons from "../AddChallengeModal/ModalButtons";
 
 interface AddHabitModalProps {
   isVisible: boolean;
@@ -202,20 +203,7 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
             </>
           )}
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={onClose}
-            >
-              <Text style={styles.buttonText}>{t("cancel")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.submitButton]}
-              onPress={handleSubmit}
-            >
-              <Text style={styles.buttonText}>{t("submit")}</Text>
-            </TouchableOpacity>
-          </View>
+          <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
         </View>
       </View>
     </Modal>

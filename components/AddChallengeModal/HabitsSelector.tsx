@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
     borderWidth: 1,
-    borderColor: Colors.Gray,
+    borderColor: Colors.DarkGray,
     borderRadius: 5,
     marginBottom: 5,
   },
@@ -113,17 +113,17 @@ const styles = StyleSheet.create({
   dropdownContent: {
     maxHeight: 190,
     borderWidth: 1,
-    borderColor: Colors.Gray,
+    borderColor: Colors.LightGray,
     borderRadius: 5,
     marginBottom: 5,
   },
   dropdownItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.Gray,
+    borderBottomColor: Colors.LightGray,
   },
   selectedHabit: {
-    backgroundColor: Colors.PrimaryPink,
+    backgroundColor: Colors.HotPink,
   },
   noHabits: {
     padding: 10,

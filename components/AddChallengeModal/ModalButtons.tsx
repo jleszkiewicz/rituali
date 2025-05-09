@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: Colors.Gray,
+    backgroundColor: Colors.DarkGray,
   },
   submitButton: {
     backgroundColor: Colors.HotPink,

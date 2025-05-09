@@ -20,4 +20,5 @@ export const Colors = {
     LightBrown: "#F0D0B0",
     Brown: "#A52A2A",
     DarkPink: "#e65a70",
+    DarkGray: "#74767a",
 };

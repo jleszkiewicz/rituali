@@ -136,15 +136,21 @@ const HabitCard: React.FC<HabitCardProps> = ({
           {!isFutureDate && (
             <TouchableOpacity
               style={[
-                styles.radioButton,
-                isCompleted && styles.radioButtonChecked,
-                isLoading && styles.radioButtonDisabled,
+                styles.checkbox,
+                isCompleted && styles.checkboxChecked,
+                isLoading && styles.checkboxDisabled,
               ]}
               onPress={toggleCompletion}
               activeOpacity={0.7}
               disabled={isLoading}
             >
-              {isCompleted && <View style={styles.radioButtonInner} />}
+              {isCompleted && (
+                <Ionicons
+                  name="checkmark-sharp"
+                  size={20}
+                  color={Colors.White}
+                />
+              )}
             </TouchableOpacity>
           )}
         </View>
@@ -255,27 +261,21 @@ const styles = StyleSheet.create({
     color: Colors.PrimaryGray,
     textAlign: "left",
   },
-  radioButton: {
+  checkbox: {
     width: 24,
     height: 24,
-    borderRadius: 12,
+    borderRadius: 6,
     borderWidth: 2,
-    borderColor: Colors.PrimaryPink,
+    borderColor: Colors.HotPink,
     alignItems: "center",
     justifyContent: "center",
   },
-  radioButtonChecked: {
-    backgroundColor: Colors.PrimaryPink,
+  checkboxChecked: {
+    backgroundColor: Colors.HotPink,
   },
-  radioButtonDisabled: {
+  checkboxDisabled: {
     opacity: 0.5,
     backgroundColor: Colors.LightGray,
-  },
-  radioButtonInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 8,
-    backgroundColor: Colors.White,
   },
   editButtonContainer: {
     position: "absolute",

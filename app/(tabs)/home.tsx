@@ -25,6 +25,7 @@ import Loading from "@/components/Commons/Loading";
 import ChallengesList from "@/components/HomeScreen/ChallengesList";
 import { t } from "@/src/service/translateService";
 import ConditionalRenderer from "@/components/Commons/ConditionalRenderer";
+import ScreenHeader from "@/components/Commons/ScreenHeader";
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
@@ -91,43 +92,41 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScreenWrapper>
-        <Text style={styles.selectedDateText}>{getTitle(selectedDate)}</Text>
-        <CalendarCarousel
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-        />
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <ConditionalRenderer condition={activeChallenges.length > 0}>
-            <Text style={styles.sectionTitle}>{t("challenges")}</Text>
-            {activeChallenges.length > 0 && (
-              <ChallengesList
-                challenges={activeChallenges}
-                habits={habits}
-                selectedDate={format(selectedDate, dateFormat)}
-              />
-            )}
-          </ConditionalRenderer>
-          <ConditionalRenderer condition={activeHabits.length > 0}>
-            <Text style={styles.sectionTitle}>{t("habits")}</Text>
-            {activeHabits.map((habit) => (
-              <HabitCard
-                key={habit.id}
-                habit={habit}
-                selectedDate={format(selectedDate, dateFormat)}
-                onEdit={handleEditHabit}
-              />
-            ))}
-          </ConditionalRenderer>
-        </ScrollView>
-        <AddHabitModal
-          isVisible={isAddHabitModalVisible}
-          onClose={handleCloseModal}
-          habit={editingHabit}
-        />
-      </ScreenWrapper>
-    </SafeAreaView>
+    <ScreenWrapper>
+      <ScreenHeader title={getTitle(selectedDate)} />
+      <CalendarCarousel
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <ConditionalRenderer condition={activeChallenges.length > 0}>
+          <Text style={styles.sectionTitle}>{t("challenges")}</Text>
+          {activeChallenges.length > 0 && (
+            <ChallengesList
+              challenges={activeChallenges}
+              habits={habits}
+              selectedDate={format(selectedDate, dateFormat)}
+            />
+          )}
+        </ConditionalRenderer>
+        <ConditionalRenderer condition={activeHabits.length > 0}>
+          <Text style={styles.sectionTitle}>{t("habits")}</Text>
+          {activeHabits.map((habit) => (
+            <HabitCard
+              key={habit.id}
+              habit={habit}
+              selectedDate={format(selectedDate, dateFormat)}
+              onEdit={handleEditHabit}
+            />
+          ))}
+        </ConditionalRenderer>
+      </ScrollView>
+      <AddHabitModal
+        isVisible={isAddHabitModalVisible}
+        onClose={handleCloseModal}
+        habit={editingHabit}
+      />
+    </ScreenWrapper>
   );
 }
 
@@ -136,13 +135,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     flex: 1,
     marginTop: 10,
-  },
-  selectedDateText: {
-    textAlign: "center",
-    marginVertical: 20,
-    fontSize: 18,
-    fontWeight: "600",
-    color: Colors.PrimaryGray,
   },
   sectionTitle: {
     fontSize: 18,
