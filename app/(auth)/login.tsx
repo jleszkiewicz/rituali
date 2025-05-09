@@ -8,6 +8,7 @@ import { Colors } from "../../constants/Colors";
 import { AuthRoutes } from "@/src/routes/AuthRoutes";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "@/components/Commons/ThemedText";
+import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 
 export default function LoginScreen() {
   const { login, isLoading } = useAuth();
@@ -23,52 +24,56 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.innerContainer}>
-      <ThemedText style={styles.title}>{t("login_title")}</ThemedText>
-      <TextInput
-        style={styles.input}
-        placeholder={t("email_placeholder")}
-        value={email}
-        onChangeText={setEmail}
-        placeholderTextColor={Colors.PrimaryGray}
-      />
-      <View style={styles.passwordContainer}>
+    <ScreenWrapper>
+      <View style={styles.innerContainer}>
+        <ThemedText style={styles.title} bold>
+          {t("login_title")}
+        </ThemedText>
         <TextInput
           style={styles.input}
-          placeholder={t("password_placeholder")}
-          secureTextEntry={!showPassword}
-          value={password}
-          onChangeText={setPassword}
+          placeholder={t("email_placeholder")}
+          value={email}
+          onChangeText={setEmail}
           placeholderTextColor={Colors.PrimaryGray}
         />
-        <TouchableOpacity
-          onPress={() => setShowPassword(!showPassword)}
-          style={styles.icon}
-        >
-          <Ionicons
-            name={showPassword ? "eye-off" : "eye"}
-            size={24}
-            color={Colors.PrimaryRed}
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder={t("password_placeholder")}
+            secureTextEntry={!showPassword}
+            value={password}
+            onChangeText={setPassword}
+            placeholderTextColor={Colors.PrimaryGray}
           />
+          <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+            style={styles.icon}
+          >
+            <Ionicons
+              name={showPassword ? "eye-off" : "eye"}
+              size={24}
+              color={Colors.PrimaryRed}
+            />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleLogin}
+          disabled={isLoading}
+        >
+          <ThemedText style={styles.buttonText}>{t("login_button")}</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.registerButton}
+          onPress={() => router.push(AuthRoutes.Register)}
+          disabled={isLoading}
+        >
+          <ThemedText style={styles.registerButtonText}>
+            {t("register_redirect")}
+          </ThemedText>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleLogin}
-        disabled={isLoading}
-      >
-        <ThemedText style={styles.buttonText}>{t("login_button")}</ThemedText>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.registerButton}
-        onPress={() => router.push(AuthRoutes.Register)}
-        disabled={isLoading}
-      >
-        <ThemedText style={styles.registerButtonText}>
-          {t("register_redirect")}
-        </ThemedText>
-      </TouchableOpacity>
-    </View>
+    </ScreenWrapper>
   );
 }
 
@@ -77,15 +82,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
-    marginTop: 50,
-    zIndex: 1,
     backgroundColor: Colors.White,
   },
   title: {
     fontSize: 28,
     color: Colors.PrimaryRed,
     marginBottom: 40,
+    lineHeight: 34,
   },
   input: {
     width: "100%",
@@ -98,6 +101,7 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     fontSize: 16,
     color: Colors.Black,
+    fontFamily: "Poppins-Regular",
   },
   button: {
     width: "100%",

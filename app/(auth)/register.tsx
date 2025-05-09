@@ -13,7 +13,7 @@ import { Colors } from "../../constants/Colors";
 import { AuthRoutes } from "@/src/routes/AuthRoutes";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "@/components/Commons/ThemedText";
-
+import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 export default function RegisterScreen() {
   const { register } = useAuth();
   const router = useRouter();
@@ -27,37 +27,41 @@ export default function RegisterScreen() {
   };
 
   return (
-    <View style={styles.innerContainer}>
-      <ThemedText style={styles.title}>{t("register_title")}</ThemedText>
-      <TextInput
-        style={styles.input}
-        placeholder={t("email_placeholder")}
-        value={email}
-        onChangeText={setEmail}
-        placeholderTextColor={Colors.PrimaryGray}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder={t("password_placeholder")}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        placeholderTextColor={Colors.PrimaryGray}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <ThemedText style={styles.buttonText} bold>
-          {t("register_button")}
+    <ScreenWrapper>
+      <View style={styles.innerContainer}>
+        <ThemedText style={styles.title} bold>
+          {t("register_title")}
         </ThemedText>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.loginButton}
-        onPress={() => router.push(AuthRoutes.Login)}
-      >
-        <ThemedText style={styles.loginButtonText}>
-          {t("login_redirect")}
-        </ThemedText>
-      </TouchableOpacity>
-    </View>
+        <TextInput
+          style={styles.input}
+          placeholder={t("email_placeholder")}
+          value={email}
+          onChangeText={setEmail}
+          placeholderTextColor={Colors.PrimaryGray}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder={t("password_placeholder")}
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          placeholderTextColor={Colors.PrimaryGray}
+        />
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+          <ThemedText style={styles.buttonText} bold>
+            {t("register_button")}
+          </ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.loginButton}
+          onPress={() => router.push(AuthRoutes.Login)}
+        >
+          <ThemedText style={styles.loginButtonText}>
+            {t("login_redirect")}
+          </ThemedText>
+        </TouchableOpacity>
+      </View>
+    </ScreenWrapper>
   );
 }
 
@@ -66,15 +70,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
-    marginTop: 50,
-    zIndex: 1,
     backgroundColor: Colors.White,
   },
   title: {
     fontSize: 28,
     color: Colors.PrimaryRed,
     marginBottom: 40,
+    lineHeight: 34,
   },
   input: {
     width: "100%",
@@ -87,6 +89,7 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     fontSize: 16,
     color: Colors.Black,
+    fontFamily: "Poppins-Regular",
   },
   button: {
     width: "100%",

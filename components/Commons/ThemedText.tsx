@@ -26,5 +26,7 @@ const styles = StyleSheet.create({
     color: Colors.PrimaryGray,
     fontSize: 16,
     lineHeight: 24,
+    includeFontPadding: false,
+    textAlignVertical: "center",
   },
 });

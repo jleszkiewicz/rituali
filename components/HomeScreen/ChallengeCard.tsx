@@ -55,7 +55,9 @@ export default function ChallengeCard({
       end={{ x: 1, y: 1 }}
       style={[styles.container, { width }]}
     >
-      <ThemedText style={styles.title}>{challenge.name}</ThemedText>
+      <ThemedText style={styles.title} bold>
+        {challenge.name}
+      </ThemedText>
 
       <View style={styles.progressContainer}>
         <View style={styles.circularProgressContainer}>
@@ -98,7 +100,7 @@ export default function ChallengeCard({
             ]}
           />
         </View>
-        <ThemedText style={styles.timeProgressText}>
+        <ThemedText style={styles.timeProgressText} bold>
           {daysPassed}/{totalDays} {t("days")}
         </ThemedText>
       </View>

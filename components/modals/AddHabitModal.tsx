@@ -247,6 +247,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     fontSize: 16,
+    fontFamily: "Poppins-Regular",
   },
   inputError: {
     borderColor: Colors.PrimaryRed,
