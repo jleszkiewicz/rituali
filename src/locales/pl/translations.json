@@ -78,7 +78,7 @@
   "habits_selected": "Wybrane nawyki",
   "select_at_least_one_habit": "Wybierz przynajmniej jeden nawyk",
   "challenges": "Wyzwania",
-  "habits": "Nawyki",
+  "habits": "nawyki",
   "mon": "Pon",
   "tue": "Wt",
   "wed": "Śr",
@@ -87,4 +87,6 @@
   "sat": "Sob",
   "sun": "Nd",
   "delete_habit": "Usuń nawyk",
+  "completed_for_today": "Ukończono na dzisiaj 👏",
+  "please_complete_me": "Proszę o ukończenie 🥺"
 }

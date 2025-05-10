@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   label: {
+    textTransform: "capitalize",
     fontSize: 16,
     marginBottom: 5,
   },

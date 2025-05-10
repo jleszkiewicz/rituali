@@ -118,22 +118,31 @@ export default function AddChallengeModal({
         endDate: endDate.toISOString(),
       });
 
-      const habits = await fetchUserHabits(userId);
+      // Get all habits
+      const allHabits = await fetchUserHabits(userId);
+
+      // Update habits that are part of this challenge
       const updatedHabits = await Promise.all(
-        habits
-          .filter((habit) => challengeData.habits.includes(habit.id))
-          .map((habit) =>
-            updateHabit(habit.id, {
-              ...habit,
-              isPartOfChallenge: true,
-              challenges: [...habit.challenges, newChallenge[0].id],
-            })
-          )
+        allHabits.map((habit) =>
+          challengeData.habits.includes(habit.id)
+            ? updateHabit(habit.id, {
+                ...habit,
+                isPartOfChallenge: true,
+                challenges: [...habit.challenges, newChallenge[0].id],
+              })
+            : Promise.resolve(habit)
+        )
       );
 
-      const updatedChallenges = await fetchUserChallenges(userId);
-      dispatch(setChallenges(updatedChallenges));
-      dispatch(setHabits(updatedHabits));
+      // Fetch fresh data for both challenges and habits
+      const [freshChallenges, freshHabits] = await Promise.all([
+        fetchUserChallenges(userId),
+        fetchUserHabits(userId),
+      ]);
+
+      // Update store with fresh data
+      dispatch(setChallenges(freshChallenges));
+      dispatch(setHabits(freshHabits));
 
       setChallengeData({
         id: "",

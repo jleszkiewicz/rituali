@@ -147,5 +147,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: Colors.PrimaryGray,
     marginBottom: 10,
+    textTransform: "capitalize",
   },
 });

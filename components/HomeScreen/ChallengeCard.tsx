@@ -1,12 +1,13 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { HabitData } from "@/components/AddHabitModal/types";
-import { Svg, Circle } from "react-native-svg";
 import { differenceInDays } from "date-fns";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
+import { AppRoutes } from "@/src/routes/AppRoutes";
+import { router } from "expo-router";
 
 interface ChallengeCardProps {
   challenge: ChallengeData;
@@ -42,75 +43,52 @@ export default function ChallengeCard({
     100
   );
 
-  const radius = 30;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset =
-    circumference - (progressPercentage / 100) * circumference;
+  const isCompleted = completedHabits === totalHabits && totalHabits > 0;
+
+  const naviagteToChallengesScreen = () => {
+    router.push(AppRoutes.Challenges);
+  };
 
   return (
-    <View style={[styles.container, { width }]}>
-      <ThemedText style={styles.title} bold>
-        {challenge.name}
-      </ThemedText>
+    <>
+      <TouchableOpacity
+        style={[styles.container, { width }]}
+        onPress={() => naviagteToChallengesScreen()}
+      >
+        <ThemedText style={styles.title} bold>
+          {challenge.name}
+        </ThemedText>
+        <ThemedText style={styles.statusText} bold>
+          {isCompleted ? t("completed_for_today") : t("please_complete_me")}
+        </ThemedText>
 
-      <View style={styles.progressContainer}>
-        <View style={styles.circularProgressContainer}>
-          <Svg width={radius * 2 + 10} height={radius * 2 + 10}>
-            <Circle
-              cx={radius + 5}
-              cy={radius + 5}
-              r={radius}
-              stroke={Colors.White}
-              strokeWidth={5}
-              fill="none"
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <View
+              style={[styles.progressFill, { width: `${progressPercentage}%` }]}
             />
-            <Circle
-              cx={radius + 5}
-              cy={radius + 5}
-              r={radius}
-              stroke={Colors.HotPink}
-              strokeWidth={5}
-              fill="none"
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-              transform={`rotate(-90 ${radius + 5} ${radius + 5})`}
-            />
-          </Svg>
-          <View style={styles.progressTextContainer}>
-            <ThemedText style={styles.progressText}>
-              {completedHabits}/{totalHabits}
-            </ThemedText>
           </View>
+          <ThemedText style={styles.progressText} bold>
+            {completedHabits}/{totalHabits} {t("habits")}
+          </ThemedText>
         </View>
-      </View>
-      <View style={styles.timeProgressContainer}>
-        <View style={styles.timeProgressBar}>
-          <View
-            style={[
-              styles.timeProgressFill,
-              { width: `${timeProgressPercentage}%` },
-            ]}
-          />
+
+        <View style={styles.timeProgressContainer}>
+          <View style={styles.timeProgressBar}>
+            <View
+              style={[
+                styles.timeProgressFill,
+                { width: `${timeProgressPercentage}%` },
+              ]}
+            />
+          </View>
+          <ThemedText style={styles.timeProgressText} bold>
+            {daysPassed}/{totalDays}{" "}
+            {totalDays === 1 ? t("days_one") : t("days")}
+          </ThemedText>
         </View>
-        <ThemedText style={styles.timeProgressText} bold>
-          {daysPassed}/{totalDays} {totalDays === 1 ? t("days_one") : t("days")}
-        </ThemedText>
-      </View>
-      <View style={styles.timeProgressContainer}>
-        <View style={styles.timeProgressBar}>
-          <View
-            style={[
-              styles.timeProgressFill,
-              { width: `${timeProgressPercentage}%` },
-            ]}
-          />
-        </View>
-        <ThemedText style={styles.timeProgressText} bold>
-          {daysPassed}/{totalDays} {totalDays === 1 ? t("days_one") : t("days")}
-        </ThemedText>
-      </View>
-    </View>
+      </TouchableOpacity>
+    </>
   );
 }
 
@@ -130,31 +108,35 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    marginBottom: 8,
     fontSize: 17,
     textAlign: "left",
     color: Colors.White,
   },
+  statusText: {
+    fontSize: 15,
+    color: Colors.ButterYellow,
+    marginTop: 4,
+    opacity: 0.8,
+  },
   progressContainer: {
-    alignItems: "center",
+    marginTop: 10,
   },
-  circularProgressContainer: {
-    position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
+  progressBar: {
+    height: 6,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    borderRadius: 3,
+    overflow: "hidden",
   },
-  progressTextContainer: {
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
+  progressFill: {
+    height: "100%",
+    backgroundColor: Colors.HotPink,
+    borderRadius: 3,
   },
   progressText: {
-    fontSize: 16,
-    color: Colors.White,
-  },
-  progressLabel: {
     fontSize: 12,
     color: Colors.White,
+    textAlign: "center",
+    marginTop: 5,
   },
   timeProgressContainer: {
     marginTop: 10,

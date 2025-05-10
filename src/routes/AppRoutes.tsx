@@ -1,6 +1,6 @@
 export const AppRoutes = {
   Home: "/(tabs)/home",
-  Explore: "/(tabs)/explore",
+  Challenges: "/(tabs)/challenges",
 } as const;
 
 export type AppRoutes = keyof typeof AppRoutes;
