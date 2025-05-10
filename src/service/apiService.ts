@@ -174,3 +174,38 @@ export const updateHabit = async (habitId: string, habit: Omit<HabitData, "id">)
     throw error;
   }
 };
+
+export const deleteChallenge = async (challengeId: string) => {
+  try {
+    const { error } = await supabase
+      .from("challenges")
+      .delete()
+      .eq("id", challengeId);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error("Error deleting challenge:", error);
+    throw error;
+  }
+};
+
+export const updateChallengeHabits = async (challengeId: string, habits: string[]) => {
+  try {
+    const { data, error } = await supabase
+      .from("challenges")
+      .update({ habits })
+      .eq("id", challengeId)
+      .select();
+
+    if (error) {
+      console.error("Error updating challenge habits:", error);
+      throw error;
+    }
+
+    return data[0];
+  } catch (error) {
+    console.error("Error updating challenge habits:", error);
+    throw error;
+  }
+};

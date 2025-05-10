@@ -25,29 +25,38 @@ import CategoriesSelector from "../AddHabitModal/CategoriesSelector";
 import { t } from "@/src/service/translateService";
 import ModalButtons from "../AddChallengeModal/ModalButtons";
 import { ThemedText } from "../Commons/ThemedText";
+import { updateChallengeHabits } from "@/src/service/apiService";
+import { selectChallenges } from "@/src/store/challengesSlice";
 
 interface AddHabitModalProps {
   isVisible: boolean;
   onClose: () => void;
   habit?: HabitData;
+  initialChallengeId?: string;
 }
 
-const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
+const AddHabitModal = ({
+  isVisible,
+  onClose,
+  habit,
+  initialChallengeId,
+}: AddHabitModalProps) => {
   const dispatch = useDispatch();
+  const userId = useSelector(selectUserId);
+  const challenges = useSelector(selectChallenges);
   const habitDataInitialState = {
     id: "",
     name: "",
     frequency: "daily" as Frequency,
     selectedDays: [],
-    challenges: [],
+    challenges: initialChallengeId ? [initialChallengeId] : [],
     category: "other" as HabitCategory,
-    isPartOfChallenge: false,
+    isPartOfChallenge: !!initialChallengeId,
     startDate: new Date().toISOString(),
     endDate: null,
     completionDates: [],
     status: "active" as HabitStatus,
   };
-  const userId = useSelector(selectUserId);
   const [habitData, setHabitData] = useState<HabitData>(
     habit ? habit : habitDataInitialState
   );
@@ -72,9 +81,11 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
         ...habitDataInitialState,
         startDate: today.toISOString().split("T")[0],
         endDate: null,
+        challenges: initialChallengeId ? [initialChallengeId] : [],
+        isPartOfChallenge: !!initialChallengeId,
       });
     }
-  }, [habit]);
+  }, [habit, initialChallengeId]);
 
   const validateForm = () => {
     const newErrors = {
@@ -106,14 +117,32 @@ const AddHabitModal = ({ isVisible, onClose, habit }: AddHabitModalProps) => {
     if (!validateForm() || !userId) return;
 
     try {
+      let newHabit;
       if (habit) {
-        await updateHabit(habit.id, {
+        newHabit = await updateHabit(habit.id, {
           ...habitData,
         });
       } else {
-        await addHabit(userId, {
+        const result = await addHabit(userId, {
           ...habitData,
         });
+        newHabit = result[0];
+      }
+
+      if (
+        newHabit &&
+        habitData.isPartOfChallenge &&
+        habitData.challenges.length > 0
+      ) {
+        for (const challengeId of habitData.challenges) {
+          const challenge = challenges.find((c) => c.id === challengeId);
+          if (challenge) {
+            await updateChallengeHabits(challengeId, [
+              ...challenge.habits,
+              newHabit.id,
+            ]);
+          }
+        }
       }
 
       const updatedHabits = await fetchUserHabits(userId);

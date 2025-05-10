@@ -1,14 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { HabitData } from "@/components/AddHabitModal/types";
-import { Svg, Circle } from "react-native-svg";
 import { differenceInDays } from "date-fns";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import HabitCard from "../HomeScreen/HabitCard";
+import CircularProgress from "../Commons/CircularProgress";
+import AddHabitModal from "./AddHabitModal";
+import { useDispatch, useSelector } from "react-redux";
+import { selectUserId } from "@/src/store/userSlice";
+import {
+  deleteChallenge,
+  fetchUserChallenges,
+  fetchUserHabits,
+} from "@/src/service/apiService";
+import { setChallenges } from "@/src/store/challengesSlice";
+import { setHabits } from "@/src/store/habitsSlice";
+import { HabitCategory } from "@/components/AddHabitModal/types";
 
 interface ChallengeInfoModalProps {
   isVisible: boolean;
@@ -25,6 +36,10 @@ export default function ChallengeInfoModal({
   habits,
   selectedDate,
 }: ChallengeInfoModalProps) {
+  const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
+  const dispatch = useDispatch();
+  const userId = useSelector(selectUserId);
+
   const challengeHabits = habits.filter((habit) =>
     challenge.habits.includes(habit.id)
   );
@@ -46,10 +61,33 @@ export default function ChallengeInfoModal({
     100
   );
 
-  const radius = 50;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset =
-    circumference - (progressPercentage / 100) * circumference;
+  const handleAddHabit = () => {
+    setIsAddHabitModalVisible(true);
+  };
+
+  const handleAddHabitModalClose = async () => {
+    setIsAddHabitModalVisible(false);
+    if (userId) {
+      const [updatedHabits, updatedChallenges] = await Promise.all([
+        fetchUserHabits(userId),
+        fetchUserChallenges(userId),
+      ]);
+      dispatch(setHabits(updatedHabits));
+      dispatch(setChallenges(updatedChallenges));
+    }
+  };
+
+  const handleDeleteChallenge = async () => {
+    if (!userId) return;
+    try {
+      await deleteChallenge(challenge.id);
+      const updatedChallenges = await fetchUserChallenges(userId);
+      dispatch(setChallenges(updatedChallenges));
+      onClose();
+    } catch (error) {
+      console.error("Error deleting challenge:", error);
+    }
+  };
 
   return (
     <Modal
@@ -70,56 +108,48 @@ export default function ChallengeInfoModal({
           </View>
 
           <View style={styles.progressContainer}>
-            <View style={styles.circularProgressContainer}>
-              <Svg width={radius * 2 + 10} height={radius * 2 + 10}>
-                <Circle
-                  cx={radius + 5}
-                  cy={radius + 5}
-                  r={radius}
-                  stroke={Colors.White}
-                  strokeWidth={5}
-                  fill="none"
-                />
-                <Circle
-                  cx={radius + 5}
-                  cy={radius + 5}
-                  r={radius}
-                  stroke={Colors.HotPink}
-                  strokeWidth={5}
-                  fill="none"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={strokeDashoffset}
-                  strokeLinecap="round"
-                  transform={`rotate(-90 ${radius + 5} ${radius + 5})`}
-                />
-              </Svg>
-              <View style={styles.progressTextContainer}>
-                <ThemedText style={styles.progressText}>
-                  {completedHabits}/{totalHabits}
-                </ThemedText>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.timeProgressContainer}>
-            <View style={styles.timeProgressBar}>
-              <View
-                style={[
-                  styles.timeProgressFill,
-                  { width: `${timeProgressPercentage}%` },
-                ]}
+            <View style={styles.progressSection}>
+              <ThemedText style={styles.progressTitle} bold>
+                {t("habits_progress")}
+              </ThemedText>
+              <CircularProgress
+                progress={progressPercentage}
+                text={`${completedHabits}/${totalHabits}`}
+                color={Colors.HotPink}
               />
             </View>
-            <ThemedText style={styles.timeProgressText} bold>
-              {daysPassed}/{totalDays}{" "}
-              {totalDays === 1 ? t("days_one") : t("days")}
-            </ThemedText>
+
+            <View style={styles.progressSection}>
+              <ThemedText style={styles.progressTitle} bold>
+                {t("time_progress")}
+              </ThemedText>
+              <CircularProgress
+                progress={timeProgressPercentage}
+                text={`${daysPassed}/${totalDays}`}
+                color={Colors.White}
+              />
+            </View>
           </View>
 
           <View style={styles.habitsContainer}>
-            <ThemedText style={styles.habitsTitle} bold>
-              {t("habits")}
-            </ThemedText>
+            <View style={styles.habitsHeader}>
+              <ThemedText style={styles.habitsTitle} bold>
+                {t("habits")}
+              </ThemedText>
+              <TouchableOpacity
+                style={styles.addHabitButton}
+                onPress={handleAddHabit}
+              >
+                <Ionicons
+                  name="add-circle-outline"
+                  size={24}
+                  color={Colors.White}
+                />
+                <ThemedText style={styles.addHabitText}>
+                  {t("add_habit")}
+                </ThemedText>
+              </TouchableOpacity>
+            </View>
             {challengeHabits.map((habit) => (
               <HabitCard
                 key={habit.id}
@@ -129,8 +159,24 @@ export default function ChallengeInfoModal({
               />
             ))}
           </View>
+
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={handleDeleteChallenge}
+          >
+            <Ionicons name="trash-outline" size={24} color={Colors.HotPink} />
+            <ThemedText style={styles.deleteButtonText}>
+              {t("delete_challenge")}
+            </ThemedText>
+          </TouchableOpacity>
         </View>
       </View>
+
+      <AddHabitModal
+        isVisible={isAddHabitModalVisible}
+        onClose={handleAddHabitModalClose}
+        initialChallengeId={challenge.id}
+      />
     </Modal>
   );
 }
@@ -164,49 +210,54 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   progressContainer: {
-    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginBottom: 20,
   },
-  circularProgressContainer: {
-    position: "relative",
+  progressSection: {
     alignItems: "center",
-    justifyContent: "center",
   },
-  progressTextContainer: {
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  progressText: {
-    fontSize: 20,
+  progressTitle: {
+    fontSize: 16,
     color: Colors.White,
-  },
-  timeProgressContainer: {
-    marginBottom: 20,
-  },
-  timeProgressBar: {
-    height: 6,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    borderRadius: 3,
-    overflow: "hidden",
-  },
-  timeProgressFill: {
-    height: "100%",
-    backgroundColor: Colors.White,
-    borderRadius: 3,
-  },
-  timeProgressText: {
-    fontSize: 14,
-    color: Colors.White,
-    textAlign: "center",
-    marginTop: 5,
+    marginBottom: 10,
   },
   habitsContainer: {
     flex: 1,
   },
+  habitsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
   habitsTitle: {
     fontSize: 18,
     color: Colors.White,
-    marginBottom: 10,
+    textTransform: "capitalize",
+  },
+  addHabitButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  addHabitText: {
+    color: Colors.White,
+    fontSize: 16,
+  },
+  deleteButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    padding: 15,
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: Colors.HotPink,
+    borderRadius: 10,
+  },
+  deleteButtonText: {
+    color: Colors.HotPink,
+    fontSize: 16,
   },
 });
