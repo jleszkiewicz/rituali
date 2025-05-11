@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     marginBottom: 10,
-    paddingHorizontal: 20,
   },
 });
 

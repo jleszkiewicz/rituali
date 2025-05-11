@@ -29,7 +29,7 @@ const HabitsSection: React.FC<HabitsSectionProps> = ({
           <Ionicons
             name="add-circle-outline"
             size={24}
-            color={Colors.HotPink}
+            color={Colors.ButterYellow}
           />
           <ThemedText style={styles.addButtonText}>{t("add_habit")}</ThemedText>
         </TouchableOpacity>
@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     color: Colors.White,
+    textTransform: "capitalize",
   },
   addButton: {
     flexDirection: "row",
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   addButtonText: {
-    color: Colors.HotPink,
+    color: Colors.ButterYellow,
     fontSize: 16,
   },
   emptyContainer: {

@@ -21,6 +21,7 @@ import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import { format } from "date-fns";
 import { dateFormat } from "@/constants/Constants";
+import ModalHeader from "./ChallengeInfoModal/ModalHeader";
 
 interface AddChallengeModalProps {
   isVisible: boolean;
@@ -199,9 +200,11 @@ export default function AddChallengeModal({
             },
           ]}
         >
-          <ThemedText style={styles.title} bold>
-            {t("add_challenge")}
-          </ThemedText>
+          <ModalHeader
+            title={t("add_challenge")}
+            onClose={onClose}
+            color={Colors.PrimaryGray}
+          />
 
           <ChallengeNameInput
             value={challengeData.name}
@@ -262,13 +265,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 40,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
     width: "100%",
     maxHeight: "90%",
-  },
-  title: {
-    fontSize: 22,
-    marginBottom: 20,
-    textAlign: "center",
   },
 });

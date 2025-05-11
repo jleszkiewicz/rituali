@@ -29,6 +29,7 @@ import { updateChallengeHabits } from "@/src/service/apiService";
 import { selectChallenges } from "@/src/store/challengesSlice";
 import { format } from "date-fns";
 import { dateFormat } from "@/constants/Constants";
+import ModalHeader from "./ChallengeInfoModal/ModalHeader";
 
 interface AddHabitModalProps {
   isVisible: boolean;
@@ -174,7 +175,11 @@ const AddHabitModal = ({
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <ThemedText style={styles.title}>{t("add_habit")}</ThemedText>
+          <ModalHeader
+            title={t("add_habit")}
+            onClose={onClose}
+            color={Colors.PrimaryGray}
+          />
 
           <View style={styles.inputContainer}>
             <ThemedText style={styles.label}>{t("habit_name")}</ThemedText>
@@ -253,15 +258,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 40,
+    paddingBottom: 40,
+    paddingHorizontal: 20,
     width: "100%",
     maxHeight: "90%",
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 15,
-    textAlign: "center",
   },
   inputContainer: {
     marginBottom: 15,

@@ -6,17 +6,18 @@ import { Ionicons } from "@expo/vector-icons";
 
 interface ModalHeaderProps {
   title: string;
+  color?: string;
   onClose: () => void;
 }
 
-const ModalHeader: React.FC<ModalHeaderProps> = ({ title, onClose }) => {
+const ModalHeader: React.FC<ModalHeaderProps> = ({ title, onClose, color }) => {
   return (
     <View style={styles.header}>
-      <ThemedText style={styles.title} bold>
+      <ThemedText style={[styles.title, { color }]} bold>
         {title}
       </ThemedText>
       <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-        <Ionicons name="close" size={24} color={Colors.White} />
+        <Ionicons name="close" size={24} color={color} />
       </TouchableOpacity>
     </View>
   );

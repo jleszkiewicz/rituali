@@ -117,7 +117,11 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <View>
-            <ModalHeader title={challenge.name} onClose={onClose} />
+            <ModalHeader
+              title={challenge.name}
+              onClose={onClose}
+              color={Colors.White}
+            />
 
             <ProgressSection
               completedHabits={completedHabits}

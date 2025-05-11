@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { t } from "@/src/service/translateService";
 import HabitSelectionItem from "../SelectHabitsModal/HabitSelectionItem";
 import EmptyHabitsList from "../SelectHabitsModal/EmptyHabitsList";
+import ModalHeader from "./ChallengeInfoModal/ModalHeader";
 
 interface SelectHabitsModalProps {
   isVisible: boolean;
@@ -77,15 +78,11 @@ const SelectHabitsModal: React.FC<SelectHabitsModalProps> = ({
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <View style={styles.header}>
-            <ThemedText style={styles.title} bold>
-              {t("select_habits")}
-            </ThemedText>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color={Colors.White} />
-            </TouchableOpacity>
-          </View>
-
+          <ModalHeader
+            title={t("select_habits")}
+            onClose={onClose}
+            color={Colors.White}
+          />
           {renderContent()}
 
           {availableHabits.length > 0 && (
