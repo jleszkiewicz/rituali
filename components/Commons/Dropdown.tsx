@@ -1,5 +1,12 @@
 import React from "react";
-import { View, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "./ThemedText";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,6 +29,7 @@ interface DropdownProps {
   };
   error?: string;
   expandHeight?: boolean;
+  additionalStyle?: StyleProp<ViewStyle>;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -35,6 +43,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   addButton,
   error,
   expandHeight = false,
+  additionalStyle,
 }) => {
   return (
     <View>
@@ -52,6 +61,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           style={[
             styles.dropdownContent,
             expandHeight ? styles.expandHeightContent : styles.absoluteContent,
+            additionalStyle,
           ]}
         >
           {items.length === 0 ? (

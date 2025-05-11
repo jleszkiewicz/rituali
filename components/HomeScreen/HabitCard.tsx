@@ -19,6 +19,7 @@ import { updateHabitCompletion } from "@/src/service/apiService";
 import { isAfter, parseISO, isToday } from "date-fns";
 import DeleteHabitModal from "../modals/DeleteHabitModal";
 import { ThemedText } from "../Commons/ThemedText";
+import EditHabitModal from "../modals/EditHabitModal";
 
 interface HabitCardProps {
   habit: HabitData;
@@ -35,6 +36,7 @@ const HabitCard: React.FC<HabitCardProps> = ({
   const habits = useSelector(selectHabits);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const pan = useRef(new Animated.ValueXY()).current;
 
   const isFutureDate = isAfter(parseISO(selectedDate), new Date());
@@ -104,127 +106,138 @@ const HabitCard: React.FC<HabitCardProps> = ({
   const iconName = getIconForCategory(habit.category);
 
   return (
-    <View style={styles.container}>
-      <Animated.View
-        style={[
-          styles.card,
-          {
-            transform: [{ translateX: pan.x }, { translateY: pan.y }],
-            borderTopEndRadius: pan.x.interpolate({
-              inputRange: [-160, 0],
-              outputRange: [0, 10],
-              extrapolate: "clamp",
-            }),
-            borderBottomEndRadius: pan.x.interpolate({
-              inputRange: [-160, 0],
-              outputRange: [0, 10],
-              extrapolate: "clamp",
-            }),
-          },
-        ]}
-        {...panResponder.panHandlers}
-      >
-        <View style={styles.cardContent}>
-          <View
-            style={{
-              ...styles.iconContainer,
-              backgroundColor: Colors.LightPink,
-            }}
-          >
-            <Ionicons name={iconName as any} size={30} color={Colors.HotPink} />
-          </View>
-          <View style={styles.textContainer}>
-            <ThemedText style={styles.title} bold>
-              {habit.name}
-            </ThemedText>
-            {isTodayDate && streak > 0 && (
-              <ThemedText style={styles.streak}>{`${streak} 🔥`}</ThemedText>
+    <>
+      <View style={styles.container}>
+        <Animated.View
+          style={[
+            styles.card,
+            {
+              transform: [{ translateX: pan.x }, { translateY: pan.y }],
+              borderTopEndRadius: pan.x.interpolate({
+                inputRange: [-160, 0],
+                outputRange: [0, 10],
+                extrapolate: "clamp",
+              }),
+              borderBottomEndRadius: pan.x.interpolate({
+                inputRange: [-160, 0],
+                outputRange: [0, 10],
+                extrapolate: "clamp",
+              }),
+            },
+          ]}
+          {...panResponder.panHandlers}
+        >
+          <View style={styles.cardContent}>
+            <View
+              style={{
+                ...styles.iconContainer,
+                backgroundColor: Colors.LightPink,
+              }}
+            >
+              <Ionicons
+                name={iconName as any}
+                size={30}
+                color={Colors.HotPink}
+              />
+            </View>
+            <View style={styles.textContainer}>
+              <ThemedText style={styles.title} bold>
+                {habit.name}
+              </ThemedText>
+              {isTodayDate && streak > 0 && (
+                <ThemedText style={styles.streak}>{`${streak} 🔥`}</ThemedText>
+              )}
+            </View>
+            {!isFutureDate && (
+              <TouchableOpacity
+                style={[
+                  styles.checkbox,
+                  isCompleted && styles.checkboxChecked,
+                  isLoading && styles.checkboxDisabled,
+                ]}
+                onPress={toggleCompletion}
+                activeOpacity={0.7}
+                disabled={isLoading}
+              >
+                {isCompleted && (
+                  <Ionicons name="checkmark" size={20} color={Colors.White} />
+                )}
+              </TouchableOpacity>
             )}
           </View>
-          {!isFutureDate && (
-            <TouchableOpacity
-              style={[
-                styles.checkbox,
-                isCompleted && styles.checkboxChecked,
-                isLoading && styles.checkboxDisabled,
-              ]}
-              onPress={toggleCompletion}
-              activeOpacity={0.7}
-              disabled={isLoading}
-            >
-              {isCompleted && (
-                <Ionicons name="checkmark" size={20} color={Colors.White} />
-              )}
-            </TouchableOpacity>
-          )}
-        </View>
-      </Animated.View>
-      <Animated.View
-        style={[
-          styles.editButtonContainer,
-          {
-            opacity: pan.x.interpolate({
-              inputRange: [-160, -80, 0],
-              outputRange: [1, 0.5, 0],
-              extrapolate: "clamp",
-            }),
-          },
-        ]}
-      >
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => {
-            Animated.spring(pan, {
-              toValue: { x: 0, y: 0 },
-              useNativeDriver: true,
-              tension: 50,
-              friction: 7,
-            }).start();
-            onEdit(habit);
-          }}
+        </Animated.View>
+        <Animated.View
+          style={[
+            styles.editButtonContainer,
+            {
+              opacity: pan.x.interpolate({
+                inputRange: [-160, -80, 0],
+                outputRange: [1, 0.5, 0],
+                extrapolate: "clamp",
+              }),
+            },
+          ]}
         >
-          <Ionicons name="create-outline" size={24} color={Colors.White} />
-          <ThemedText style={styles.editButtonText} bold>
-            {t("edit")}
-          </ThemedText>
-        </TouchableOpacity>
-      </Animated.View>
-      <Animated.View
-        style={[
-          styles.deleteButtonContainer,
-          {
-            opacity: pan.x.interpolate({
-              inputRange: [-160, -80, 0],
-              outputRange: [1, 0.5, 0],
-              extrapolate: "clamp",
-            }),
-          },
-        ]}
-      >
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => {
-            Animated.spring(pan, {
-              toValue: { x: 0, y: 0 },
-              useNativeDriver: true,
-              tension: 50,
-              friction: 7,
-            }).start();
-            setIsDeleteModalVisible(true);
-          }}
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => {
+              Animated.spring(pan, {
+                toValue: { x: 0, y: 0 },
+                useNativeDriver: true,
+                tension: 50,
+                friction: 7,
+              }).start();
+              setIsEditModalVisible(true);
+            }}
+          >
+            <Ionicons name="create-outline" size={24} color={Colors.White} />
+            <ThemedText style={styles.editButtonText} bold>
+              {t("edit")}
+            </ThemedText>
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View
+          style={[
+            styles.deleteButtonContainer,
+            {
+              opacity: pan.x.interpolate({
+                inputRange: [-160, -80, 0],
+                outputRange: [1, 0.5, 0],
+                extrapolate: "clamp",
+              }),
+            },
+          ]}
         >
-          <Ionicons name="trash-outline" size={24} color={Colors.White} />
-          <ThemedText style={styles.deleteButtonText} bold>
-            {t("delete")}
-          </ThemedText>
-        </TouchableOpacity>
-      </Animated.View>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => {
+              Animated.spring(pan, {
+                toValue: { x: 0, y: 0 },
+                useNativeDriver: true,
+                tension: 50,
+                friction: 7,
+              }).start();
+              setIsDeleteModalVisible(true);
+            }}
+          >
+            <Ionicons name="trash-outline" size={24} color={Colors.White} />
+            <ThemedText style={styles.deleteButtonText} bold>
+              {t("delete")}
+            </ThemedText>
+          </TouchableOpacity>
+        </Animated.View>
+      </View>
       <DeleteHabitModal
         isVisible={isDeleteModalVisible}
         onClose={() => setIsDeleteModalVisible(false)}
         habitId={habit.id}
       />
-    </View>
+      <EditHabitModal
+        isVisible={isEditModalVisible}
+        onClose={() => setIsEditModalVisible(false)}
+        habit={habit}
+      />
+    </>
   );
 };
 

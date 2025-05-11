@@ -14,6 +14,5 @@ export interface HabitData {
   selectedDays: string[];
   completionDates: string[];
   isPartOfChallenge: boolean;
-  challenges: string[];
   status: HabitStatus;
 } 

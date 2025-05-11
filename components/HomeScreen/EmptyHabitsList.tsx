@@ -1,60 +1,39 @@
-import React from "react";
 import { Colors } from "@/constants/Colors";
-import { View, StyleSheet } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import CurvedArrow from "./CurvedArrow";
-import { t } from "@/src/service/translateService";
+import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "../Commons/ThemedText";
+import { t } from "@/src/service/translateService";
+import { View } from "react-native";
+import { StyleSheet } from "react-native";
 
 const EmptyHabitsList = () => {
   return (
-    <>
-      <View style={styles.container}>
-        <MaterialIcons
-          name="playlist-add"
-          size={120}
-          color={Colors.LightPink}
-          style={styles.icon}
-        />
-        <View style={styles.textContainer}>
-          <ThemedText style={styles.text}>{t("no_habits")}</ThemedText>
-        </View>
-        <ThemedText style={styles.description}>
-          {t("add_habit_to_start")}
-        </ThemedText>
-        <CurvedArrow />
-      </View>
-    </>
+    <View style={styles.container}>
+      <Ionicons name="list" size={60} color={Colors.PrimaryGray} />
+      <ThemedText style={styles.title}>{t("no_habits_title")}</ThemedText>
+      <ThemedText style={styles.description}>
+        {t("no_recorded_habits")}
+      </ThemedText>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    display: "flex",
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: "25%",
   },
-  textContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  icon: {
-    marginBottom: 32,
-  },
-  text: {
+  title: {
+    fontSize: 24,
+    lineHeight: 32,
+    fontWeight: "bold",
     color: Colors.PrimaryGray,
-    fontSize: 20,
-  },
-  emoji: {
-    marginLeft: 8,
+    marginVertical: 16,
   },
   description: {
-    color: Colors.PrimaryGray,
     fontSize: 16,
-    marginBottom: 16,
+    color: Colors.PrimaryGray,
+    textAlign: "center",
   },
 });
-
 export default EmptyHabitsList;

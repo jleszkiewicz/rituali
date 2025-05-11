@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -10,13 +10,8 @@ import {
 import { Colors } from "@/constants/Colors";
 import DaySelector from "../AddHabitModal/DaySelector";
 import FrequencySelector from "../AddHabitModal/FrequencySelector";
-import {
-  Frequency,
-  HabitCategory,
-  HabitData,
-  HabitStatus,
-} from "../AddHabitModal/types";
-import { addHabit, updateChallengeHabits } from "@/src/service/apiService";
+import { HabitData } from "../AddHabitModal/types";
+import { updateHabit, updateChallengeHabits } from "@/src/service/apiService";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import { setHabits } from "@/src/store/habitsSlice";
@@ -26,19 +21,20 @@ import { t } from "@/src/service/translateService";
 import ModalButtons from "../AddChallengeModal/ModalButtons";
 import { ThemedText } from "../Commons/ThemedText";
 import { selectChallenges } from "@/src/store/challengesSlice";
-import { format } from "date-fns";
-import { dateFormat } from "@/constants/Constants";
 import ModalHeader from "./ChallengeInfoModal/ModalHeader";
 import { fetchUserChallenges } from "@/src/service/apiService";
 import { setChallenges } from "@/src/store/challengesSlice";
 import Dropdown from "../Commons/Dropdown";
+import { format } from "date-fns";
+import { dateFormat } from "@/constants/Constants";
 
-interface AddHabitModalProps {
+interface EditHabitModalProps {
   isVisible: boolean;
   onClose: () => void;
+  habit: HabitData;
 }
 
-const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
+const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
   const challenges = useSelector(selectChallenges);
@@ -56,7 +52,8 @@ const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
     challenges: "",
     selectedDays: "",
   });
-  const habitDataInitialState: HabitData = {
+
+  const defaultHabitData: HabitData = {
     id: "",
     name: "",
     category: "other",
@@ -68,12 +65,37 @@ const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
     isPartOfChallenge: false,
     status: "active",
   };
-  const [habitData, setHabitData] = useState<HabitData>(habitDataInitialState);
+
+  const [habitData, setHabitData] = useState<HabitData>(
+    habit || defaultHabitData
+  );
+
+  useEffect(() => {
+    if (habit) {
+      const habitChallenges = challenges
+        .filter((challenge) => challenge.habits.includes(habit.id))
+        .map((challenge) => challenge.id);
+
+      setHabitData({
+        ...habit,
+        startDate: habit.startDate,
+        endDate: habit.endDate,
+        isPartOfChallenge: habitChallenges.length > 0,
+      });
+      setIsPartOfChallenge(habitChallenges.length > 0);
+      setSelectedChallengeIds(habitChallenges);
+    }
+  }, [habit, challenges]);
 
   const handleCloseModal = () => {
-    setHabitData(habitDataInitialState);
-    setSelectedChallengeIds([]);
-    setIsPartOfChallenge(false);
+    if (habit) {
+      setHabitData(habit);
+      const habitChallenges = challenges
+        .filter((challenge) => challenge.habits.includes(habit.id))
+        .map((challenge) => challenge.id);
+      setSelectedChallengeIds(habitChallenges);
+      setIsPartOfChallenge(habitChallenges.length > 0);
+    }
     setErrors({
       name: "",
       challenges: "",
@@ -118,7 +140,13 @@ const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
   };
 
   const handleSubmit = async () => {
-    if (!validateForm() || !userId) return;
+    if (!validateForm() || !userId || !habitData.id) {
+      console.error("Cannot submit: missing required data", {
+        userId,
+        habitId: habitData.id,
+      });
+      return;
+    }
 
     try {
       const habitToSubmit = {
@@ -126,18 +154,28 @@ const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
         isPartOfChallenge: isPartOfChallenge,
       };
 
-      const newHabits = await addHabit(userId, habitToSubmit);
-      const newHabit = newHabits[0];
+      await updateHabit(habitData.id, habitToSubmit);
 
-      if (isPartOfChallenge && selectedChallengeIds.length > 0) {
-        for (const challengeId of selectedChallengeIds) {
-          const challenge = challenges.find((c) => c.id === challengeId);
-          if (challenge) {
-            await updateChallengeHabits(challengeId, [
-              ...challenge.habits,
-              newHabit.id,
-            ]);
-          }
+      const currentChallenges = challenges.filter((challenge) =>
+        challenge.habits.includes(habitData.id)
+      );
+
+      for (const challenge of currentChallenges) {
+        if (!selectedChallengeIds.includes(challenge.id)) {
+          const updatedHabits = challenge.habits.filter(
+            (id) => id !== habitData.id
+          );
+          await updateChallengeHabits(challenge.id, updatedHabits);
+        }
+      }
+
+      for (const challengeId of selectedChallengeIds) {
+        const challenge = challenges.find((c) => c.id === challengeId);
+        if (challenge && !challenge.habits.includes(habitData.id)) {
+          await updateChallengeHabits(challengeId, [
+            ...challenge.habits,
+            habitData.id,
+          ]);
         }
       }
 
@@ -151,7 +189,7 @@ const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
 
       handleCloseModal();
     } catch (error) {
-      console.error("Error saving habit:", error);
+      console.error("Error updating habit:", error);
     }
   };
 
@@ -174,7 +212,7 @@ const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <ModalHeader
-            title={t("add_habit")}
+            title={t("edit_habit")}
             onClose={onClose}
             color={Colors.PrimaryGray}
           />
@@ -293,6 +331,8 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 15,
+    position: "relative",
+    zIndex: 1,
   },
   label: {
     fontSize: 16,
@@ -330,7 +370,15 @@ const styles = StyleSheet.create({
     width: "100%",
     top: 50,
     backgroundColor: Colors.White,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
 });
 
-export default AddHabitModal;
+export default EditHabitModal;

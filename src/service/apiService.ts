@@ -21,7 +21,6 @@ const mapHabitToDb = (habit: HabitData): any => ({
   name: habit.name,
   frequency: habit.frequency,
   selected_days: habit.selectedDays,
-  challenges: habit.challenges,
   completion_dates: habit.completionDates,
   category: habit.category,
   is_part_of_challenge: habit.isPartOfChallenge,
@@ -71,7 +70,6 @@ export const fetchUserChallenges = async (userId: string | null) => {
       startDate: format(challenge.start_date, dateFormat),
       endDate: format(challenge.end_date, dateFormat),
       habits: challenge.habits,
-      challenges: challenge.challenges,
     }));
   } catch (err) {
     console.error("Error fetching challenges:", err);
@@ -85,7 +83,6 @@ export const addHabit = async (userId: string | null, habit: HabitData) => {
     name: habit.name,
     frequency: habit.frequency,
     selected_days: habit.selectedDays,
-    challenges: habit.challenges,
     completion_dates: habit.completionDates,
     category: habit.category,
     is_part_of_challenge: habit.isPartOfChallenge,
@@ -132,7 +129,6 @@ export const addChallenge = async (userId: string, challenge: ChallengeData) => 
     startDate: format(challenge.start_date, dateFormat),
     endDate: format(challenge.end_date, dateFormat),
     habits: challenge.habits,
-    challenges: challenge.challenges,
   }));
 };
 

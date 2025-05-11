@@ -1,119 +1,71 @@
-import React, { useEffect, useState } from "react";
-import { View, Switch, StyleSheet } from "react-native";
+import React from "react";
+import { View, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
-import { fetchUserChallenges } from "@/src/service/apiService";
-import { selectUserId } from "@/src/store/userSlice";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  selectChallenges,
-  setChallenges,
-  setLoading,
-  setError,
-} from "@/src/store/challengesSlice";
-import { AppDispatch } from "@/src/store";
+import { useSelector } from "react-redux";
+import { selectChallenges } from "@/src/store/challengesSlice";
 import { ThemedText } from "../Commons/ThemedText";
 import Dropdown from "../Commons/Dropdown";
+import { ChallengeData } from "@/components/AddChallengeModal/types";
 
 interface ChallengeSelectorProps {
-  isPartOfChallenge: boolean;
-  initialChallengeId: string | null;
-  onChallengeChange: (
-    isPartOfChallenge: boolean,
-    selectedChallengeId: string | null
-  ) => void;
+  selectedChallengeIds: string[];
+  error?: string;
+  isExpanded: boolean;
+  onToggleExpanded: () => void;
+  onToggleChallenge: (challengeId: string) => void;
+  onAddChallenge: () => void;
 }
 
-const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
-  isPartOfChallenge,
-  initialChallengeId,
-  onChallengeChange,
-}) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const userId = useSelector(selectUserId);
+export default function ChallengeSelector({
+  selectedChallengeIds,
+  error,
+  isExpanded,
+  onToggleExpanded,
+  onToggleChallenge,
+  onAddChallenge,
+}: ChallengeSelectorProps) {
   const challenges = useSelector(selectChallenges);
-  const dispatch = useDispatch<AppDispatch>();
-
-  useEffect(() => {
-    if (isPartOfChallenge) {
-      loadChallenges();
-    }
-  }, [isPartOfChallenge]);
-
-  const loadChallenges = async () => {
-    try {
-      dispatch(setLoading(true));
-      const data = await fetchUserChallenges(userId);
-      dispatch(setChallenges(data));
-    } catch (error) {
-      dispatch(
-        setError(error instanceof Error ? error.message : "Unknown error")
-      );
-    }
-  };
-
-  const toggleChallenge = (challengeId: string) => {
-    onChallengeChange(true, challengeId);
-  };
-
-  const getSelectedChallengeText = () => {
-    if (!initialChallengeId) {
-      return "";
-    }
-
-    const selectedChallenge = challenges.find(
-      (c) => c.id === initialChallengeId
-    );
-    return selectedChallenge ? selectedChallenge.name : "";
-  };
 
   return (
-    <>
-      <View style={styles.switchContainer}>
-        <ThemedText style={styles.switchText} bold>
-          {t("part_of_challenge")}
-        </ThemedText>
-        <Switch
-          value={isPartOfChallenge}
-          onValueChange={(value) => {
-            onChallengeChange(value, null);
-            if (!value) {
-              setIsExpanded(false);
-            }
-          }}
-          trackColor={{ false: Colors.LightGray, true: Colors.HotPink }}
-        />
-      </View>
-
-      {isPartOfChallenge && (
-        <Dropdown
-          isExpanded={isExpanded}
-          onToggle={() => setIsExpanded(!isExpanded)}
-          selectedText={getSelectedChallengeText()}
-          placeholder={t("select_challenge")}
-          items={challenges.map((challenge) => ({
-            id: challenge.id,
-            label: challenge.name,
-            isSelected: initialChallengeId === challenge.id,
-          }))}
-          onItemSelect={toggleChallenge}
-          noItemsText={t("no_challenges")}
-        />
-      )}
-    </>
+    <View style={styles.inputContainer}>
+      <ThemedText style={styles.label} bold>
+        {t("challenges")}
+      </ThemedText>
+      <Dropdown
+        isExpanded={isExpanded}
+        onToggle={onToggleExpanded}
+        selectedText={
+          selectedChallengeIds.length > 0
+            ? `${t("challenges_selected")}: ${selectedChallengeIds.length}`
+            : ""
+        }
+        placeholder={t("select_challenges")}
+        items={challenges.map((challenge: ChallengeData) => ({
+          id: challenge.id,
+          label: challenge.name,
+          isSelected: selectedChallengeIds.includes(challenge.id),
+        }))}
+        onItemSelect={onToggleChallenge}
+        noItemsText={t("no_active_challenges")}
+        addButton={{
+          text: t("add_new_challenge"),
+          onPress: onAddChallenge,
+        }}
+        error={error}
+        expandHeight
+      />
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  switchContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  inputContainer: {
     marginBottom: 15,
   },
-  switchText: {
+  label: {
+    textTransform: "capitalize",
     fontSize: 16,
+    marginBottom: 5,
   },
 });
-
-export default ChallengeSelector;

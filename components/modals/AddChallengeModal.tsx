@@ -115,23 +115,14 @@ export default function AddChallengeModal({
       const endDate = new Date(challengeData.startDate);
       endDate.setDate(endDate.getDate() + days - 1);
 
-      // Add the challenge to the database
-      const newChallenge = await addChallenge(userId, {
-        ...challengeData,
-        endDate: format(endDate, dateFormat),
-      });
-
-      // Refresh data from server
       const [freshChallenges, freshHabits] = await Promise.all([
         fetchUserChallenges(userId),
         fetchUserHabits(userId),
       ]);
 
-      // Update store
       dispatch(setChallenges(freshChallenges));
       dispatch(setHabits(freshHabits));
 
-      // Reset form
       setChallengeData({
         id: "",
         name: "",
@@ -140,6 +131,7 @@ export default function AddChallengeModal({
         habits: [],
       });
       setDurationDays("30");
+      setIsHabitsExpanded(false);
       onClose();
     } catch (error) {
       console.error("Error adding challenge:", error);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, ScrollView } from "react-native";
+import { StyleSheet, ScrollView, View } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import {
@@ -10,7 +10,6 @@ import {
 } from "@/src/store/habitsSlice";
 import { selectChallenges, setChallenges } from "@/src/store/challengesSlice";
 import { fetchUserHabits, fetchUserChallenges } from "@/src/service/apiService";
-import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
 import CalendarCarousel from "@/components/HomeScreen/CalendarCarousel";
 import { format } from "date-fns";
 import { Colors } from "@/constants/Colors";
@@ -26,6 +25,7 @@ import { t } from "@/src/service/translateService";
 import ConditionalRenderer from "@/components/Commons/ConditionalRenderer";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
 import { ThemedText } from "@/components/Commons/ThemedText";
+import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
@@ -78,12 +78,21 @@ export default function HomeScreen() {
 
   const activeHabits = habits
     .filter((habit: HabitData) => {
-      if (habit.status === "deleted" && habit.endDate) {
-        return new Date(habit.endDate) > selectedDate;
+      const habitStartDate = new Date(habit.startDate);
+      const habitEndDate = habit.endDate ? new Date(habit.endDate) : null;
+      const isActiveInSelectedDate =
+        habitStartDate <= selectedDate &&
+        (!habitEndDate || habitEndDate >= selectedDate);
+
+      if (habit.status === "deleted") {
+        return false;
       }
+
       if (habit.status === "active") {
-        return new Date(habit.startDate) <= selectedDate;
+        return isActiveInSelectedDate;
       }
+
+      return false;
     })
     .sort((a: HabitData, b: HabitData) => a.name.localeCompare(b.name));
 
@@ -129,8 +138,7 @@ export default function HomeScreen() {
       )}
       <AddHabitModal
         isVisible={isAddHabitModalVisible}
-        onClose={handleCloseModal}
-        habit={editingHabit}
+        onClose={() => setIsAddHabitModalVisible(false)}
       />
     </ScreenWrapper>
   );

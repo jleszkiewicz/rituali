@@ -100,5 +100,10 @@
   "delete_challenge_confirmation_title": "Usuń wyzwanie",
   "delete_challenge_confirmation_message": "Czy jesteś pewien, że chcesz usunąć to wyzwanie?",
   "delete_habit_confirmation_title": "Usuń nawyk",
-  "delete_habit_confirmation_message": "Czy jesteś pewien, że chcesz usunąć nawyk z tego wyzwania?"
+  "delete_habit_confirmation_message": "Czy jesteś pewien, że chcesz usunąć nawyk z tego wyzwania?",
+  "no_recorded_habits": "Nie masz żadnych zarejestrowanych nawyków w tym dniu.",
+  "no_habits_title": "Brak nawyków",
+  "edit_habit": "Edytuj nawyk",
+  "select_challenges": "Wybierz wyzwania",
+  "challenges_selected": "Wybrane wyzwania"
 }

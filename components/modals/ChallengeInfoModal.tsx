@@ -9,6 +9,7 @@ import { ThemedText } from "../Commons/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
+import { selectHabits } from "@/src/store/habitsSlice";
 import {
   deleteChallenge,
   fetchUserChallenges,
@@ -30,25 +31,24 @@ interface ChallengeInfoModalProps {
   isVisible: boolean;
   onClose: () => void;
   challenge: ChallengeData;
-  habits: HabitData[];
 }
 
 const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
   isVisible,
   onClose,
   challenge,
-  habits,
 }) => {
   const today = new Date();
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
+  const habits = useSelector(selectHabits);
   const [isSelectHabitsModalVisible, setIsSelectHabitsModalVisible] =
     useState(false);
   const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] =
     useState(false);
 
-  const challengeHabits = habits.filter((habit) =>
-    challenge.habits.includes(habit.id)
+  const challengeHabits = habits.filter(
+    (habit) => challenge.habits.includes(habit.id) && habit.status === "active"
   );
 
   const completedHabits = challengeHabits.filter((habit) =>
@@ -70,8 +70,13 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
     if (!userId) return;
 
     try {
+      const currentHabits = challenge.habits.filter((habitId) => {
+        const habit = habits.find((h) => h.id === habitId);
+        return habit && habit.status === "active";
+      });
+
       const updatedChallengeHabits = [
-        ...challenge.habits,
+        ...currentHabits,
         ...selectedHabits.map((h) => h.id),
       ];
       await updateChallengeHabits(challenge.id, updatedChallengeHabits);
@@ -130,7 +135,7 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
           </View>
           <PrimaryButton
             style={styles.deleteButton}
-            onPress={() => setIsDeleteConfirmationVisible}
+            onPress={() => setIsDeleteConfirmationVisible(true)}
           >
             <>
               <Ionicons name="trash-outline" size={24} color={Colors.HotPink} />
