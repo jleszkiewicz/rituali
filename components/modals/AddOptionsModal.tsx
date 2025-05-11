@@ -4,6 +4,7 @@ import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import { LinearGradient } from "expo-linear-gradient";
+import PrimaryButton from "../Commons/PrimaryButton";
 interface AddOptionsModalProps {
   isVisible: boolean;
   onClose: () => void;
@@ -17,18 +18,6 @@ const AddOptionsModal = ({
   onAddHabit,
   onAddChallenge,
 }: AddOptionsModalProps) => {
-  const Button = ({ onPress, text }: { onPress: () => void; text: string }) => {
-    return (
-      <View style={styles.option}>
-        <TouchableOpacity onPress={onPress}>
-          <ThemedText style={styles.optionText} bold>
-            {text}
-          </ThemedText>
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
   return (
     <Modal
       visible={isVisible}
@@ -38,8 +27,16 @@ const AddOptionsModal = ({
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Button onPress={onAddHabit} text={t("add_habit")} />
-          <Button onPress={onAddChallenge} text={t("add_challenge")} />
+          <PrimaryButton
+            title={t("add_habit")}
+            onPress={onAddHabit}
+            style={styles.option}
+          />
+          <PrimaryButton
+            title={t("add_challenge")}
+            onPress={onAddChallenge}
+            style={styles.option}
+          />
           <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
             <ThemedText style={styles.cancelButtonText}>
               {t("cancel")}
@@ -70,15 +67,8 @@ const styles = StyleSheet.create({
   },
   option: {
     padding: 15,
-    backgroundColor: Colors.ButterYellow,
-    borderWidth: 2,
-    borderColor: Colors.HotPink,
     borderRadius: 10,
     marginBottom: 10,
-  },
-  optionText: {
-    fontSize: 16,
-    color: Colors.HotPink,
   },
   cancelButton: {
     padding: 15,

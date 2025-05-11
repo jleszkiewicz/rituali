@@ -24,6 +24,7 @@ import ProgressSection from "./ChallengeInfoModal/ProgressSection";
 import HabitsSection from "./ChallengeInfoModal/HabitsSection";
 import { dateFormat } from "@/constants/Constants";
 import ConfirmationModal from "./ConfirmationModal";
+import PrimaryButton from "../Commons/PrimaryButton";
 
 interface ChallengeInfoModalProps {
   isVisible: boolean;
@@ -135,16 +136,17 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
               onAddHabit={handleAddHabit}
             />
           </View>
-
-          <TouchableOpacity
+          <PrimaryButton
             style={styles.deleteButton}
-            onPress={() => setIsDeleteConfirmationVisible(true)}
+            onPress={() => setIsDeleteConfirmationVisible}
           >
-            <Ionicons name="trash-outline" size={24} color={Colors.HotPink} />
-            <ThemedText style={styles.deleteButtonText} bold>
-              {t("delete_challenge")}
-            </ThemedText>
-          </TouchableOpacity>
+            <>
+              <Ionicons name="trash-outline" size={24} color={Colors.HotPink} />
+              <ThemedText style={styles.deleteButtonText} bold>
+                {t("delete_challenge")}
+              </ThemedText>
+            </>
+          </PrimaryButton>
         </View>
 
         <SelectHabitsModal
@@ -190,10 +192,6 @@ const styles = StyleSheet.create({
     gap: 10,
     padding: 15,
     marginTop: 20,
-    borderWidth: 1,
-    borderColor: Colors.HotPink,
-    borderRadius: 10,
-    backgroundColor: Colors.ButterYellow,
   },
   deleteButtonText: {
     color: Colors.HotPink,
