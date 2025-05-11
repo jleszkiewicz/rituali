@@ -52,7 +52,6 @@ const AddHabitModal = ({
     name: "",
     frequency: "daily" as Frequency,
     selectedDays: [],
-    challenges: initialChallengeId ? [initialChallengeId] : [],
     category: "other" as HabitCategory,
     isPartOfChallenge: !!initialChallengeId,
     startDate: format(new Date(), dateFormat),
@@ -84,8 +83,6 @@ const AddHabitModal = ({
         ...habitDataInitialState,
         startDate: format(today, dateFormat),
         endDate: null,
-        challenges: initialChallengeId ? [initialChallengeId] : [],
-        isPartOfChallenge: !!initialChallengeId,
       });
     }
   }, [habit, initialChallengeId]);
@@ -132,19 +129,13 @@ const AddHabitModal = ({
         newHabit = result[0];
       }
 
-      if (
-        newHabit &&
-        habitData.isPartOfChallenge &&
-        habitData.challenges.length > 0
-      ) {
-        for (const challengeId of habitData.challenges) {
-          const challenge = challenges.find((c) => c.id === challengeId);
-          if (challenge) {
-            await updateChallengeHabits(challengeId, [
-              ...challenge.habits,
-              newHabit.id,
-            ]);
-          }
+      if (newHabit && habitData.isPartOfChallenge && initialChallengeId) {
+        const challenge = challenges.find((c) => c.id === initialChallengeId);
+        if (challenge) {
+          await updateChallengeHabits(initialChallengeId, [
+            ...challenge.habits,
+            newHabit.id,
+          ]);
         }
       }
 

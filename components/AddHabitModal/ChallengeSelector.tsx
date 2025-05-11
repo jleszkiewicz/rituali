@@ -17,16 +17,16 @@ import Dropdown from "../Commons/Dropdown";
 
 interface ChallengeSelectorProps {
   isPartOfChallenge: boolean;
-  initialChallenges: string[];
+  initialChallengeId: string | null;
   onChallengeChange: (
     isPartOfChallenge: boolean,
-    selectedChallenges: string[]
+    selectedChallengeId: string | null
   ) => void;
 }
 
 const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
   isPartOfChallenge,
-  initialChallenges,
+  initialChallengeId,
   onChallengeChange,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -53,22 +53,18 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
   };
 
   const toggleChallenge = (challengeId: string) => {
-    const newSelectedChallenges = initialChallenges.includes(challengeId)
-      ? initialChallenges.filter((id) => id !== challengeId)
-      : [...initialChallenges, challengeId];
-
-    onChallengeChange(true, newSelectedChallenges);
+    onChallengeChange(true, challengeId);
   };
 
-  const getSelectedChallengesText = () => {
-    if (initialChallenges.length === 0) {
+  const getSelectedChallengeText = () => {
+    if (!initialChallengeId) {
       return "";
     }
 
-    return challenges
-      .filter((c) => initialChallenges.includes(c.id))
-      .map((c) => c.name)
-      .join(", ");
+    const selectedChallenge = challenges.find(
+      (c) => c.id === initialChallengeId
+    );
+    return selectedChallenge ? selectedChallenge.name : "";
   };
 
   return (
@@ -80,7 +76,7 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
         <Switch
           value={isPartOfChallenge}
           onValueChange={(value) => {
-            onChallengeChange(value, []);
+            onChallengeChange(value, null);
             if (!value) {
               setIsExpanded(false);
             }
@@ -93,12 +89,12 @@ const ChallengeSelector: React.FC<ChallengeSelectorProps> = ({
         <Dropdown
           isExpanded={isExpanded}
           onToggle={() => setIsExpanded(!isExpanded)}
-          selectedText={getSelectedChallengesText()}
+          selectedText={getSelectedChallengeText()}
           placeholder={t("select_challenge")}
           items={challenges.map((challenge) => ({
             id: challenge.id,
             label: challenge.name,
-            isSelected: initialChallenges.includes(challenge.id),
+            isSelected: initialChallengeId === challenge.id,
           }))}
           onItemSelect={toggleChallenge}
           noItemsText={t("no_challenges")}

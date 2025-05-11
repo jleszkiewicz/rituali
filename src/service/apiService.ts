@@ -9,7 +9,6 @@ const mapHabitFromDb = (dbHabit: any): HabitData => ({
   name: dbHabit.name,
   frequency: dbHabit.frequency,
   selectedDays: dbHabit.selected_days,
-  challenges: dbHabit.challenges,
   completionDates: dbHabit.completion_dates,
   category: dbHabit.category,
   isPartOfChallenge: dbHabit.is_part_of_challenge,

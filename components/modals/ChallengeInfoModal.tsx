@@ -76,14 +76,6 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
       ];
       await updateChallengeHabits(challenge.id, updatedChallengeHabits);
 
-      for (const habit of selectedHabits) {
-        const updatedHabitChallenges = [...habit.challenges, challenge.id];
-        await updateHabit(habit.id, {
-          ...habit,
-          challenges: updatedHabitChallenges,
-        });
-      }
-
       const [updatedHabits, updatedChallenges] = await Promise.all([
         fetchUserHabits(userId),
         fetchUserChallenges(userId),

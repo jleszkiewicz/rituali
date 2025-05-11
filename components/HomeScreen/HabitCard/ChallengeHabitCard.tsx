@@ -44,14 +44,6 @@ const ChallengeHabitCard: React.FC<ChallengeHabitCardProps> = ({
       );
       await updateChallengeHabits(challengeId, updatedChallengeHabits);
 
-      const updatedHabitChallenges = habit.challenges.filter(
-        (id) => id !== challengeId
-      );
-      await updateHabit(habit.id, {
-        ...habit,
-        challenges: updatedHabitChallenges,
-      });
-
       const [updatedHabits, updatedChallenges] = await Promise.all([
         fetchUserHabits(userId),
         fetchUserChallenges(userId),
