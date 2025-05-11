@@ -2,12 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Modal, Animated } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
-import {
-  addChallenge,
-  fetchUserChallenges,
-  updateHabit,
-  fetchUserHabits,
-} from "@/src/service/apiService";
+import { fetchUserChallenges, fetchUserHabits } from "@/src/service/apiService";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import { setChallenges } from "@/src/store/challengesSlice";
@@ -113,34 +108,11 @@ export default function AddChallengeModal({
       const endDate = new Date(challengeData.startDate);
       endDate.setDate(endDate.getDate() + days - 1);
 
-      const newChallenge = await addChallenge(userId, {
-        ...challengeData,
-        endDate: endDate.toISOString(),
-      });
-
-      // Get all habits
-      const allHabits = await fetchUserHabits(userId);
-
-      // Update habits that are part of this challenge
-      const updatedHabits = await Promise.all(
-        allHabits.map((habit) =>
-          challengeData.habits.includes(habit.id)
-            ? updateHabit(habit.id, {
-                ...habit,
-                isPartOfChallenge: true,
-                challenges: [...habit.challenges, newChallenge[0].id],
-              })
-            : Promise.resolve(habit)
-        )
-      );
-
-      // Fetch fresh data for both challenges and habits
       const [freshChallenges, freshHabits] = await Promise.all([
         fetchUserChallenges(userId),
         fetchUserHabits(userId),
       ]);
 
-      // Update store with fresh data
       dispatch(setChallenges(freshChallenges));
       dispatch(setHabits(freshHabits));
 

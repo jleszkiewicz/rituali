@@ -1,9 +1,14 @@
 import React from "react";
 import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { updateHabit, fetchUserHabits } from "@/src/service/apiService";
+import {
+  updateHabit,
+  fetchUserHabits,
+  updateChallengeHabits,
+} from "@/src/service/apiService";
 import { useDispatch, useSelector } from "react-redux";
 import { selectHabits, setHabits } from "@/src/store/habitsSlice";
+import { selectChallenges, setChallenges } from "@/src/store/challengesSlice";
 import { t } from "@/src/service/translateService";
 import { HabitStatus } from "../AddHabitModal/types";
 import { selectUserId } from "@/src/store/userSlice";
@@ -22,6 +27,7 @@ const DeleteHabitModal = ({
 }: DeleteHabitModalProps) => {
   const dispatch = useDispatch();
   const habits = useSelector(selectHabits);
+  const challenges = useSelector(selectChallenges);
   const userId = useSelector(selectUserId);
 
   const handleDelete = async () => {
@@ -35,6 +41,21 @@ const DeleteHabitModal = ({
           endDate: new Date().toISOString(),
         };
         await updateHabit(habitId, updatedHabit);
+
+        const associatedChallenges = challenges.filter((challenge) =>
+          challenge.habits.includes(habitId)
+        );
+
+        for (const challenge of associatedChallenges) {
+          const updatedHabits = challenge.habits.filter((id) => id !== habitId);
+          await updateChallengeHabits(challenge.id, updatedHabits);
+        }
+
+        const updatedChallenges = challenges.map((challenge) => ({
+          ...challenge,
+          habits: challenge.habits.filter((id) => id !== habitId),
+        }));
+        dispatch(setChallenges(updatedChallenges));
 
         const updatedHabits = await fetchUserHabits(userId);
         dispatch(setHabits(updatedHabits));

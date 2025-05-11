@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Modal,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { HabitData } from "@/components/AddHabitModal/types";
@@ -7,7 +13,6 @@ import { differenceInDays } from "date-fns";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
-import HabitCard from "../HomeScreen/HabitCard";
 import CircularProgress from "../Commons/CircularProgress";
 import AddHabitModal from "./AddHabitModal";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,10 +21,13 @@ import {
   deleteChallenge,
   fetchUserChallenges,
   fetchUserHabits,
+  updateChallengeHabits,
+  updateHabit,
 } from "@/src/service/apiService";
 import { setChallenges } from "@/src/store/challengesSlice";
 import { setHabits } from "@/src/store/habitsSlice";
-import { HabitCategory } from "@/components/AddHabitModal/types";
+import ChallengeHabitCard from "../HomeScreen/HabitCard/ChallengeHabitCard";
+import SelectHabitsModal from "./SelectHabitsModal";
 
 interface ChallengeInfoModalProps {
   isVisible: boolean;
@@ -29,16 +37,17 @@ interface ChallengeInfoModalProps {
   selectedDate: string;
 }
 
-export default function ChallengeInfoModal({
+const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
   isVisible,
   onClose,
   challenge,
   habits,
   selectedDate,
-}: ChallengeInfoModalProps) {
-  const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
+}) => {
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
+  const [isSelectHabitsModalVisible, setIsSelectHabitsModalVisible] =
+    useState(false);
 
   const challengeHabits = habits.filter((habit) =>
     challenge.habits.includes(habit.id)
@@ -62,18 +71,40 @@ export default function ChallengeInfoModal({
   );
 
   const handleAddHabit = () => {
-    setIsAddHabitModalVisible(true);
+    setIsSelectHabitsModalVisible(true);
   };
 
-  const handleAddHabitModalClose = async () => {
-    setIsAddHabitModalVisible(false);
-    if (userId) {
+  const handleSelectHabits = async (selectedHabits: HabitData[]) => {
+    if (!userId) return;
+
+    try {
+      // Update challenge with new habits
+      const updatedChallengeHabits = [
+        ...challenge.habits,
+        ...selectedHabits.map((h) => h.id),
+      ];
+      await updateChallengeHabits(challenge.id, updatedChallengeHabits);
+
+      // Update each selected habit with the challenge ID
+      for (const habit of selectedHabits) {
+        const updatedHabitChallenges = [...habit.challenges, challenge.id];
+        await updateHabit(habit.id, {
+          ...habit,
+          challenges: updatedHabitChallenges,
+        });
+      }
+
+      // Refresh data from server
       const [updatedHabits, updatedChallenges] = await Promise.all([
         fetchUserHabits(userId),
         fetchUserChallenges(userId),
       ]);
+
+      // Update store
       dispatch(setHabits(updatedHabits));
       dispatch(setChallenges(updatedChallenges));
+    } catch (error) {
+      console.error("Error adding habits to challenge:", error);
     }
   };
 
@@ -150,14 +181,15 @@ export default function ChallengeInfoModal({
                 </ThemedText>
               </TouchableOpacity>
             </View>
-            {challengeHabits.map((habit) => (
-              <HabitCard
-                key={habit.id}
-                habit={habit}
-                selectedDate={selectedDate}
-                onEdit={() => {}}
-              />
-            ))}
+
+            <FlatList
+              data={challengeHabits}
+              renderItem={({ item }) => (
+                <ChallengeHabitCard habit={item} challengeId={challenge.id} />
+              )}
+              keyExtractor={(item) => item.id}
+              style={styles.habitsList}
+            />
           </View>
 
           <TouchableOpacity
@@ -170,16 +202,20 @@ export default function ChallengeInfoModal({
             </ThemedText>
           </TouchableOpacity>
         </View>
-      </View>
 
-      <AddHabitModal
-        isVisible={isAddHabitModalVisible}
-        onClose={handleAddHabitModalClose}
-        initialChallengeId={challenge.id}
-      />
+        <SelectHabitsModal
+          isVisible={isSelectHabitsModalVisible}
+          onClose={() => setIsSelectHabitsModalVisible(false)}
+          availableHabits={habits.filter(
+            (habit) =>
+              !challenge.habits.includes(habit.id) && habit.status === "active"
+          )}
+          onSelectHabits={handleSelectHabits}
+        />
+      </View>
     </Modal>
   );
-}
+};
 
 const styles = StyleSheet.create({
   modalContainer: {
@@ -239,7 +275,7 @@ const styles = StyleSheet.create({
   addHabitButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 10,
   },
   addHabitText: {
     color: Colors.White,
@@ -261,3 +297,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+export default ChallengeInfoModal;
