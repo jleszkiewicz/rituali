@@ -1,20 +1,12 @@
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  Modal,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { HabitData } from "@/components/AddHabitModal/types";
-import { differenceInDays } from "date-fns";
+import { differenceInDays, format } from "date-fns";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
-import CircularProgress from "../Commons/CircularProgress";
-import AddHabitModal from "./AddHabitModal";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import {
@@ -26,15 +18,18 @@ import {
 } from "@/src/service/apiService";
 import { setChallenges } from "@/src/store/challengesSlice";
 import { setHabits } from "@/src/store/habitsSlice";
-import ChallengeHabitCard from "../HomeScreen/HabitCard/ChallengeHabitCard";
 import SelectHabitsModal from "./SelectHabitsModal";
+import ModalHeader from "./ChallengeInfoModal/ModalHeader";
+import ProgressSection from "./ChallengeInfoModal/ProgressSection";
+import HabitsSection from "./ChallengeInfoModal/HabitsSection";
+import { dateFormat } from "@/constants/Constants";
+import ConfirmationModal from "./ConfirmationModal";
 
 interface ChallengeInfoModalProps {
   isVisible: boolean;
   onClose: () => void;
   challenge: ChallengeData;
   habits: HabitData[];
-  selectedDate: string;
 }
 
 const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
@@ -42,11 +37,13 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
   onClose,
   challenge,
   habits,
-  selectedDate,
 }) => {
+  const today = new Date();
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
   const [isSelectHabitsModalVisible, setIsSelectHabitsModalVisible] =
+    useState(false);
+  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] =
     useState(false);
 
   const challengeHabits = habits.filter((habit) =>
@@ -54,21 +51,15 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
   );
 
   const completedHabits = challengeHabits.filter((habit) =>
-    habit.completionDates.includes(selectedDate)
+    habit.completionDates.includes(format(today, dateFormat))
   ).length;
 
   const totalHabits = challengeHabits.length;
-  const progressPercentage =
-    totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0;
 
   const startDate = new Date(challenge.startDate);
   const endDate = new Date(challenge.endDate);
   const totalDays = differenceInDays(endDate, startDate) + 1;
-  const daysPassed = differenceInDays(new Date(selectedDate), startDate) + 1;
-  const timeProgressPercentage = Math.min(
-    Math.max((daysPassed / totalDays) * 100, 0),
-    100
-  );
+  const daysPassed = differenceInDays(today, startDate) + 1;
 
   const handleAddHabit = () => {
     setIsSelectHabitsModalVisible(true);
@@ -78,14 +69,12 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
     if (!userId) return;
 
     try {
-      // Update challenge with new habits
       const updatedChallengeHabits = [
         ...challenge.habits,
         ...selectedHabits.map((h) => h.id),
       ];
       await updateChallengeHabits(challenge.id, updatedChallengeHabits);
 
-      // Update each selected habit with the challenge ID
       for (const habit of selectedHabits) {
         const updatedHabitChallenges = [...habit.challenges, challenge.id];
         await updateHabit(habit.id, {
@@ -94,13 +83,11 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
         });
       }
 
-      // Refresh data from server
       const [updatedHabits, updatedChallenges] = await Promise.all([
         fetchUserHabits(userId),
         fetchUserChallenges(userId),
       ]);
 
-      // Update store
       dispatch(setHabits(updatedHabits));
       dispatch(setChallenges(updatedChallenges));
     } catch (error) {
@@ -129,75 +116,28 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <View style={styles.header}>
-            <ThemedText style={styles.title} bold>
-              {challenge.name}
-            </ThemedText>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color={Colors.White} />
-            </TouchableOpacity>
-          </View>
+          <View>
+            <ModalHeader title={challenge.name} onClose={onClose} />
 
-          <View style={styles.progressContainer}>
-            <View style={styles.progressSection}>
-              <ThemedText style={styles.progressTitle} bold>
-                {t("habits_progress")}
-              </ThemedText>
-              <CircularProgress
-                progress={progressPercentage}
-                text={`${completedHabits}/${totalHabits}`}
-                color={Colors.HotPink}
-              />
-            </View>
-
-            <View style={styles.progressSection}>
-              <ThemedText style={styles.progressTitle} bold>
-                {t("time_progress")}
-              </ThemedText>
-              <CircularProgress
-                progress={timeProgressPercentage}
-                text={`${daysPassed}/${totalDays}`}
-                color={Colors.White}
-              />
-            </View>
-          </View>
-
-          <View style={styles.habitsContainer}>
-            <View style={styles.habitsHeader}>
-              <ThemedText style={styles.habitsTitle} bold>
-                {t("habits")}
-              </ThemedText>
-              <TouchableOpacity
-                style={styles.addHabitButton}
-                onPress={handleAddHabit}
-              >
-                <Ionicons
-                  name="add-circle-outline"
-                  size={24}
-                  color={Colors.White}
-                />
-                <ThemedText style={styles.addHabitText}>
-                  {t("add_habit")}
-                </ThemedText>
-              </TouchableOpacity>
-            </View>
-
-            <FlatList
-              data={challengeHabits}
-              renderItem={({ item }) => (
-                <ChallengeHabitCard habit={item} challengeId={challenge.id} />
-              )}
-              keyExtractor={(item) => item.id}
-              style={styles.habitsList}
+            <ProgressSection
+              completedHabits={completedHabits}
+              totalHabits={totalHabits}
+              daysPassed={daysPassed}
+              totalDays={totalDays}
+            />
+            <HabitsSection
+              habits={challengeHabits}
+              challengeId={challenge.id}
+              onAddHabit={handleAddHabit}
             />
           </View>
 
           <TouchableOpacity
             style={styles.deleteButton}
-            onPress={handleDeleteChallenge}
+            onPress={() => setIsDeleteConfirmationVisible(true)}
           >
             <Ionicons name="trash-outline" size={24} color={Colors.HotPink} />
-            <ThemedText style={styles.deleteButtonText}>
+            <ThemedText style={styles.deleteButtonText} bold>
               {t("delete_challenge")}
             </ThemedText>
           </TouchableOpacity>
@@ -211,6 +151,14 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
               !challenge.habits.includes(habit.id) && habit.status === "active"
           )}
           onSelectHabits={handleSelectHabits}
+        />
+
+        <ConfirmationModal
+          isVisible={isDeleteConfirmationVisible}
+          onClose={() => setIsDeleteConfirmationVisible(false)}
+          onConfirm={handleDeleteChallenge}
+          title={t("delete_challenge_confirmation_title")}
+          message={t("delete_challenge_confirmation_message")}
         />
       </View>
     </Modal>
@@ -229,57 +177,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-  },
-  header: {
-    flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-    marginTop: 20,
-  },
-  title: {
-    fontSize: 24,
-    color: Colors.White,
-    lineHeight: 30,
-  },
-  closeButton: {
-    padding: 5,
-  },
-  progressContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 20,
-  },
-  progressSection: {
-    alignItems: "center",
-  },
-  progressTitle: {
-    fontSize: 16,
-    color: Colors.White,
-    marginBottom: 10,
-  },
-  habitsContainer: {
-    flex: 1,
-  },
-  habitsHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  habitsTitle: {
-    fontSize: 18,
-    color: Colors.White,
-    textTransform: "capitalize",
-  },
-  addHabitButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  addHabitText: {
-    color: Colors.White,
-    fontSize: 16,
   },
   deleteButton: {
     flexDirection: "row",
@@ -291,6 +189,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.HotPink,
     borderRadius: 10,
+    backgroundColor: Colors.ButterYellow,
   },
   deleteButtonText: {
     color: Colors.HotPink,

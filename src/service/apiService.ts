@@ -1,6 +1,8 @@
 import { supabase } from "./supabaseClient";
 import { HabitData } from "../../components/AddHabitModal/types";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
+import { format } from "date-fns";
+import { dateFormat } from "@/constants/Constants";
 
 const mapHabitFromDb = (dbHabit: any): HabitData => ({
   id: dbHabit.id,
@@ -67,8 +69,8 @@ export const fetchUserChallenges = async (userId: string | null) => {
     return data.map((challenge: any) => ({
       id: challenge.id,
       name: challenge.name,
-      startDate: new Date(challenge.start_date).toISOString(),
-      endDate: new Date(challenge.end_date).toISOString(),
+      startDate: format(challenge.start_date, dateFormat),
+      endDate: format(challenge.end_date, dateFormat),
       habits: challenge.habits,
       challenges: challenge.challenges,
     }));
@@ -88,7 +90,7 @@ export const addHabit = async (userId: string | null, habit: HabitData) => {
     completion_dates: habit.completionDates,
     category: habit.category,
     is_part_of_challenge: habit.isPartOfChallenge,
-    start_date: new Date().toISOString(),
+    start_date: format(new Date(), dateFormat),
     end_date: null,
     status: habit.status,
   };
@@ -110,8 +112,8 @@ export const addChallenge = async (userId: string, challenge: ChallengeData) => 
   const dbChallenge = {
     user_id: userId,
     name: challenge.name,
-    start_date: new Date(challenge.startDate).toISOString(),
-    end_date: new Date(challenge.endDate).toISOString(),
+    start_date: format(new Date(challenge.startDate), dateFormat),
+    end_date: format(new Date(challenge.endDate), dateFormat),
     habits: challenge.habits,
   };
 
@@ -128,8 +130,8 @@ export const addChallenge = async (userId: string, challenge: ChallengeData) => 
   return data.map((challenge: any) => ({
     id: challenge.id,
     name: challenge.name,
-    startDate: new Date(challenge.start_date).toISOString(),
-    endDate: new Date(challenge.end_date).toISOString(),
+    startDate: format(challenge.start_date, dateFormat),
+    endDate: format(challenge.end_date, dateFormat),
     habits: challenge.habits,
     challenges: challenge.challenges,
   }));

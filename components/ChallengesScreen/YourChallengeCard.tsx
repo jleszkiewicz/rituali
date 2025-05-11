@@ -12,14 +12,12 @@ import { Ionicons } from "@expo/vector-icons";
 interface YourChallengeCardProps {
   challenge: ChallengeData;
   habits: HabitData[];
-  selectedDate: string;
   width: number;
 }
 
 export default function YourChallengeCard({
   challenge,
   habits,
-  selectedDate,
   width,
 }: YourChallengeCardProps) {
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
@@ -56,7 +54,6 @@ export default function YourChallengeCard({
         onClose={() => setIsInfoModalVisible(false)}
         challenge={challenge}
         habits={habits}
-        selectedDate={selectedDate}
       />
     </>
   );

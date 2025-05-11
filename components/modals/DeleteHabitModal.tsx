@@ -13,6 +13,8 @@ import { t } from "@/src/service/translateService";
 import { HabitStatus } from "../AddHabitModal/types";
 import { selectUserId } from "@/src/store/userSlice";
 import { ThemedText } from "../Commons/ThemedText";
+import { format } from "date-fns";
+import { dateFormat } from "@/constants/Constants";
 
 interface DeleteHabitModalProps {
   isVisible: boolean;
@@ -38,7 +40,7 @@ const DeleteHabitModal = ({
         const updatedHabit = {
           ...habitToUpdate,
           status: "deleted" as HabitStatus,
-          endDate: new Date().toISOString(),
+          endDate: format(new Date(), dateFormat),
         };
         await updateHabit(habitId, updatedHabit);
 

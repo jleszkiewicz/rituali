@@ -15,7 +15,7 @@ interface CircularProgressProps {
 export default function CircularProgress({
   progress,
   radius = 50,
-  strokeWidth = 5,
+  strokeWidth = 7,
   text,
   color = Colors.HotPink,
 }: CircularProgressProps) {
@@ -67,7 +67,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   text: {
-    fontSize: 20,
+    fontSize: 16,
     color: Colors.White,
+    textAlign: "center",
   },
 });

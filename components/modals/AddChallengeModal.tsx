@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Modal, Animated } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
-import { fetchUserChallenges, fetchUserHabits } from "@/src/service/apiService";
+import {
+  fetchUserChallenges,
+  fetchUserHabits,
+  addChallenge,
+} from "@/src/service/apiService";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import { setChallenges } from "@/src/store/challengesSlice";
@@ -15,6 +19,8 @@ import HabitsSelector from "../AddChallengeModal/HabitsSelector";
 import ModalButtons from "../AddChallengeModal/ModalButtons";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
+import { format } from "date-fns";
+import { dateFormat } from "@/constants/Constants";
 
 interface AddChallengeModalProps {
   isVisible: boolean;
@@ -30,8 +36,8 @@ export default function AddChallengeModal({
   const [challengeData, setChallengeData] = useState<ChallengeData>({
     id: "",
     name: "",
-    startDate: new Date().toISOString(),
-    endDate: new Date().toISOString(),
+    startDate: format(new Date(), dateFormat),
+    endDate: format(new Date(), dateFormat),
     habits: [],
   });
   const [durationDays, setDurationDays] = useState("30");
@@ -108,19 +114,28 @@ export default function AddChallengeModal({
       const endDate = new Date(challengeData.startDate);
       endDate.setDate(endDate.getDate() + days - 1);
 
+      // Add the challenge to the database
+      const newChallenge = await addChallenge(userId, {
+        ...challengeData,
+        endDate: format(endDate, dateFormat),
+      });
+
+      // Refresh data from server
       const [freshChallenges, freshHabits] = await Promise.all([
         fetchUserChallenges(userId),
         fetchUserHabits(userId),
       ]);
 
+      // Update store
       dispatch(setChallenges(freshChallenges));
       dispatch(setHabits(freshHabits));
 
+      // Reset form
       setChallengeData({
         id: "",
         name: "",
-        startDate: new Date().toISOString(),
-        endDate: new Date().toISOString(),
+        startDate: format(new Date(), dateFormat),
+        endDate: format(new Date(), dateFormat),
         habits: [],
       });
       setDurationDays("30");
@@ -152,7 +167,7 @@ export default function AddChallengeModal({
       endDate.setDate(endDate.getDate() + number - 1);
       setChallengeData({
         ...challengeData,
-        endDate: endDate.toISOString(),
+        endDate: format(endDate, dateFormat),
       });
       setErrors({ ...errors, durationDays: "" });
     } else if (text === "") {
@@ -203,7 +218,7 @@ export default function AddChallengeModal({
             onDateChange={(date) =>
               setChallengeData({
                 ...challengeData,
-                startDate: date.toISOString(),
+                startDate: format(date, dateFormat),
               })
             }
             minDate={new Date()}

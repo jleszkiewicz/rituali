@@ -27,6 +27,8 @@ import ModalButtons from "../AddChallengeModal/ModalButtons";
 import { ThemedText } from "../Commons/ThemedText";
 import { updateChallengeHabits } from "@/src/service/apiService";
 import { selectChallenges } from "@/src/store/challengesSlice";
+import { format } from "date-fns";
+import { dateFormat } from "@/constants/Constants";
 
 interface AddHabitModalProps {
   isVisible: boolean;
@@ -52,7 +54,7 @@ const AddHabitModal = ({
     challenges: initialChallengeId ? [initialChallengeId] : [],
     category: "other" as HabitCategory,
     isPartOfChallenge: !!initialChallengeId,
-    startDate: new Date().toISOString(),
+    startDate: format(new Date(), dateFormat),
     endDate: null,
     completionDates: [],
     status: "active" as HabitStatus,
@@ -73,13 +75,13 @@ const AddHabitModal = ({
     if (habit) {
       setHabitData({
         ...habit,
-        startDate: today.toISOString().split("T")[0],
+        startDate: format(today, dateFormat),
         endDate: null,
       });
     } else {
       setHabitData({
         ...habitDataInitialState,
-        startDate: today.toISOString().split("T")[0],
+        startDate: format(today, dateFormat),
         endDate: null,
         challenges: initialChallengeId ? [initialChallengeId] : [],
         isPartOfChallenge: !!initialChallengeId,

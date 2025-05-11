@@ -19,18 +19,13 @@ const AddOptionsModal = ({
 }: AddOptionsModalProps) => {
   const Button = ({ onPress, text }: { onPress: () => void; text: string }) => {
     return (
-      <LinearGradient
-        colors={[Colors.HotPink, Colors.ButterYellow]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.option}
-      >
+      <View style={styles.option}>
         <TouchableOpacity onPress={onPress}>
           <ThemedText style={styles.optionText} bold>
             {text}
           </ThemedText>
         </TouchableOpacity>
-      </LinearGradient>
+      </View>
     );
   };
 
@@ -75,13 +70,15 @@ const styles = StyleSheet.create({
   },
   option: {
     padding: 15,
-    backgroundColor: Colors.HotPink,
+    backgroundColor: Colors.ButterYellow,
+    borderWidth: 2,
+    borderColor: Colors.HotPink,
     borderRadius: 10,
     marginBottom: 10,
   },
   optionText: {
     fontSize: 16,
-    color: Colors.White,
+    color: Colors.HotPink,
   },
   cancelButton: {
     padding: 15,

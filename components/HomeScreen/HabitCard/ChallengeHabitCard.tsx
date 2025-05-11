@@ -1,14 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { HabitData } from "@/components/AddHabitModal/types";
-import { useDispatch, useSelector } from "react-redux";
-import { selectHabits, setHabits } from "@/src/store/habitsSlice";
-import { selectChallenges, setChallenges } from "@/src/store/challengesSlice";
-import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "../../Commons/ThemedText";
+import { Ionicons } from "@expo/vector-icons";
+import { t } from "@/src/service/translateService";
+import { useDispatch, useSelector } from "react-redux";
+import { selectUserId } from "@/src/store/userSlice";
+import { updateChallengeHabits, updateHabit } from "@/src/service/apiService";
+import { setHabits } from "@/src/store/habitsSlice";
+import { setChallenges } from "@/src/store/challengesSlice";
+import { fetchUserHabits, fetchUserChallenges } from "@/src/service/apiService";
+import ConfirmationModal from "../../modals/ConfirmationModal";
 import HabitIcon from "./HabitIcon";
-import { updateChallengeHabits } from "@/src/service/apiService";
 
 interface ChallengeHabitCardProps {
   habit: HabitData;
@@ -20,32 +24,41 @@ const ChallengeHabitCard: React.FC<ChallengeHabitCardProps> = ({
   challengeId,
 }) => {
   const dispatch = useDispatch();
-  const habits = useSelector(selectHabits);
-  const challenges = useSelector(selectChallenges);
+  const userId = useSelector(selectUserId);
+  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] =
+    useState(false);
 
-  const handleRemoveHabit = async () => {
+  const handleDeleteHabit = async () => {
+    if (!userId) return;
+
     try {
-      const challenge = challenges.find((c) => c.id === challengeId);
-      if (challenge) {
-        const updatedHabits = challenge.habits.filter((id) => id !== habit.id);
-        await updateChallengeHabits(challengeId, updatedHabits);
+      const currentChallenges = await fetchUserChallenges(userId);
+      const currentChallenge = currentChallenges.find(
+        (c) => c.id === challengeId
+      );
 
-        const updatedChallenges = challenges.map((c) =>
-          c.id === challengeId ? { ...c, habits: updatedHabits } : c
-        );
-        dispatch(setChallenges(updatedChallenges));
+      if (!currentChallenge) return;
 
-        const updatedHabitsList = habits.map((h) =>
-          h.id === habit.id
-            ? {
-                ...h,
-                challenges: h.challenges.filter((id) => id !== challengeId),
-                isPartOfChallenge: h.challenges.length > 1,
-              }
-            : h
-        );
-        dispatch(setHabits(updatedHabitsList));
-      }
+      const updatedChallengeHabits = currentChallenge.habits.filter(
+        (id: string) => id !== habit.id
+      );
+      await updateChallengeHabits(challengeId, updatedChallengeHabits);
+
+      const updatedHabitChallenges = habit.challenges.filter(
+        (id) => id !== challengeId
+      );
+      await updateHabit(habit.id, {
+        ...habit,
+        challenges: updatedHabitChallenges,
+      });
+
+      const [updatedHabits, updatedChallenges] = await Promise.all([
+        fetchUserHabits(userId),
+        fetchUserChallenges(userId),
+      ]);
+
+      dispatch(setHabits(updatedHabits));
+      dispatch(setChallenges(updatedChallenges));
     } catch (error) {
       console.error("Error removing habit from challenge:", error);
     }
@@ -53,15 +66,25 @@ const ChallengeHabitCard: React.FC<ChallengeHabitCardProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <View style={styles.habitInfo}>
         <HabitIcon category={habit.category} />
-        <ThemedText style={styles.title} bold>
-          {habit.name}
-        </ThemedText>
+        <ThemedText style={styles.habitName}>{habit.name}</ThemedText>
       </View>
-      <TouchableOpacity style={styles.deleteButton} onPress={handleRemoveHabit}>
-        <Ionicons name="trash-outline" size={24} color={Colors.PrimaryRed} />
+
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => setIsDeleteConfirmationVisible(true)}
+      >
+        <Ionicons name="trash-outline" size={24} color={Colors.HotPink} />
       </TouchableOpacity>
+
+      <ConfirmationModal
+        isVisible={isDeleteConfirmationVisible}
+        onClose={() => setIsDeleteConfirmationVisible(false)}
+        onConfirm={handleDeleteHabit}
+        title={t("delete_habit_confirmation_title")}
+        message={t("delete_habit_confirmation_message")}
+      />
     </View>
   );
 };
@@ -70,19 +93,21 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: Colors.White,
     borderRadius: 10,
-    padding: 10,
-    marginVertical: 5,
+    padding: 15,
+    marginBottom: 10,
   },
-  content: {
-    flex: 1,
+  habitInfo: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  title: {
-    fontSize: 16,
     flex: 1,
+  },
+  habitName: {
+    fontSize: 16,
+    marginLeft: 10,
+    color: Colors.PrimaryGray,
   },
   deleteButton: {
     padding: 5,

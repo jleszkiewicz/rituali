@@ -30,7 +30,6 @@ const ChallengesScreen = () => {
                 key={challenge.id}
                 challenge={challenge}
                 habits={habits}
-                selectedDate={new Date().toISOString()}
                 width={cardWidth}
               />
             ))}

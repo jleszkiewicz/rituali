@@ -11,7 +11,8 @@ import { HabitData } from "@/components/AddHabitModal/types";
 import { ThemedText } from "../Commons/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import { t } from "@/src/service/translateService";
-import HabitIcon from "../HomeScreen/HabitCard/HabitIcon";
+import HabitSelectionItem from "../SelectHabitsModal/HabitSelectionItem";
+import EmptyHabitsList from "../SelectHabitsModal/EmptyHabitsList";
 
 interface SelectHabitsModalProps {
   isVisible: boolean;
@@ -42,22 +43,28 @@ const SelectHabitsModal: React.FC<SelectHabitsModalProps> = ({
     onClose();
   };
 
-  const renderHabitItem = ({ item }: { item: HabitData }) => {
-    const isSelected = selectedHabits.some((h) => h.id === item.id);
+  const renderContent = () => {
+    if (availableHabits.length === 0) {
+      return (
+        <View style={styles.emptyListContainer}>
+          <EmptyHabitsList />
+        </View>
+      );
+    }
 
     return (
-      <TouchableOpacity
-        style={[styles.habitItem, isSelected && styles.selectedHabit]}
-        onPress={() => toggleHabitSelection(item)}
-      >
-        <View style={styles.habitContent}>
-          <HabitIcon category={item.category} />
-          <ThemedText style={styles.habitName}>{item.name}</ThemedText>
-        </View>
-        {isSelected && (
-          <Ionicons name="checkmark-sharp" size={24} color={Colors.HotPink} />
+      <FlatList
+        data={availableHabits}
+        renderItem={({ item }) => (
+          <HabitSelectionItem
+            habit={item}
+            isSelected={selectedHabits.some((h) => h.id === item.id)}
+            onToggle={toggleHabitSelection}
+          />
         )}
-      </TouchableOpacity>
+        keyExtractor={(item) => item.id}
+        style={styles.list}
+      />
     );
   };
 
@@ -79,34 +86,31 @@ const SelectHabitsModal: React.FC<SelectHabitsModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <FlatList
-            data={availableHabits}
-            renderItem={renderHabitItem}
-            keyExtractor={(item) => item.id}
-            style={styles.list}
-          />
+          {renderContent()}
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={onClose}
-            >
-              <ThemedText style={styles.buttonText}>{t("cancel")}</ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.button,
-                styles.confirmButton,
-                selectedHabits.length === 0 && styles.disabledButton,
-              ]}
-              onPress={handleConfirm}
-              disabled={selectedHabits.length === 0}
-            >
-              <ThemedText style={styles.buttonText}>
-                {t("add_selected_habits")}
-              </ThemedText>
-            </TouchableOpacity>
-          </View>
+          {availableHabits.length > 0 && (
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[styles.button, styles.cancelButton]}
+                onPress={onClose}
+              >
+                <ThemedText style={styles.buttonText}>{t("cancel")}</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  styles.confirmButton,
+                  selectedHabits.length === 0 && styles.disabledButton,
+                ]}
+                onPress={handleConfirm}
+                disabled={selectedHabits.length === 0}
+              >
+                <ThemedText style={styles.buttonText}>
+                  {t("add_selected_habits")}
+                </ThemedText>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </View>
     </Modal>
@@ -143,29 +147,6 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
   },
-  habitItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: Colors.White,
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-  },
-  selectedHabit: {
-    borderWidth: 2,
-    borderColor: Colors.HotPink,
-    backgroundColor: Colors.ButterYellow,
-  },
-  habitContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  habitName: {
-    fontSize: 16,
-    marginLeft: 10,
-  },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -193,6 +174,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
+  },
+  emptyListContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

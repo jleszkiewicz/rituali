@@ -91,5 +91,14 @@
   "please_complete_me": "Proszę o ukończenie 🥺",
   "your_challenges": "Twoje wyzwania",
   "recommended_challenges": "Zalecane wyzwania",
-  "add_selected_habits": "Dodaj wybrane nawyki"
+  "add_selected_habits": "Dodaj wybrane nawyki",
+  "no_available_habits": "Brak dostępnych nawyków",
+  "create_new_habit_first": "Utwórz nawyk, aby dodać go do wyzwania",
+  "delete_challenge": "Usuń wyzwanie",
+  "habits_progress": "Dzisiejszy progres",
+  "time_progress": "Czas trwania",
+  "delete_challenge_confirmation_title": "Usuń wyzwanie",
+  "delete_challenge_confirmation_message": "Czy jesteś pewien, że chcesz usunąć to wyzwanie?",
+  "delete_habit_confirmation_title": "Usuń nawyk",
+  "delete_habit_confirmation_message": "Czy jesteś pewien, że chcesz usunąć nawyk z tego wyzwania?"
 }
