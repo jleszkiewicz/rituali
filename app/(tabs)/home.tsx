@@ -113,13 +113,11 @@ export default function HomeScreen() {
             <ThemedText style={styles.sectionTitle}>
               {t("challenges")}
             </ThemedText>
-            {activeChallenges.length > 0 && (
-              <ChallengesList
-                challenges={activeChallenges}
-                habits={habits}
-                selectedDate={format(selectedDate, dateFormat)}
-              />
-            )}
+            <ChallengesList
+              challenges={activeChallenges}
+              habits={habits}
+              selectedDate={format(selectedDate, dateFormat)}
+            />
           </ConditionalRenderer>
           <ConditionalRenderer condition={activeHabits.length > 0}>
             <ThemedText style={styles.sectionTitle}>{t("habits")}</ThemedText>

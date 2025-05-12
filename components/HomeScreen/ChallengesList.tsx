@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { dateFormat } from "@/constants/Constants";
 import ChallengeCard from "./ChallengeCard";
 import PagingIndicator from "./PagingIndicator";
+import PageIndicator from "../Commons/PageIndicator";
 
 interface ChallengesListProps {
   challenges: ChallengeData[];
@@ -70,7 +71,7 @@ export default function ChallengesList({
           index,
         })}
       />
-      <PagingIndicator
+      <PageIndicator
         isVisible={Math.ceil(challenges.length / cardsPerPage) > 1}
         count={Math.ceil(challenges.length / cardsPerPage)}
         currentIndex={currentPage}

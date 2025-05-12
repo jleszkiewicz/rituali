@@ -16,3 +16,15 @@ export interface HabitData {
   isPartOfChallenge: boolean;
   status: HabitStatus;
 } 
+
+export interface RecommendedChallengeData {
+  id: string;
+  name: string;
+  duration: string;
+  habits_pl: string[];
+  habits_en: string[];
+  habits_es: string[];
+  habits_fr: string[];
+  habits_de: string[];
+  habits_it: string[];
+}

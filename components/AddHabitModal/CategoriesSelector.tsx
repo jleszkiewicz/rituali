@@ -1,5 +1,4 @@
 import { StyleSheet, View } from "react-native";
-import { Colors } from "../../constants/Colors";
 import { HabitCategory } from "./types";
 import { t } from "@/src/service/translateService";
 import { useState } from "react";

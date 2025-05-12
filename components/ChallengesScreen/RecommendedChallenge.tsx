@@ -1,43 +1,40 @@
+import React from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "../Commons/ThemedText";
-import { LinearGradient } from "expo-linear-gradient";
+import { RecommendedChallengeData } from "../AddHabitModal/types";
+import { getHabitsForCurrentLanguage } from "./methods";
+import { t } from "@/src/service/translateService";
 
-const RecommendedChallenge = () => {
-  const zasady = [
-    "Zrób 30 przysiadów dziennie",
-    "Zrób 30 przysiadów dziennie",
-    "Zrób 30 przysiadów dziennie",
-    "Zrób 30 przysiadów dziennie",
-    "Zrób 30 przysiadów dziennie",
-  ];
+const RecommendedChallengeCard = ({
+  key,
+  challenge,
+}: {
+  key: string;
+  challenge: RecommendedChallengeData;
+}) => {
   return (
-    <LinearGradient
-      colors={[Colors.PrimaryGray, Colors.PrimaryGray]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container} key={key}>
       <View style={styles.headerContainer}>
-        <ThemedText style={styles.title}>Recommended Challenge</ThemedText>
+        <ThemedText style={styles.title}>{challenge.name}</ThemedText>
         <View style={styles.durationContainer}>
           <ThemedText style={styles.duration} bold>
-            {"30"}
+            {challenge.duration}
           </ThemedText>
           <ThemedText style={styles.durationDays}>{"dni"}</ThemedText>
         </View>
       </View>
       <View style={styles.rulesContainer}>
-        {zasady.map((zasada) => (
-          <ThemedText style={styles.rule}>{`• ${zasada}`}</ThemedText>
+        {getHabitsForCurrentLanguage(challenge).map((habit) => (
+          <ThemedText style={styles.rule}>{`• ${habit}`}</ThemedText>
         ))}
       </View>
       <TouchableOpacity style={styles.buttonContainer}>
-        <ThemedText style={styles.buttonText}>Start</ThemedText>
+        <ThemedText style={styles.buttonText}>{t("start")}</ThemedText>
         <Ionicons name="arrow-forward" size={24} color={Colors.HotPink} />
       </TouchableOpacity>
-    </LinearGradient>
+    </View>
   );
 };
 
@@ -46,6 +43,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.PrimaryGray,
     borderRadius: 10,
     padding: 20,
+    minHeight: 360,
+    justifyContent: "space-between",
   },
   title: {
     fontSize: 26,
@@ -94,6 +93,12 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
 });
 
-export default RecommendedChallenge;
+export default RecommendedChallengeCard;

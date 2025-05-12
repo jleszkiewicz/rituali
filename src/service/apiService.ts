@@ -1,5 +1,5 @@
 import { supabase } from "./supabaseClient";
-import { HabitData } from "../../components/AddHabitModal/types";
+import { HabitData, RecommendedChallengeData } from "../../components/AddHabitModal/types";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { format } from "date-fns";
 import { dateFormat } from "@/constants/Constants";
@@ -53,6 +53,7 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
 
 export const fetchUserChallenges = async (userId: string | null) => {
   try {
+    console.log("Fetching challenges for user:", userId); // Debug log
     const { data, error } = await supabase
       .from('challenges')
       .select('*')
@@ -64,6 +65,7 @@ export const fetchUserChallenges = async (userId: string | null) => {
       return [];
     }
 
+    console.log("Fetched challenges data:", data); // Debug log
     return data.map((challenge: any) => ({
       id: challenge.id,
       name: challenge.name,
@@ -203,6 +205,24 @@ export const updateChallengeHabits = async (challengeId: string, habits: string[
     return data[0];
   } catch (error) {
     console.error("Error updating challenge habits:", error);
+    throw error;
+  }
+};
+
+export const fetchRecommendedChallenges = async (): Promise<RecommendedChallengeData[]> => {
+  try {
+    const { data, error } = await supabase
+      .from("recommended_challenges")
+      .select("*");
+
+    if (error) {
+      console.error("Error fetching recommended challenges:", error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error in fetchRecommendedChallenges:", error);
     throw error;
   }
 };
