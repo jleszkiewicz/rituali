@@ -62,5 +62,18 @@
   "delete_habit_description": "If you delete it, its history will also be lost. If you want to stop tracking this habit, change its end date instead.",
   "delete": "Delete",
   "edit": "Edit",
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "language_code": "en",
+  "profile": "Profile",
+  "email": "Email",
+  "notifications": "Notifications",
+  "logout": "Logout",
+  "delete_account": "Delete Account",
+  "delete_account_confirmation_title": "Delete Account",
+  "delete_account_confirmation_message": "Are you sure you want to delete your account? This action cannot be undone.",
+  "error": "Error",
+  "logout_error": "An error occurred while logging out. Please try again.",
+  "delete_account_error": "An error occurred while deleting your account. Please try again.",
+  "notifications_permission_denied": "To enable notifications, you need to grant permissions in the app settings.",
+  "notifications_error": "An error occurred while configuring notifications. Please try again."
 }

@@ -106,5 +106,18 @@
   "edit_habit": "Edytuj nawyk",
   "select_challenges": "Wybierz wyzwania",
   "challenges_selected": "Wybrane wyzwania",
-  "start": "Rozpocznij"
+  "start": "Rozpocznij",
+  "language_code": "pl",
+  "profile": "Profil",
+  "email": "Email",
+  "notifications": "Powiadomienia",
+  "logout": "Wyloguj się",
+  "delete_account": "Usuń konto",
+  "delete_account_confirmation_title": "Usuń konto",
+  "delete_account_confirmation_message": "Czy na pewno chcesz usunąć swoje konto? Tej operacji nie można cofnąć.",
+  "error": "Błąd",
+  "logout_error": "Wystąpił błąd podczas wylogowywania. Spróbuj ponownie.",
+  "delete_account_error": "Wystąpił błąd podczas usuwania konta. Spróbuj ponownie.",
+  "notifications_permission_denied": "Aby włączyć powiadomienia, musisz nadać uprawnienia w ustawieniach aplikacji.",
+  "notifications_error": "Wystąpił błąd podczas konfigurowania powiadomień. Spróbuj ponownie."
 }

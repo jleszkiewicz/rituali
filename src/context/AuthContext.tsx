@@ -16,6 +16,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -127,18 +128,57 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     dispatch(clearUserData());
   };
 
+  const deleteAccount = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    // Delete user data from the users table
+    const { error: deleteUserError } = await supabase
+      .from("users")
+      .delete()
+      .eq("auth_id", user.id);
+
+    if (deleteUserError) {
+      console.error("Error deleting user data:", deleteUserError);
+      throw deleteUserError;
+    }
+
+    // Delete the user's auth account
+    const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(
+      user.id
+    );
+
+    if (deleteAuthError) {
+      console.error("Error deleting auth account:", deleteAuthError);
+      throw deleteAuthError;
+    }
+
+    setIsAuthenticated(false);
+    dispatch(clearUserData());
+  };
+
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, isLoading, login, register, logout }}
+      value={{
+        isAuthenticated,
+        isLoading,
+        login,
+        register,
+        logout,
+        deleteAccount,
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
