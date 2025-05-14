@@ -9,11 +9,16 @@ import { supabase } from "../service/supabaseClient";
 import { useDispatch } from "react-redux";
 import { setUserData, clearUserData } from "../store/userSlice";
 import { AppDispatch } from "../store";
+import * as WebBrowser from "expo-web-browser";
+import { Platform } from "react-native";
+
+WebBrowser.maybeCompleteAuthSession();
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -24,6 +29,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
 
   const fetchAndSetUserData = async (authId: string) => {
@@ -43,9 +49,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       );
       setIsAuthenticated(true);
     } else {
-      console.error("Błąd pobierania danych użytkownika:", error?.message);
-      setIsAuthenticated(false);
-      dispatch(clearUserData());
+      const { error: insertError } = await supabase.from("users").insert([
+        {
+          auth_id: authId,
+          first_name: "",
+          last_name: "",
+        },
+      ]);
+
+      if (!insertError) {
+        dispatch(
+          setUserData({
+            userId: authId,
+            firstName: "",
+            lastName: "",
+          })
+        );
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+        dispatch(clearUserData());
+      }
     }
   };
 
@@ -67,6 +91,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     checkAuth();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        await fetchAndSetUserData(session.user.id);
+      } else if (event === "SIGNED_OUT") {
+        setIsAuthenticated(false);
+        dispatch(clearUserData());
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [dispatch]);
 
   const login = async (email: string, password: string) => {
@@ -79,13 +118,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const user = data?.user;
 
     if (error || !user) {
-      console.error("Logowanie nie powiodło się:", error?.message);
       setIsAuthenticated(false);
     } else {
       await fetchAndSetUserData(user.id);
     }
 
     setIsLoading(false);
+  };
+
+  const loginWithGoogle = async () => {
+    if (isAuthenticating) return;
+
+    setIsAuthenticating(true);
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+          redirectTo: "exp+rituali://",
+          skipBrowserRedirect: false,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        await WebBrowser.openBrowserAsync(data.url);
+      }
+    } catch (error) {
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+      setIsAuthenticating(false);
+    }
   };
 
   const register = async (email: string, password: string) => {
@@ -96,10 +166,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     if (error) {
-      console.error("Rejestracja nie powiodła się:", error.message);
+      setIsAuthenticated(false);
     } else if (data.user) {
       setIsAuthenticated(true);
-
       const { error: insertError } = await supabase.from("users").insert([
         {
           auth_id: data.user.id,
@@ -135,24 +204,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (!user) return;
 
-    // Delete user data from the users table
     const { error: deleteUserError } = await supabase
       .from("users")
       .delete()
       .eq("auth_id", user.id);
 
     if (deleteUserError) {
-      console.error("Error deleting user data:", deleteUserError);
       throw deleteUserError;
     }
 
-    // Delete the user's auth account
     const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(
       user.id
     );
 
     if (deleteAuthError) {
-      console.error("Error deleting auth account:", deleteAuthError);
       throw deleteAuthError;
     }
 
@@ -166,6 +231,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated,
         isLoading,
         login,
+        loginWithGoogle,
         register,
         logout,
         deleteAccount,

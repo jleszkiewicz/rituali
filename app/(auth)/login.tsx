@@ -11,7 +11,7 @@ import { ThemedText } from "@/components/Commons/ThemedText";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 
 export default function LoginScreen() {
-  const { login, isLoading } = useAuth();
+  const { login, loginWithGoogle, isLoading } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,6 +21,10 @@ export default function LoginScreen() {
     login(email, password).then(() => {
       router.replace(AppRoutes.Home);
     });
+  };
+
+  const handleGoogleLogin = () => {
+    loginWithGoogle();
   };
 
   return (
@@ -64,6 +68,21 @@ export default function LoginScreen() {
           <ThemedText style={styles.buttonText}>{t("login_button")}</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
+          style={styles.googleButton}
+          onPress={handleGoogleLogin}
+          disabled={isLoading}
+        >
+          <Ionicons
+            name="logo-google"
+            size={24}
+            color={Colors.White}
+            style={styles.googleIcon}
+          />
+          <ThemedText style={styles.buttonText}>
+            {t("login_with_google")}
+          </ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
           style={styles.registerButton}
           onPress={() => router.push(AuthRoutes.Register)}
           disabled={isLoading}
@@ -102,6 +121,18 @@ const styles = StyleSheet.create({
     color: Colors.Black,
     fontFamily: "Poppins-Regular",
   },
+  passwordContainer: {
+    width: "100%",
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  icon: {
+    position: "absolute",
+    right: 10,
+    top: 14,
+  },
   button: {
     width: "100%",
     height: 50,
@@ -116,20 +147,22 @@ const styles = StyleSheet.create({
     color: Colors.White,
     fontSize: 18,
   },
+  googleButton: {
+    width: "100%",
+    height: 50,
+    backgroundColor: Colors.PrimaryRed,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+    elevation: 5,
+    flexDirection: "row",
+  },
+  googleIcon: {
+    marginRight: 10,
+  },
   registerButton: {
     marginTop: 10,
-  },
-  passwordContainer: {
-    width: "100%",
-    marginBottom: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  icon: {
-    position: "absolute",
-    right: 10,
-    top: 14,
   },
   registerButtonText: {
     color: Colors.PrimaryRed,
