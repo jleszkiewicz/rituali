@@ -120,5 +120,12 @@
   "delete_account_error": "Wystąpił błąd podczas usuwania konta. Spróbuj ponownie.",
   "notifications_permission_denied": "Aby włączyć powiadomienia, musisz nadać uprawnienia w ustawieniach aplikacji.",
   "notifications_error": "Wystąpił błąd podczas konfigurowania powiadomień. Spróbuj ponownie.",
-  "editing_done": "Zakończ edycję"
+  "editing_done": "Zakończ edycję",
+  "email_required": "Email jest wymagany",
+  "password_required": "Hasło jest wymagane",
+  "confirm_password": "Potwierdź hasło",
+  "invalid_email": "Nieprawidłowy email",
+  "password_too_short": "Hasło musi mieć co najmniej 6 znaków",
+  "passwords_dont_match": "Hasła nie pasują do siebie",
+  "confirm_password_required": "Potwierdź hasło jest wymagane"
 }

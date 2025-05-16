@@ -16,11 +16,39 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
+
+  const validateForm = () => {
+    const newErrors = {
+      email: "",
+      password: "",
+    };
+
+    if (!email.trim()) {
+      newErrors.email = t("email_required");
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = t("invalid_email");
+    }
+
+    if (!password) {
+      newErrors.password = t("password_required");
+    } else if (password.length < 6) {
+      newErrors.password = t("password_too_short");
+    }
+
+    setErrors(newErrors);
+    return !newErrors.email && !newErrors.password;
+  };
 
   const handleLogin = () => {
-    login(email, password).then(() => {
-      router.replace(AppRoutes.Home);
-    });
+    if (validateForm()) {
+      login(email, password).then(() => {
+        router.replace(AppRoutes.Home);
+      });
+    }
   };
 
   const handleGoogleLogin = () => {
@@ -33,32 +61,48 @@ export default function LoginScreen() {
         <ThemedText style={styles.title} bold>
           {t("login_title")}
         </ThemedText>
-        <TextInput
-          style={styles.input}
-          placeholder={t("email_placeholder")}
-          value={email}
-          onChangeText={setEmail}
-          placeholderTextColor={Colors.PrimaryGray}
-        />
-        <View style={styles.passwordContainer}>
+        <View style={styles.inputContainer}>
           <TextInput
-            style={styles.input}
-            placeholder={t("password_placeholder")}
-            secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={setPassword}
+            style={[styles.input, errors.email ? styles.inputError : null]}
+            placeholder={t("email_placeholder")}
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              setErrors((prev) => ({ ...prev, email: "" }));
+            }}
             placeholderTextColor={Colors.PrimaryGray}
           />
-          <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.icon}
-          >
-            <Ionicons
-              name={showPassword ? "eye-off" : "eye"}
-              size={24}
-              color={Colors.PrimaryRed}
+          {errors.email ? (
+            <ThemedText style={styles.errorText}>{errors.email}</ThemedText>
+          ) : null}
+        </View>
+        <View style={styles.inputContainer}>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={[styles.input, errors.password ? styles.inputError : null]}
+              placeholder={t("password_placeholder")}
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setErrors((prev) => ({ ...prev, password: "" }));
+              }}
+              placeholderTextColor={Colors.PrimaryGray}
             />
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.icon}
+            >
+              <Ionicons
+                name={showPassword ? "eye-off" : "eye"}
+                size={24}
+                color={Colors.PrimaryRed}
+              />
+            </TouchableOpacity>
+          </View>
+          {errors.password ? (
+            <ThemedText style={styles.errorText}>{errors.password}</ThemedText>
+          ) : null}
         </View>
         <TouchableOpacity
           style={styles.button}
@@ -108,6 +152,10 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     lineHeight: 34,
   },
+  inputContainer: {
+    width: "100%",
+    marginBottom: 10,
+  },
   input: {
     width: "100%",
     height: 50,
@@ -115,15 +163,22 @@ const styles = StyleSheet.create({
     borderColor: Colors.PrimaryPink,
     borderWidth: 1,
     borderRadius: 10,
-    marginBottom: 20,
     paddingLeft: 15,
     fontSize: 16,
     color: Colors.Black,
     fontFamily: "Poppins-Regular",
   },
+  inputError: {
+    borderColor: Colors.PrimaryRed,
+  },
+  errorText: {
+    color: Colors.PrimaryRed,
+    fontSize: 12,
+    marginTop: 5,
+    marginLeft: 5,
+  },
   passwordContainer: {
     width: "100%",
-    marginBottom: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",

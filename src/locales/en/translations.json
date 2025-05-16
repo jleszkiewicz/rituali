@@ -121,5 +121,13 @@
   "select_challenges": "Select challenges",
   "challenges_selected": "Selected challenges",
   "start": "Start",
-  "editing_done": "Done editing"
+  "editing_done": "Done editing",
+  "email_required": "Email is required",
+  "password_required": "Password is required",
+  "confirm_password": "Confirm password",
+  "invalid_email": "Invalid email",
+  "password_too_short": "Password must be at least 6 characters long",
+  "passwords_dont_match": "Passwords do not match",
+  "confirm_password_required": "Confirm password is required",
+  "password_min_length": "Password must be at least 6 characters long"
 }
