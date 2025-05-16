@@ -120,5 +120,6 @@
   "edit_habit": "Edit habit",
   "select_challenges": "Select challenges",
   "challenges_selected": "Selected challenges",
-  "start": "Start"
+  "start": "Start",
+  "editing_done": "Done editing"
 }

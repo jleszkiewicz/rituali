@@ -214,6 +214,8 @@ const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
                 value={isPartOfChallenge}
                 onValueChange={handleTogglePartOfChallenge}
                 trackColor={{ false: Colors.LightGray, true: Colors.HotPink }}
+                thumbColor={Colors.White}
+                ios_backgroundColor={Colors.LightGray}
               />
             </TouchableOpacity>
 

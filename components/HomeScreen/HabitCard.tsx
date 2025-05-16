@@ -1,43 +1,35 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { HabitData } from "../AddHabitModal/types";
+import { HabitData } from "@/components/AddHabitModal/types";
+import { ThemedText } from "../Commons/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  View,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  Animated,
-  PanResponder,
-} from "react-native";
-import { getIconForCategory } from "./methods/methods";
 import { t } from "@/src/service/translateService";
-import { calculateStreak } from "@/src/utils/streakUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { selectHabits, setHabits } from "@/src/store/habitsSlice";
 import { updateHabitCompletion } from "@/src/service/apiService";
-import { isAfter, parseISO, isToday } from "date-fns";
+import { isAfter, isToday, parseISO } from "date-fns";
 import DeleteHabitModal from "../modals/DeleteHabitModal";
-import { ThemedText } from "../Commons/ThemedText";
 import EditHabitModal from "../modals/EditHabitModal";
+import { getIconForCategory } from "./methods/methods";
+import { calculateStreak } from "@/src/utils/streakUtils";
 
 interface HabitCardProps {
   habit: HabitData;
   selectedDate: string;
-  onEdit: (habit: HabitData) => void;
+  isEditMode: boolean;
 }
 
 const HabitCard: React.FC<HabitCardProps> = ({
   habit,
   selectedDate,
-  onEdit,
+  isEditMode,
 }) => {
   const dispatch = useDispatch();
   const habits = useSelector(selectHabits);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const pan = useRef(new Animated.ValueXY()).current;
 
   const isFutureDate = isAfter(parseISO(selectedDate), new Date());
   const isTodayDate = isToday(parseISO(selectedDate));
@@ -69,78 +61,26 @@ const HabitCard: React.FC<HabitCardProps> = ({
     }
   };
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dx < 0) {
-          pan.setValue({ x: gestureState.dx, y: 0 });
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dx < -50) {
-          Animated.spring(pan, {
-            toValue: { x: -160, y: 0 },
-            useNativeDriver: true,
-            tension: 50,
-            friction: 7,
-          }).start();
-        } else {
-          Animated.spring(pan, {
-            toValue: { x: 0, y: 0 },
-            useNativeDriver: true,
-            tension: 50,
-            friction: 7,
-          }).start();
-        }
-      },
-    })
-  ).current;
-
   const streak = calculateStreak(
     habit.frequency,
     habit.startDate,
     habit.completionDates,
     habit.selectedDays
   );
-  const iconName = getIconForCategory(habit.category);
 
   return (
     <>
-      <View style={styles.container}>
-        <Animated.View
-          style={[
-            styles.card,
-            {
-              transform: [{ translateX: pan.x }, { translateY: pan.y }],
-              borderTopEndRadius: pan.x.interpolate({
-                inputRange: [-160, 0],
-                outputRange: [0, 10],
-                extrapolate: "clamp",
-              }),
-              borderBottomEndRadius: pan.x.interpolate({
-                inputRange: [-160, 0],
-                outputRange: [0, 10],
-                extrapolate: "clamp",
-              }),
-            },
-          ]}
-          {...panResponder.panHandlers}
-        >
-          <View style={styles.cardContent}>
-            <View
-              style={{
-                ...styles.iconContainer,
-                backgroundColor: Colors.LightPink,
-              }}
-            >
+      <View style={styles.card}>
+        <View style={styles.content}>
+          <View style={styles.leftContent}>
+            <View style={styles.iconContainer}>
               <Ionicons
-                name={iconName as any}
-                size={30}
-                color={Colors.HotPink}
+                name={getIconForCategory(habit.category) as any}
+                size={28}
+                color={Colors.PrimaryRed}
               />
             </View>
-            <View style={styles.textContainer}>
+            <View style={styles.titleContainer}>
               <ThemedText style={styles.title} bold>
                 {habit.name}
               </ThemedText>
@@ -148,84 +88,46 @@ const HabitCard: React.FC<HabitCardProps> = ({
                 <ThemedText style={styles.streak}>{`${streak} 🔥`}</ThemedText>
               )}
             </View>
-            {!isFutureDate && (
-              <TouchableOpacity
-                style={[
-                  styles.checkbox,
-                  isCompleted && styles.checkboxChecked,
-                  isLoading && styles.checkboxDisabled,
-                ]}
-                onPress={toggleCompletion}
-                activeOpacity={0.7}
-                disabled={isLoading}
-              >
-                {isCompleted && (
-                  <Ionicons name="checkmark" size={20} color={Colors.White} />
-                )}
-              </TouchableOpacity>
-            )}
           </View>
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.editButtonContainer,
-            {
-              opacity: pan.x.interpolate({
-                inputRange: [-160, -80, 0],
-                outputRange: [1, 0.5, 0],
-                extrapolate: "clamp",
-              }),
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => {
-              Animated.spring(pan, {
-                toValue: { x: 0, y: 0 },
-                useNativeDriver: true,
-                tension: 50,
-                friction: 7,
-              }).start();
-              setIsEditModalVisible(true);
-            }}
-          >
-            <Ionicons name="create-outline" size={24} color={Colors.White} />
-            <ThemedText style={styles.editButtonText} bold>
-              {t("edit")}
-            </ThemedText>
-          </TouchableOpacity>
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.deleteButtonContainer,
-            {
-              opacity: pan.x.interpolate({
-                inputRange: [-160, -80, 0],
-                outputRange: [1, 0.5, 0],
-                extrapolate: "clamp",
-              }),
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => {
-              Animated.spring(pan, {
-                toValue: { x: 0, y: 0 },
-                useNativeDriver: true,
-                tension: 50,
-                friction: 7,
-              }).start();
-              setIsDeleteModalVisible(true);
-            }}
-          >
-            <Ionicons name="trash-outline" size={24} color={Colors.White} />
-            <ThemedText style={styles.deleteButtonText} bold>
-              {t("delete")}
-            </ThemedText>
-          </TouchableOpacity>
-        </Animated.View>
+          {isEditMode ? (
+            <View style={styles.actions}>
+              <TouchableOpacity
+                onPress={() => setIsEditModalVisible(true)}
+                style={styles.actionButton}
+              >
+                <Ionicons
+                  name="create-outline"
+                  size={24}
+                  color={Colors.PrimaryGray}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setIsDeleteModalVisible(true)}
+                style={styles.actionButton}
+              >
+                <Ionicons
+                  name="trash-outline"
+                  size={24}
+                  color={Colors.HotPink}
+                />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={toggleCompletion}
+              disabled={isLoading || isFutureDate}
+              style={[
+                styles.checkbox,
+                isCompleted && styles.checkboxCompleted,
+                isFutureDate && styles.checkboxDisabled,
+              ]}
+            >
+              {isCompleted && (
+                <Ionicons name="checkmark" size={20} color={Colors.White} />
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
       <DeleteHabitModal
         isVisible={isDeleteModalVisible}
@@ -241,102 +143,68 @@ const HabitCard: React.FC<HabitCardProps> = ({
   );
 };
 
-export default HabitCard;
-
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    marginVertical: 5,
-    height: 60,
-  },
   card: {
-    margin: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    borderRadius: 10,
-    flex: 1,
     backgroundColor: Colors.White,
-    height: "100%",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
   },
-  cardContent: {
+  content: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
   },
-  iconContainer: {
-    backgroundColor: Colors.PrimaryPink,
-    borderRadius: 10,
-    padding: 5,
-    marginEnd: 10,
-  },
-  textContainer: {
+  leftContent: {
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
-    justifyContent: "flex-start",
   },
   title: {
     fontSize: 16,
-  },
-  streak: {
-    fontSize: 14,
     color: Colors.PrimaryGray,
-    textAlign: "left",
   },
   checkbox: {
     width: 24,
     height: 24,
-    borderRadius: 6,
+    borderRadius: 12,
     borderWidth: 2,
-    borderColor: Colors.PrimaryGray,
+    borderColor: Colors.HotPink,
     alignItems: "center",
     justifyContent: "center",
   },
-  checkboxChecked: {
-    backgroundColor: Colors.PrimaryGray,
+  checkboxCompleted: {
+    backgroundColor: Colors.HotPink,
+    borderColor: Colors.HotPink,
   },
   checkboxDisabled: {
     opacity: 0.5,
-    backgroundColor: Colors.LightGray,
   },
-  editButtonContainer: {
-    position: "absolute",
-    right: 80,
-    top: 0,
-    bottom: 0,
-    width: 80,
-  },
-  editButton: {
-    backgroundColor: Colors.HotPink,
-    justifyContent: "center",
+  actions: {
+    flexDirection: "row",
     alignItems: "center",
-    width: "100%",
-    height: "100%",
-    borderRadius: 0,
   },
-  editButtonText: {
-    color: Colors.White,
-    marginStart: 5,
-    fontSize: 14,
+  actionButton: {
+    padding: 8,
+    marginLeft: 8,
   },
-  deleteButtonContainer: {
-    position: "absolute",
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: 80,
-  },
-  deleteButton: {
-    backgroundColor: Colors.PrimaryRed,
-    justifyContent: "center",
+  iconContainer: {
+    backgroundColor: Colors.LightPink,
+    width: 46,
+    height: 46,
+    borderRadius: 12,
     alignItems: "center",
-    width: "100%",
-    height: "100%",
-    borderTopEndRadius: 10,
-    borderBottomEndRadius: 10,
+    justifyContent: "center",
   },
-  deleteButtonText: {
-    color: Colors.White,
-    marginLeft: 5,
+  streak: {
     fontSize: 14,
-    fontWeight: "600",
+    color: Colors.PrimaryGray,
+  },
+  titleContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginStart: 10,
   },
 });
+
+export default HabitCard;

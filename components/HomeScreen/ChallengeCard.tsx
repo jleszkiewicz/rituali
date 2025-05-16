@@ -22,8 +22,8 @@ export default function ChallengeCard({
   selectedDate,
   width,
 }: ChallengeCardProps) {
-  const challengeHabits = habits.filter((habit) =>
-    challenge.habits.includes(habit.id)
+  const challengeHabits = habits.filter(
+    (habit) => challenge.habits.includes(habit.id) && habit.status === "active"
   );
 
   const completedHabits = challengeHabits.filter((habit) =>

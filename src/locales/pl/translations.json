@@ -119,5 +119,6 @@
   "logout_error": "Wystąpił błąd podczas wylogowywania. Spróbuj ponownie.",
   "delete_account_error": "Wystąpił błąd podczas usuwania konta. Spróbuj ponownie.",
   "notifications_permission_denied": "Aby włączyć powiadomienia, musisz nadać uprawnienia w ustawieniach aplikacji.",
-  "notifications_error": "Wystąpił błąd podczas konfigurowania powiadomień. Spróbuj ponownie."
+  "notifications_error": "Wystąpił błąd podczas konfigurowania powiadomień. Spróbuj ponownie.",
+  "editing_done": "Zakończ edycję"
 }
