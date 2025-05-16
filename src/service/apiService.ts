@@ -220,7 +220,17 @@ export const fetchRecommendedChallenges = async (): Promise<RecommendedChallenge
       throw error;
     }
 
-    return data;
+    return data.map((challenge: any) => ({
+      id: challenge.id,
+      name: challenge.name,
+      duration: challenge.duration,
+      habits_pl: challenge.habits_pl || [],
+      habits_en: challenge.habits_en || [],
+      habits_es: challenge.habits_es || [],
+      habits_fr: challenge.habits_fr || [],
+      habits_de: challenge.habits_de || [],
+      habits_it: challenge.habits_it || []
+    }));
   } catch (error) {
     console.error("Error in fetchRecommendedChallenges:", error);
     throw error;

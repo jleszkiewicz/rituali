@@ -27,14 +27,8 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>myapp</string>
-          <string>com.rituali.app</string>
-        </array>
-      </dict>
-      <dict>
-        <key>CFBundleURLSchemes</key>
-        <array>
           <string>exp+rituali</string>
+          <string>com.rituali.app</string>
         </array>
       </dict>
     </array>

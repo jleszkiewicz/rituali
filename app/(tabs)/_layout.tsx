@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { TouchableOpacity, StyleSheet, Platform } from "react-native";
 import AddOptionsModal from "@/components/modals/AddOptionsModal";
 import AddHabitModal from "@/components/modals/AddHabitModal";
 import AddChallengeModal from "@/components/modals/AddChallengeModal";
@@ -34,12 +34,19 @@ export default function TabsLayout() {
           tabBarShowLabel: false,
           tabBarActiveTintColor: Colors.PrimaryGray,
           tabBarInactiveTintColor: Colors.PrimaryGray,
+          tabBarStyle: {
+            backgroundColor: Colors.White,
+            borderTopWidth: 1,
+            borderTopColor: Colors.LightGray,
+            height: Platform.OS === "ios" ? 85 : 60,
+            paddingBottom: Platform.OS === "ios" ? 20 : 10,
+          },
+          headerShown: false,
         }}
       >
         <Tabs.Screen
           name="home"
           options={{
-            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
                 name={focused ? "home" : "home-outline"}
@@ -52,7 +59,6 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="challenges"
           options={{
-            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
                 name={focused ? "trophy" : "trophy-outline"}
@@ -78,7 +84,6 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="statistics"
           options={{
-            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
                 name={focused ? "bar-chart" : "bar-chart-outline"}
@@ -91,7 +96,6 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="profile"
           options={{
-            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
                 name={focused ? "person" : "person-outline"}

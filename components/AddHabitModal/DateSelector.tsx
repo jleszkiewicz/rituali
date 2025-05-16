@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Platform } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { format, isValid } from "date-fns";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { dateFormat } from "@/constants/Constants";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
@@ -33,12 +33,13 @@ const DateSelector = ({
     }
   }, [date]);
 
-  const handleDateChange = (newDate: Date) => {
-    if (isValid(newDate)) {
-      setDisplayDate(newDate);
-      onDateChange(newDate);
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    const currentDate = selectedDate || displayDate;
+    setShowDatePicker(Platform.OS === "ios");
+    if (isValid(currentDate)) {
+      setDisplayDate(currentDate);
+      onDateChange(currentDate);
     }
-    setShowDatePicker(false);
   };
 
   return (
@@ -54,16 +55,17 @@ const DateSelector = ({
           {format(displayDate, dateFormat)}
         </ThemedText>
       </TouchableOpacity>
-      <DateTimePickerModal
-        minimumDate={minDate}
-        maximumDate={maxDate}
-        isVisible={showDatePicker}
-        mode="date"
-        date={displayDate}
-        onConfirm={handleDateChange}
-        onCancel={() => setShowDatePicker(false)}
-        pickerContainerStyleIOS={{ backgroundColor: Colors.White }}
-      />
+      {showDatePicker && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={displayDate}
+          mode="date"
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          onChange={handleDateChange}
+          minimumDate={minDate}
+          maximumDate={maxDate}
+        />
+      )}
     </View>
   );
 };

@@ -13,16 +13,15 @@ import { ThemedText } from "@/components/Commons/ThemedText";
 import { useSelector } from "react-redux";
 import { selectHabits } from "@/src/store/habitsSlice";
 import YourChallengeCard from "@/components/ChallengesScreen/YourChallengeCard";
-import { useTranslation } from "react-i18next";
 import { RootState } from "@/src/store";
 import { fetchRecommendedChallenges } from "@/src/service/apiService";
 import { RecommendedChallengeData } from "@/components/AddHabitModal/types";
 import { Colors } from "@/constants/Colors";
 import RecommendedChallengeCard from "@/components/ChallengesScreen/RecommendedChallenge";
 import PageIndicator from "@/components/Commons/PageIndicator";
+import { t } from "@/src/service/translateService";
 
 const ChallengesScreen = () => {
-  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const challenges = useSelector(
     (state: RootState) => state.challenges.challenges
@@ -43,6 +42,10 @@ const ChallengesScreen = () => {
     const loadChallenges = async () => {
       try {
         const recommendedChallengesData = await fetchRecommendedChallenges();
+        console.log(
+          "ChallengesScreen: recommendedChallengesData:",
+          recommendedChallengesData
+        );
         setRecommendedChallenges(recommendedChallengesData);
       } catch (err) {
         console.error("Error loading recommended challenges:", err);
@@ -122,14 +125,20 @@ const ChallengesScreen = () => {
             <FlatList
               ref={flatListRef}
               data={recommendedChallenges}
-              renderItem={({ item: challenge }) => (
-                <View style={{ width: cardWidth }}>
-                  <RecommendedChallengeCard
-                    key={challenge.id}
-                    challenge={challenge}
-                  />
-                </View>
-              )}
+              renderItem={({ item: challenge }) => {
+                console.log(
+                  "ChallengesScreen: rendering challenge:",
+                  challenge
+                );
+                return (
+                  <View style={{ width: cardWidth }}>
+                    <RecommendedChallengeCard
+                      key={challenge.id}
+                      challenge={challenge}
+                    />
+                  </View>
+                );
+              }}
               keyExtractor={(item) => item.id}
               horizontal
               pagingEnabled

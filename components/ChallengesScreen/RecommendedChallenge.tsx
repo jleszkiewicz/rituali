@@ -14,6 +14,16 @@ const RecommendedChallengeCard = ({
   key: string;
   challenge: RecommendedChallengeData;
 }) => {
+  console.log("RecommendedChallengeCard: challenge:", challenge);
+
+  if (!challenge) {
+    console.warn("RecommendedChallengeCard: challenge is undefined");
+    return null;
+  }
+
+  const habits = getHabitsForCurrentLanguage(challenge);
+  console.log("RecommendedChallengeCard: habits:", habits);
+
   return (
     <View style={styles.container} key={key}>
       <View style={styles.headerContainer}>
@@ -26,8 +36,11 @@ const RecommendedChallengeCard = ({
         </View>
       </View>
       <View style={styles.rulesContainer}>
-        {getHabitsForCurrentLanguage(challenge).map((habit) => (
-          <ThemedText style={styles.rule}>{`• ${habit}`}</ThemedText>
+        {(Array.isArray(habits) ? habits : []).map((habit, index) => (
+          <ThemedText
+            key={`${habit}-${index}`}
+            style={styles.rule}
+          >{`• ${habit}`}</ThemedText>
         ))}
       </View>
       <TouchableOpacity style={styles.buttonContainer}>
