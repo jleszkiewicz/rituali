@@ -129,5 +129,8 @@
   "password_too_short": "Password must be at least 6 characters long",
   "passwords_dont_match": "Passwords do not match",
   "confirm_password_required": "Confirm password is required",
-  "password_min_length": "Password must be at least 6 characters long"
+  "password_min_length": "Password must be at least 6 characters long",
+  "invalid_credentials": "Invalid email or password",
+  "login_error_title": "Login error",
+  "register_error_title": "Register error"
 }

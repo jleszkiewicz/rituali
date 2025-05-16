@@ -1,13 +1,14 @@
 import { useState } from "react";
 import {
   View,
-  Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/src/context/AuthContext";
+import { useErrorModal } from "@/src/context/ErrorModalContext";
 import { AppRoutes } from "@/src/routes/AppRoutes";
 import { Colors } from "../../constants/Colors";
 import { AuthRoutes } from "@/src/routes/AuthRoutes";
@@ -15,9 +16,12 @@ import { t } from "@/src/service/translateService";
 import { ThemedText } from "@/components/Commons/ThemedText";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
+import { ErrorModal } from "@/src/components/Commons/ErrorModal";
 
 export default function RegisterScreen() {
   const { register } = useAuth();
+  const { showErrorModal, errorMessage, hideError, showError } =
+    useErrorModal();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,11 +65,14 @@ export default function RegisterScreen() {
     );
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (validateForm()) {
-      register(email, password).then(() => {
+      const result = await register(email, password);
+      if (result.success) {
         router.replace(AppRoutes.Home);
-      });
+      } else if (result.error) {
+        showError(result.error);
+      }
     }
   };
 
@@ -75,6 +82,10 @@ export default function RegisterScreen() {
         <ThemedText style={styles.title} bold>
           {t("register_title")}
         </ThemedText>
+        <Image
+          source={require("@/assets/ilustrations/register.png")}
+          style={styles.image}
+        />
         <View style={styles.inputContainer}>
           <TextInput
             style={[styles.input, errors.email ? styles.inputError : null]}
@@ -165,6 +176,13 @@ export default function RegisterScreen() {
           </ThemedText>
         </TouchableOpacity>
       </View>
+
+      <ErrorModal
+        visible={showErrorModal}
+        title={t("register_error_title")}
+        message={errorMessage}
+        onClose={hideError}
+      />
     </ScreenWrapper>
   );
 }
@@ -238,5 +256,10 @@ const styles = StyleSheet.create({
     color: Colors.PrimaryRed,
     fontSize: 16,
     textDecorationLine: "underline",
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginBottom: 20,
   },
 });

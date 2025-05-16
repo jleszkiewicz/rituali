@@ -3,6 +3,8 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
+import { ErrorProvider } from "../src/context/ErrorContext";
+import { ErrorModalProvider } from "../src/context/ErrorModalContext";
 import { AuthRoutes } from "@/src/routes/AuthRoutes";
 import { AppRoutes } from "@/src/routes/AppRoutes";
 import "../src/service/translateService";
@@ -32,9 +34,13 @@ export default function RootLayout() {
 
   return (
     <Provider store={store}>
-      <AuthProvider>
-        <AuthWrapper />
-      </AuthProvider>
+      <ErrorModalProvider>
+        <ErrorProvider>
+          <AuthProvider>
+            <AuthWrapper />
+          </AuthProvider>
+        </ErrorProvider>
+      </ErrorModalProvider>
     </Provider>
   );
 }

@@ -1,7 +1,14 @@
 import { useState } from "react";
-import { View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/src/context/AuthContext";
+import { useErrorModal } from "@/src/context/ErrorModalContext";
 import { AppRoutes } from "@/src/routes/AppRoutes";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
@@ -9,9 +16,12 @@ import { AuthRoutes } from "@/src/routes/AuthRoutes";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "@/components/Commons/ThemedText";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
+import { ErrorModal } from "@/src/components/Commons/ErrorModal";
 
 export default function LoginScreen() {
-  const { login, loginWithGoogle, isLoading } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
+  const { showErrorModal, errorMessage, showError, hideError } =
+    useErrorModal();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,12 +53,24 @@ export default function LoginScreen() {
     return !newErrors.email && !newErrors.password;
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (validateForm()) {
-      login(email, password).then(() => {
+      const success = await login(email, password);
+      if (!success) {
+        showError(t("invalid_credentials"));
+      } else {
         router.replace(AppRoutes.Home);
-      });
+      }
     }
+  };
+
+  const handleInputChange = (text: string, field: "email" | "password") => {
+    if (field === "email") {
+      setEmail(text);
+    } else {
+      setPassword(text);
+    }
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const handleGoogleLogin = () => {
@@ -61,15 +83,16 @@ export default function LoginScreen() {
         <ThemedText style={styles.title} bold>
           {t("login_title")}
         </ThemedText>
+        <Image
+          source={require("@/assets/ilustrations/login.png")}
+          style={styles.image}
+        />
         <View style={styles.inputContainer}>
           <TextInput
             style={[styles.input, errors.email ? styles.inputError : null]}
             placeholder={t("email_placeholder")}
             value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setErrors((prev) => ({ ...prev, email: "" }));
-            }}
+            onChangeText={(text) => handleInputChange(text, "email")}
             placeholderTextColor={Colors.PrimaryGray}
           />
           {errors.email ? (
@@ -83,10 +106,7 @@ export default function LoginScreen() {
               placeholder={t("password_placeholder")}
               secureTextEntry={!showPassword}
               value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                setErrors((prev) => ({ ...prev, password: "" }));
-              }}
+              onChangeText={(text) => handleInputChange(text, "password")}
               placeholderTextColor={Colors.PrimaryGray}
             />
             <TouchableOpacity
@@ -104,17 +124,12 @@ export default function LoginScreen() {
             <ThemedText style={styles.errorText}>{errors.password}</ThemedText>
           ) : null}
         </View>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleLogin}
-          disabled={isLoading}
-        >
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <ThemedText style={styles.buttonText}>{t("login_button")}</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.googleButton}
           onPress={handleGoogleLogin}
-          disabled={isLoading}
         >
           <Ionicons
             name="logo-google"
@@ -129,13 +144,19 @@ export default function LoginScreen() {
         <TouchableOpacity
           style={styles.registerButton}
           onPress={() => router.push(AuthRoutes.Register)}
-          disabled={isLoading}
         >
           <ThemedText style={styles.registerButtonText}>
             {t("register_redirect")}
           </ThemedText>
         </TouchableOpacity>
       </View>
+
+      <ErrorModal
+        visible={showErrorModal}
+        message={errorMessage}
+        title={t("login_error_title")}
+        onClose={hideError}
+      />
     </ScreenWrapper>
   );
 }
@@ -151,6 +172,11 @@ const styles = StyleSheet.create({
     color: Colors.PrimaryRed,
     marginBottom: 40,
     lineHeight: 34,
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginBottom: 20,
   },
   inputContainer: {
     width: "100%",
@@ -171,11 +197,19 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: Colors.PrimaryRed,
   },
+  errorContainer: {
+    width: "100%",
+    backgroundColor: Colors.LightPink,
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: Colors.PrimaryRed,
+  },
   errorText: {
     color: Colors.PrimaryRed,
-    fontSize: 12,
-    marginTop: 5,
-    marginLeft: 5,
+    fontSize: 14,
+    textAlign: "center",
   },
   passwordContainer: {
     width: "100%",
@@ -223,5 +257,8 @@ const styles = StyleSheet.create({
     color: Colors.PrimaryRed,
     fontSize: 16,
     textDecorationLine: "underline",
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
 });

@@ -1,6 +1,5 @@
 import { StyleSheet, SafeAreaView, View } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { LinearGradient } from "expo-linear-gradient";
 
 const ScreenWrapper = ({ children }: { children: React.ReactNode }) => {
   return (

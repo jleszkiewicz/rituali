@@ -10,16 +10,20 @@ import { useDispatch } from "react-redux";
 import { setUserData, clearUserData } from "../store/userSlice";
 import { AppDispatch } from "../store";
 import * as WebBrowser from "expo-web-browser";
-import { Platform } from "react-native";
+import { useErrorModal } from "./ErrorModalContext";
+import { t } from "../service/translateService";
 
 WebBrowser.maybeCompleteAuthSession();
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
   loginWithGoogle: () => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
 }
@@ -31,6 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
+  const { showError } = useErrorModal();
 
   const fetchAndSetUserData = async (authId: string) => {
     const { data: userData, error } = await supabase
@@ -108,22 +113,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [dispatch]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    const user = data?.user;
+      if (error) {
+        showError(t("invalid_credentials"));
+        return false;
+      }
 
-    if (error || !user) {
-      setIsAuthenticated(false);
-    } else {
-      await fetchAndSetUserData(user.id);
+      if (!data?.user) {
+        showError(t("invalid_credentials"));
+        return false;
+      }
+
+      await fetchAndSetUserData(data.user.id);
+      return true;
+    } catch (error) {
+      showError(t("invalid_credentials"));
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const loginWithGoogle = async () => {
@@ -152,43 +167,62 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       setIsAuthenticated(false);
+      showError("Błąd logowania przez Google");
     } finally {
       setIsLoading(false);
       setIsAuthenticating(false);
     }
   };
 
-  const register = async (email: string, password: string) => {
+  const register = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-    if (error) {
-      setIsAuthenticated(false);
-    } else if (data.user) {
-      setIsAuthenticated(true);
-      const { error: insertError } = await supabase.from("users").insert([
-        {
-          auth_id: data.user.id,
-          first_name: "",
-          last_name: "",
-        },
-      ]);
-
-      if (!insertError) {
-        dispatch(
-          setUserData({
-            userId: data.user.id,
-            firstName: "",
-            lastName: "",
-          })
-        );
+      if (error) {
+        if (error.message.includes("already registered")) {
+          return { success: false, error: "Email already registered" };
+        }
+        return { success: false, error: "Email already registered" };
       }
-    }
 
-    setIsLoading(false);
+      if (data.user) {
+        setIsAuthenticated(true);
+        const { error: insertError } = await supabase.from("users").insert([
+          {
+            auth_id: data.user.id,
+            first_name: "",
+            last_name: "",
+          },
+        ]);
+
+        if (!insertError) {
+          dispatch(
+            setUserData({
+              userId: data.user.id,
+              firstName: "",
+              lastName: "",
+            })
+          );
+          return { success: true };
+        } else {
+          return {
+            success: false,
+            error: "Register error",
+          };
+        }
+      }
+
+      return { success: false, error: "Unknown register error" };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = async () => {
@@ -210,6 +244,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .eq("auth_id", user.id);
 
     if (deleteUserError) {
+      showError(t("delete_account_error_message"));
       throw deleteUserError;
     }
 
@@ -218,6 +253,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 
     if (deleteAuthError) {
+      showError(t("delete_account_error_message"));
       throw deleteAuthError;
     }
 
