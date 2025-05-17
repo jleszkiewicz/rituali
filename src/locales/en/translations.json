@@ -132,5 +132,7 @@
   "password_min_length": "Password must be at least 6 characters long",
   "invalid_credentials": "Invalid email or password",
   "login_error_title": "Login error",
-  "register_error_title": "Register error"
+  "register_error_title": "Register error",
+  "no_habits_in_challenge_description": "Add a habit to the challenge to complete it.",
+  "no_habits_available": "No available habits, add a habit first to select it."
 }

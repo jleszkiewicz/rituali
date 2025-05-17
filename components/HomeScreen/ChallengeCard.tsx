@@ -14,6 +14,7 @@ interface ChallengeCardProps {
   habits: HabitData[];
   selectedDate: string;
   width: number;
+  style?: any;
 }
 
 export default function ChallengeCard({
@@ -21,6 +22,7 @@ export default function ChallengeCard({
   habits,
   selectedDate,
   width,
+  style,
 }: ChallengeCardProps) {
   const challengeHabits = habits.filter(
     (habit) => challenge.habits.includes(habit.id) && habit.status === "active"
@@ -52,7 +54,7 @@ export default function ChallengeCard({
   return (
     <>
       <TouchableOpacity
-        style={[styles.container, { width }]}
+        style={[styles.container, { width }, style]}
         onPress={() => naviagteToChallengesScreen()}
       >
         <ThemedText style={styles.title} bold>

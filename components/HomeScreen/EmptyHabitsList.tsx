@@ -1,17 +1,31 @@
 import { Colors } from "@/constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "../Commons/ThemedText";
 import { t } from "@/src/service/translateService";
-import { View } from "react-native";
+import { View, Image } from "react-native";
 import { StyleSheet } from "react-native";
 
-const EmptyHabitsList = () => {
+const EmptyHabitsList = ({
+  imageWidth,
+  textColor,
+  title,
+  description,
+}: {
+  imageWidth: number;
+  textColor: string;
+  title: string;
+  description: string;
+}) => {
   return (
     <View style={styles.container}>
-      <Ionicons name="list" size={60} color={Colors.PrimaryGray} />
-      <ThemedText style={styles.title}>{t("no_habits_title")}</ThemedText>
-      <ThemedText style={styles.description}>
-        {t("no_recorded_habits")}
+      <Image
+        source={require("@/assets/ilustrations/login_error.png")}
+        style={[styles.image, { width: imageWidth, height: imageWidth }]}
+      />
+      <ThemedText style={[styles.title, { color: textColor }]}>
+        {title}
+      </ThemedText>
+      <ThemedText style={[styles.description, { color: textColor }]}>
+        {description}
       </ThemedText>
     </View>
   );
@@ -34,6 +48,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.PrimaryGray,
     textAlign: "center",
+  },
+  image: {
+    width: 250,
+    height: 250,
   },
 });
 export default EmptyHabitsList;

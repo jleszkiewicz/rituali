@@ -1,12 +1,12 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { ThemedText } from "../../Commons/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import { t } from "@/src/service/translateService";
 import ChallengeHabitCard from "../../HomeScreen/HabitCard/ChallengeHabitCard";
-import EmptyHabitsList from "@/components/SelectHabitsModal/EmptyHabitsList";
+import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
 
 interface HabitsSectionProps {
   habits: HabitData[];
@@ -35,17 +35,27 @@ const HabitsSection: React.FC<HabitsSectionProps> = ({
         </TouchableOpacity>
       </View>
 
-      {habits.length === 0 ? (
-        <EmptyHabitsList />
-      ) : (
-        habits.map((habit) => (
-          <ChallengeHabitCard
-            key={habit.id}
-            habit={habit}
-            challengeId={challengeId}
+      <ScrollView
+        style={styles.habitsList}
+        showsVerticalScrollIndicator={false}
+      >
+        {habits.length === 0 ? (
+          <EmptyHabitsList
+            imageWidth={120}
+            textColor={Colors.White}
+            title={t("no_habits_title")}
+            description={t("no_habits_in_challenge_description")}
           />
-        ))
-      )}
+        ) : (
+          habits.map((habit) => (
+            <ChallengeHabitCard
+              key={habit.id}
+              habit={habit}
+              challengeId={challengeId}
+            />
+          ))
+        )}
+      </ScrollView>
     </View>
   );
 };
@@ -86,6 +96,9 @@ const styles = StyleSheet.create({
     color: Colors.LightGray,
     fontSize: 16,
     textAlign: "center",
+  },
+  habitsList: {
+    maxHeight: 240,
   },
 });
 

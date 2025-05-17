@@ -9,11 +9,10 @@ import {
 import { Colors } from "@/constants/Colors";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { ThemedText } from "../Commons/ThemedText";
-import { Ionicons } from "@expo/vector-icons";
 import { t } from "@/src/service/translateService";
 import HabitSelectionItem from "../SelectHabitsModal/HabitSelectionItem";
-import EmptyHabitsList from "../SelectHabitsModal/EmptyHabitsList";
 import ModalHeader from "./ChallengeInfoModal/ModalHeader";
+import EmptyHabitsList from "../HomeScreen/EmptyHabitsList";
 
 interface SelectHabitsModalProps {
   isVisible: boolean;
@@ -48,7 +47,12 @@ const SelectHabitsModal: React.FC<SelectHabitsModalProps> = ({
     if (availableHabits.length === 0) {
       return (
         <View style={styles.emptyListContainer}>
-          <EmptyHabitsList />
+          <EmptyHabitsList
+            imageWidth={250}
+            textColor={Colors.White}
+            title={t("no_habits_title")}
+            description={t("no_habits_available")}
+          />
         </View>
       );
     }

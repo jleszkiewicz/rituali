@@ -53,7 +53,6 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
 
 export const fetchUserChallenges = async (userId: string | null) => {
   try {
-    console.log("Fetching challenges for user:", userId); // Debug log
     const { data, error } = await supabase
       .from('challenges')
       .select('*')
@@ -65,7 +64,6 @@ export const fetchUserChallenges = async (userId: string | null) => {
       return [];
     }
 
-    console.log("Fetched challenges data:", data); // Debug log
     return data.map((challenge: any) => ({
       id: challenge.id,
       name: challenge.name,

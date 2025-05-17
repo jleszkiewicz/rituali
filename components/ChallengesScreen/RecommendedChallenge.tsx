@@ -14,15 +14,11 @@ const RecommendedChallengeCard = ({
   key: string;
   challenge: RecommendedChallengeData;
 }) => {
-  console.log("RecommendedChallengeCard: challenge:", challenge);
-
   if (!challenge) {
-    console.warn("RecommendedChallengeCard: challenge is undefined");
     return null;
   }
 
   const habits = getHabitsForCurrentLanguage(challenge);
-  console.log("RecommendedChallengeCard: habits:", habits);
 
   return (
     <View style={styles.container} key={key}>
@@ -32,7 +28,7 @@ const RecommendedChallengeCard = ({
           <ThemedText style={styles.duration} bold>
             {challenge.duration}
           </ThemedText>
-          <ThemedText style={styles.durationDays}>{"dni"}</ThemedText>
+          <ThemedText style={styles.durationDays}>{t("days")}</ThemedText>
         </View>
       </View>
       <View style={styles.rulesContainer}>
@@ -56,8 +52,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.PrimaryGray,
     borderRadius: 10,
     padding: 20,
-    minHeight: 360,
+    width: "100%",
     justifyContent: "space-between",
+    marginEnd: 30,
+    height: 350,
   },
   title: {
     fontSize: 26,

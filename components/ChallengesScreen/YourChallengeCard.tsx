@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
-import { HabitData } from "@/components/AddHabitModal/types";
 import { differenceInDays } from "date-fns";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
@@ -11,14 +10,10 @@ import { Ionicons } from "@expo/vector-icons";
 
 interface YourChallengeCardProps {
   challenge: ChallengeData;
-  habits: HabitData[];
-  width: number;
 }
 
 export default function YourChallengeCard({
   challenge,
-  habits,
-  width,
 }: YourChallengeCardProps) {
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
 
@@ -29,11 +24,14 @@ export default function YourChallengeCard({
   return (
     <>
       <TouchableOpacity
-        style={[styles.container, { width }]}
+        style={styles.container}
         onPress={() => setIsInfoModalVisible(true)}
       >
         <View style={styles.content}>
-          <ThemedText style={styles.medal}>🏅</ThemedText>
+          <Image
+            source={require("@/assets/ilustrations/medal.png")}
+            style={styles.medal}
+          />
           <View style={styles.leftSection}>
             <ThemedText style={styles.title} bold>
               {challenge.name}
@@ -53,7 +51,6 @@ export default function YourChallengeCard({
         isVisible={isInfoModalVisible}
         onClose={() => setIsInfoModalVisible(false)}
         challenge={challenge}
-        habits={habits}
       />
     </>
   );
@@ -63,8 +60,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.PrimaryGray,
     borderRadius: 10,
-    padding: 15,
-    marginRight: 10,
+    padding: 10,
+    marginEnd: 10,
     shadowColor: Colors.Black,
     shadowOffset: {
       width: 0,
@@ -98,8 +95,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   medal: {
-    fontSize: 40,
-    lineHeight: 50,
-    marginEnd: 10,
+    width: 60,
+    height: 60,
+    marginEnd: 5,
   },
 });

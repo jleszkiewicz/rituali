@@ -133,5 +133,7 @@
   "register_error_title": "Błąd rejestracji",
   "email_already_registered": "Ten email jest już zarejestrowany",
   "delete_account_error_title": "Błąd usuwania konta",
-  "delete_account_error_message": "Wystąpił błąd podczas usuwania konta. Spróbuj ponownie."
+  "delete_account_error_message": "Wystąpił błąd podczas usuwania konta. Spróbuj ponownie.",
+  "no_habits_in_challenge_description": "Dodaj nawyk do wyzwania, aby móc go zrealizować.",
+  "no_habits_available": "Brak dostępnych nawyków, najpierw dodaj nawyk, a by móc go wybrać."
 }

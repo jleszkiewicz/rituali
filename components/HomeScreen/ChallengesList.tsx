@@ -1,12 +1,12 @@
-import React, { useRef, useState } from "react";
-import { View, FlatList, Dimensions, StyleSheet } from "react-native";
+import React from "react";
+import { View, StyleSheet, Dimensions } from "react-native";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { format } from "date-fns";
 import { dateFormat } from "@/constants/Constants";
 import ChallengeCard from "./ChallengeCard";
-import PagingIndicator from "./PagingIndicator";
 import PageIndicator from "../Commons/PageIndicator";
+import Carousel from "react-native-reanimated-carousel";
 
 interface ChallengesListProps {
   challenges: ChallengeData[];
@@ -14,25 +14,17 @@ interface ChallengesListProps {
   selectedDate: string;
 }
 
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const PAGE_WIDTH = SCREEN_WIDTH - 40;
+const ITEM_MARGIN = 10;
+const CARD_WIDTH = (PAGE_WIDTH - ITEM_MARGIN) / 2;
+
 export default function ChallengesList({
   challenges,
   habits,
   selectedDate,
 }: ChallengesListProps) {
-  const [currentPage, setCurrentPage] = useState(0);
-  const flatListRef = useRef<FlatList>(null);
-  const { width: screenWidth } = Dimensions.get("window");
-  const cardsPerPage = 2;
-  const pageWidth = screenWidth - 40;
-  const cardMargin = 10;
-  const cardWidth = (pageWidth - cardMargin * 2) / 2;
-
-  const handlePageChange = (event: any) => {
-    const newPage = Math.round(event.nativeEvent.contentOffset.x / pageWidth);
-    setCurrentPage(newPage);
-  };
-
-  const chunkArray = (array: any[], size: number) => {
+  const chunkArray = (array: ChallengeData[], size: number) => {
     const chunkedArr = [];
     for (let i = 0; i < array.length; i += size) {
       chunkedArr.push(array.slice(i, i + size));
@@ -40,40 +32,49 @@ export default function ChallengesList({
     return chunkedArr;
   };
 
+  const pages = chunkArray(challenges, 2);
+  const [currentPage, setCurrentPage] = React.useState(0);
+
   return (
     <View style={styles.container}>
-      <FlatList
-        ref={flatListRef}
-        data={chunkArray(challenges, cardsPerPage)}
-        renderItem={({ item: pageItems }) => (
-          <View style={{ flexDirection: "row", width: pageWidth }}>
-            {pageItems.map((challenge: ChallengeData) => (
-              <ChallengeCard
-                key={challenge.id}
-                challenge={challenge}
-                habits={habits}
-                selectedDate={format(selectedDate, dateFormat)}
-                width={cardWidth}
-              />
-            ))}
-          </View>
-        )}
-        keyExtractor={(_, index) => `page-${index}`}
-        horizontal
-        pagingEnabled
-        snapToAlignment="start"
-        decelerationRate="fast"
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={handlePageChange}
-        getItemLayout={(_, index) => ({
-          length: pageWidth,
-          offset: pageWidth * index,
-          index,
-        })}
-      />
+      <View style={{ width: PAGE_WIDTH, alignSelf: "center" }}>
+        <Carousel
+          loop={false}
+          width={PAGE_WIDTH}
+          height={200}
+          data={pages}
+          onSnapToItem={setCurrentPage}
+          style={{ paddingHorizontal: ITEM_MARGIN }}
+          renderItem={({ item: pageItems }) => (
+            <View
+              style={{
+                flexDirection: "row",
+                width: PAGE_WIDTH - ITEM_MARGIN * 2,
+              }}
+            >
+              {pageItems.map((challenge: ChallengeData, idx: number) => (
+                <View
+                  key={challenge.id}
+                  style={{
+                    width: CARD_WIDTH,
+                    marginRight: idx === 0 ? ITEM_MARGIN : 0,
+                  }}
+                >
+                  <ChallengeCard
+                    challenge={challenge}
+                    habits={habits}
+                    selectedDate={format(selectedDate, dateFormat)}
+                    width={CARD_WIDTH}
+                  />
+                </View>
+              ))}
+            </View>
+          )}
+        />
+      </View>
       <PageIndicator
-        isVisible={Math.ceil(challenges.length / cardsPerPage) > 1}
-        count={Math.ceil(challenges.length / cardsPerPage)}
+        isVisible={pages.length > 1}
+        count={pages.length}
         currentIndex={currentPage}
       />
     </View>
@@ -83,6 +84,6 @@ export default function ChallengesList({
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    marginBottom: 10,
+    marginBottom: 0,
   },
 });

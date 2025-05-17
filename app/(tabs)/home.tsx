@@ -100,7 +100,7 @@ export default function HomeScreen() {
       {activeHabits.length > 0 ? (
         <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
           <ConditionalRenderer condition={activeChallenges.length > 0}>
-            <ThemedText style={styles.sectionTitle}>
+            <ThemedText style={styles.sectionTitle} bold>
               {t("challenges")}
             </ThemedText>
             <ChallengesList
@@ -111,7 +111,9 @@ export default function HomeScreen() {
           </ConditionalRenderer>
           <ConditionalRenderer condition={activeHabits.length > 0}>
             <View style={styles.habitsHeader}>
-              <ThemedText style={styles.sectionTitle}>{t("habits")}</ThemedText>
+              <ThemedText style={styles.sectionTitle} bold>
+                {t("habits")}
+              </ThemedText>
               <TouchableOpacity
                 onPress={() => setIsEditMode(!isEditMode)}
                 style={styles.editButton}
@@ -137,7 +139,12 @@ export default function HomeScreen() {
           </ConditionalRenderer>
         </ScrollView>
       ) : (
-        <EmptyHabitsList />
+        <EmptyHabitsList
+          imageWidth={250}
+          textColor={Colors.PrimaryGray}
+          title={t("no_habits_title")}
+          description={t("no_recorded_habits")}
+        />
       )}
       <AddHabitModal
         isVisible={isAddHabitModalVisible}
@@ -164,7 +171,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
   },
   editButton: {
     padding: 8,
@@ -177,6 +183,5 @@ const styles = StyleSheet.create({
   editButtonText: {
     color: Colors.HotPink,
     fontSize: 16,
-    fontWeight: "600",
   },
 });

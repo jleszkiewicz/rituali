@@ -13,8 +13,6 @@ export const getHabitsForCurrentLanguage = (
     return [];
   }
 
-  console.log('getHabitsForCurrentLanguage: challenge:', challenge);
-
   const deviceLang = Localization.locale.split("-")[0];
   const lang = supportedLangs.includes(deviceLang as SupportedLang)
     ? (deviceLang as SupportedLang)
@@ -22,6 +20,14 @@ export const getHabitsForCurrentLanguage = (
 
   const key: HabitsKey = `habits_${lang}`;
   const habits = challenge[key] ?? challenge.habits_en ?? [];
-  console.log('getHabitsForCurrentLanguage: selected habits:', habits);
-  return Array.isArray(habits) ? habits : [];
+  
+  try {
+    if (typeof habits === 'string') {
+      return JSON.parse(habits);
+    }
+    return Array.isArray(habits) ? habits : [];
+  } catch (error) {
+    console.warn('Error parsing habits:', error);
+    return [];
+  }
 };

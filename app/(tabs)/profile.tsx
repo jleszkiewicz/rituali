@@ -9,7 +9,6 @@ import {
 import { useRouter } from "expo-router";
 import { useAuth } from "@/src/context/AuthContext";
 import { useSelector } from "react-redux";
-import { RootState } from "@/src/store";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "@/components/Commons/ThemedText";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
