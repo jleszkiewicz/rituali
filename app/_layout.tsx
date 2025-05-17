@@ -1,7 +1,7 @@
 import { Slot } from "expo-router";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
+import { useEffect } from "react";
+import { View, ActivityIndicator } from "react-native";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { ErrorProvider } from "../src/context/ErrorContext";
 import { ErrorModalProvider } from "../src/context/ErrorModalContext";
@@ -12,7 +12,6 @@ import { Provider } from "react-redux";
 import { store } from "../src/store";
 import * as Font from "expo-font";
 import { Fonts } from "@/src/constants/Fonts";
-import { Colors } from "@/constants/Colors";
 
 const PoppinsRegular = require("../assets/fonts/Poppins-Regular.ttf");
 const PoppinsBold = require("../assets/fonts/Poppins-Bold.ttf");
@@ -52,7 +51,7 @@ function AuthWrapper() {
   useEffect(() => {
     if (!isLoading) {
       if (!isAuthenticated) {
-        router.replace(AuthRoutes.Login);
+        router.replace(AuthRoutes.Onboarding);
       } else {
         router.replace(AppRoutes.Home);
       }

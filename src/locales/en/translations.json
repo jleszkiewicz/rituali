@@ -134,5 +134,12 @@
   "login_error_title": "Login error",
   "register_error_title": "Register error",
   "no_habits_in_challenge_description": "Add a habit to the challenge to complete it.",
-  "no_habits_available": "No available habits, add a habit first to select it."
+  "no_habits_available": "No available habits, add a habit first to select it.",
+  "onboarding_track_habits_title": "Track Your Habits",
+  "onboarding_track_habits_description": "Start building better habits and track your progress every day",
+  "onboarding_challenges_title": "Challenges",
+  "onboarding_challenges_description": "Join challenges and motivate yourself with others",
+  "onboarding_stats_title": "Statistics",
+  "onboarding_stats_description": "Analyze your progress and celebrate successes",
+  "onboarding_start_button": "Let's Start"
 }

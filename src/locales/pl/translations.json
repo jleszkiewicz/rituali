@@ -135,5 +135,12 @@
   "delete_account_error_title": "Błąd usuwania konta",
   "delete_account_error_message": "Wystąpił błąd podczas usuwania konta. Spróbuj ponownie.",
   "no_habits_in_challenge_description": "Dodaj nawyk do wyzwania, aby móc go zrealizować.",
-  "no_habits_available": "Brak dostępnych nawyków, najpierw dodaj nawyk, a by móc go wybrać."
+  "no_habits_available": "Brak dostępnych nawyków, najpierw dodaj nawyk, a by móc go wybrać.",
+  "onboarding_track_habits_title": "Śledź swoje nawyki",
+  "onboarding_track_habits_description": "Zacznij budować lepsze nawyki i śledź swój postęp każdego dnia",
+  "onboarding_challenges_title": "Wyzwania",
+  "onboarding_challenges_description": "Dołącz do wyzwań i motywuj się razem z innymi",
+  "onboarding_stats_title": "Statystyki",
+  "onboarding_stats_description": "Analizuj swoje postępy i świętuj sukcesy",
+  "onboarding_start_button": "Zaczynamy"
 }
