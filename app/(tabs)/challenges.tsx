@@ -79,13 +79,17 @@ const ChallengesScreen = () => {
     };
   }, [activeChallenges]);
 
-  if (isLoading || !isDataLoaded) {
-    return <Loading />;
-  }
+  const renderContent = () => {
+    if (
+      isLoading &&
+      !isDataLoaded &&
+      activeChallenges.length === 0 &&
+      completedChallenges.length === 0
+    ) {
+      return <Loading />;
+    }
 
-  return (
-    <ScreenWrapper>
-      <ScreenHeader title={t("challenges")} />
+    return (
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <ConditionalRenderer condition={activeChallenges.length > 0}>
@@ -173,6 +177,13 @@ const ChallengesScreen = () => {
           </ConditionalRenderer>
         </View>
       </ScrollView>
+    );
+  };
+
+  return (
+    <ScreenWrapper>
+      <ScreenHeader title={t("challenges")} />
+      {renderContent()}
     </ScreenWrapper>
   );
 };

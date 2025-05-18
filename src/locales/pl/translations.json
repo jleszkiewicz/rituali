@@ -158,5 +158,7 @@
   "total_days": "Łączna liczba dni",
   "total_completions": "Łączna liczba ukończeń",
   "completion_rate": "Wskaźnik ukończenia",
-  "completions": "ukończeń"
+  "completions": "ukończeń",
+  "offline_mode": "Jesteś Offline",
+  "offline_mode_description": "Sprawdź swoje połączenie z internetem. Niektóre funkcje mogą być ograniczone w trybie offline."
 }

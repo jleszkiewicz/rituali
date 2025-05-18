@@ -159,5 +159,7 @@
   "total_days": "Total Days",
   "total_completions": "Total Completions",
   "completion_rate": "Completion Rate",
-  "completions": "completions"
+  "completions": "completions",
+  "offline_mode": "You're Offline",
+  "offline_mode_description": "Please check your internet connection. Some features may be limited while offline."
 }

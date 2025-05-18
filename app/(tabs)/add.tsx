@@ -1,7 +1,12 @@
 import React from "react";
+import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 
 const AddScreen = () => {
-  return <></>;
+  return (
+    <ScreenWrapper showOfflineScreen={false}>
+      <></>
+    </ScreenWrapper>
+  );
 };
 
-export default AddScreen();
+export default AddScreen;

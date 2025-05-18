@@ -64,7 +64,7 @@ const ProfileScreen = () => {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper showOfflineScreen={false}>
       <ScreenHeader title={t("profile")} />
       <View style={styles.container}>
         <View style={styles.section}>

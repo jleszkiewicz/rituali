@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
@@ -18,7 +18,48 @@ const AddOptionsModal = ({
   onAddHabit,
   onAddChallenge,
 }: AddOptionsModalProps) => {
+  const [isConnected, setIsConnected] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkConnection = async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch("https://www.google.com", {
+          method: "HEAD",
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (isMounted) {
+          setIsConnected(response.ok);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setIsConnected(false);
+        }
+      }
+    };
+
+    if (isVisible) {
+      checkConnection();
+      const intervalId = setInterval(checkConnection, 3000);
+      return () => {
+        isMounted = false;
+        clearInterval(intervalId);
+      };
+    }
+  }, [isVisible]);
+
   if (!isVisible) return null;
+  if (!isConnected) {
+    onClose();
+    return null;
+  }
 
   return (
     <Pressable style={styles.container} onPress={onClose}>

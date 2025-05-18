@@ -1,5 +1,5 @@
 import { Slot } from "expo-router";
-import { useRouter } from "expo-router";
+import { useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
@@ -46,17 +46,22 @@ export default function RootLayout() {
 
 function AuthWrapper() {
   const router = useRouter();
+  const segments = useSegments();
   const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     if (!isLoading) {
-      if (!isAuthenticated) {
-        router.replace(AuthRoutes.Onboarding);
-      } else {
+      const inAuthGroup = segments[0] === "(auth)";
+
+      if (!isAuthenticated && !inAuthGroup) {
+        // Jeśli użytkownik nie jest zalogowany i nie jest w grupie auth, przekieruj do logowania
+        router.replace(AuthRoutes.Login);
+      } else if (isAuthenticated && inAuthGroup) {
+        // Jeśli użytkownik jest zalogowany i jest w grupie auth, przekieruj do głównej aplikacji
         router.replace(AppRoutes.Home);
       }
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, segments, router]);
 
   if (isLoading) {
     return (

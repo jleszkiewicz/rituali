@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
@@ -12,6 +12,47 @@ export default function TabsLayout() {
   const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
   const [isAddChallengeModalVisible, setIsAddChallengeModalVisible] =
     useState(false);
+  const [isConnected, setIsConnected] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkConnection = async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch("https://www.google.com", {
+          method: "HEAD",
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (isMounted) {
+          setIsConnected(response.ok);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setIsConnected(false);
+        }
+      }
+    };
+
+    checkConnection();
+    const intervalId = setInterval(checkConnection, 3000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  const handleAddPress = () => {
+    if (isConnected) {
+      setIsAddModalVisible(true);
+    }
+  };
 
   const handleAddHabit = () => {
     setIsAddModalVisible(false);
@@ -72,10 +113,7 @@ export default function TabsLayout() {
           name="add"
           options={{
             tabBarButton: () => (
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => setIsAddModalVisible(true)}
-              >
+              <TouchableOpacity style={styles.button} onPress={handleAddPress}>
                 <Ionicons name="add" size={30} color={Colors.White} />
               </TouchableOpacity>
             ),
