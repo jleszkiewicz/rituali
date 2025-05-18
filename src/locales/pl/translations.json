@@ -146,5 +146,8 @@
   "login_required": "Musisz być zalogowany, aby rozpocząć wyzwanie",
   "success": "Sukces",
   "challenge_started": "Wyzwanie zostało rozpoczęte",
-  "challenge_start_error": "Wystąpił błąd podczas rozpoczynania wyzwania"
+  "challenge_start_error": "Wystąpił błąd podczas rozpoczynania wyzwania",
+  "contact_us": "Skontaktuj się z nami",
+  "contact_description": "Zgłoś problem lub zaproponuj nową funkcjonalność",
+  "email_client_not_available": "Klient poczty nie jest dostępny na Twoim urządzeniu. Upewnij się, że masz zainstalowaną aplikację pocztową."
 }

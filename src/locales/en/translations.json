@@ -147,5 +147,8 @@
   "challenge_started": "Challenge has been started",
   "challenge_start_error": "An error occurred while starting the challenge",
   "no_active_challenges": "No active challenges, first create a challenge.",
-  "no_active_habits": "No active habits, first create a habit."
+  "no_active_habits": "No active habits, first create a habit.",
+  "contact_us": "Contact Us",
+  "contact_description": "Report a problem or suggest a new feature",
+  "email_client_not_available": "Email client is not available on your device. Please make sure you have an email app installed."
 }

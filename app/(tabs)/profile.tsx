@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
 import * as Notifications from "expo-notifications";
 import { selectUserId, selectEmail } from "@/src/store/userSlice";
+import FeedbackSection from "@/components/ProfileScreen/FeedbackSection";
 
 const ProfileScreen = () => {
   const { logout, deleteAccount } = useAuth();
@@ -84,6 +85,8 @@ const ProfileScreen = () => {
             />
           </View>
         </View>
+
+        <FeedbackSection onContact={() => {}} />
 
         <View style={styles.section}>
           <TouchableOpacity
