@@ -103,7 +103,9 @@
   "delete_habit": "Delete habit",
   "completed_for_today": "Completed for today 👏",
   "please_complete_me": "Please complete me 🥺",
-  "your_challenges": "Your challenges",
+  "your_open_challenges": "Your open challenges",
+  "completed_challenges": "Completed challenges",
+  "no_completed_challenges": "No completed challenges yet",
   "recommended_challenges": "Recommended challenges",
   "add_selected_habits": "Add selected habits",
   "no_available_habits": "No available habits",
@@ -150,5 +152,12 @@
   "no_active_habits": "No active habits, first create a habit.",
   "contact_us": "Contact Us",
   "contact_description": "Report a problem or suggest a new feature",
-  "email_client_not_available": "Email client is not available on your device. Please make sure you have an email app installed."
+  "email_client_not_available": "Email client is not available on your device. Please make sure you have an email app installed.",
+  "mark_as_completed": "Mark as completed",
+  "mark_as_active": "Mark as active",
+  "challenge_summary": "Challenge Summary",
+  "total_days": "Total Days",
+  "total_completions": "Total Completions",
+  "completion_rate": "Completion Rate",
+  "completions": "completions"
 }

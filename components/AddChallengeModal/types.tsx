@@ -4,4 +4,5 @@ export type ChallengeData = {
   startDate: string;
   endDate: string;
   habits: string[];
+  status: "active" | "completed";
 };

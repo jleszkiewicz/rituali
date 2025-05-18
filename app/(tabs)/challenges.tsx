@@ -12,7 +12,11 @@ import { ThemedText } from "@/components/Commons/ThemedText";
 import { useSelector } from "react-redux";
 import YourChallengeCard from "@/components/ChallengesScreen/YourChallengeCard";
 import { RootState } from "@/src/store";
-import { fetchRecommendedChallenges } from "@/src/service/apiService";
+import {
+  fetchRecommendedChallenges,
+  getActiveChallenges,
+  getCompletedChallenges,
+} from "@/src/service/apiService";
 import { RecommendedChallengeData } from "@/components/AddHabitModal/types";
 import { Colors } from "@/constants/Colors";
 import RecommendedChallengeCard from "@/components/ChallengesScreen/RecommendedChallenge";
@@ -34,7 +38,11 @@ const ChallengesScreen = () => {
     RecommendedChallengeData[]
   >([]);
   const [yourCurrentPage, setYourCurrentPage] = useState(0);
+  const [completedCurrentPage, setCompletedCurrentPage] = useState(0);
   const [recommendedCurrentPage, setRecommendedCurrentPage] = useState(0);
+
+  const activeChallenges = getActiveChallenges(challenges);
+  const completedChallenges = getCompletedChallenges(challenges);
 
   useEffect(() => {
     const loadChallenges = async () => {
@@ -43,11 +51,11 @@ const ChallengesScreen = () => {
 
         const filteredChallenges = recommendedChallengesData.filter(
           (recommendedChallenge) => {
-            const isAlreadyStarted = challenges.some(
+            const isActive = activeChallenges.some(
               (userChallenge) =>
                 userChallenge.name === recommendedChallenge.name
             );
-            return !isAlreadyStarted;
+            return !isActive;
           }
         );
         setRecommendedChallenges(filteredChallenges);
@@ -68,19 +76,19 @@ const ChallengesScreen = () => {
   ) : (
     <ScreenWrapper>
       <ScreenHeader title={t("challenges")} />
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
-          <ConditionalRenderer condition={challenges.length > 0}>
+          <ConditionalRenderer condition={activeChallenges.length > 0}>
             <View style={styles.section}>
               <ThemedText style={styles.sectionTitle}>
-                {t("your_challenges")}
+                {t("your_open_challenges")}
               </ThemedText>
               <View style={{ width: PAGE_WIDTH, alignSelf: "center" }}>
                 <Carousel
                   loop={false}
                   width={PAGE_WIDTH}
                   height={85}
-                  data={challenges}
+                  data={activeChallenges}
                   onSnapToItem={setYourCurrentPage}
                   style={{ paddingHorizontal: ITEM_MARGIN }}
                   renderItem={({ item }) => (
@@ -91,9 +99,37 @@ const ChallengesScreen = () => {
                 />
               </View>
               <PageIndicator
-                isVisible={challenges.length > 1}
-                count={challenges.length}
+                isVisible={activeChallenges.length > 1}
+                count={activeChallenges.length}
                 currentIndex={yourCurrentPage}
+              />
+            </View>
+          </ConditionalRenderer>
+
+          <ConditionalRenderer condition={completedChallenges.length > 0}>
+            <View style={styles.section}>
+              <ThemedText style={styles.sectionTitle}>
+                {t("completed_challenges")}
+              </ThemedText>
+              <View style={{ width: PAGE_WIDTH, alignSelf: "center" }}>
+                <Carousel
+                  loop={false}
+                  width={PAGE_WIDTH}
+                  height={85}
+                  data={completedChallenges}
+                  onSnapToItem={setCompletedCurrentPage}
+                  style={{ paddingHorizontal: ITEM_MARGIN }}
+                  renderItem={({ item }) => (
+                    <View style={{ width: PAGE_WIDTH }}>
+                      <YourChallengeCard challenge={item} />
+                    </View>
+                  )}
+                />
+              </View>
+              <PageIndicator
+                isVisible={completedChallenges.length > 1}
+                count={completedChallenges.length}
+                currentIndex={completedCurrentPage}
               />
             </View>
           </ConditionalRenderer>

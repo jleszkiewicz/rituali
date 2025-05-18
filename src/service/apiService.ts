@@ -70,11 +70,33 @@ export const fetchUserChallenges = async (userId: string | null) => {
       startDate: format(challenge.start_date, dateFormat),
       endDate: format(challenge.end_date, dateFormat),
       habits: challenge.habits,
-    }));
+    })) as ChallengeData[];
   } catch (err) {
     console.error("Error fetching challenges:", err);
     return [];
   }
+};
+
+export const getActiveChallenges = (challenges: ChallengeData[]): ChallengeData[] => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return challenges.filter(challenge => {
+    const endDate = new Date(challenge.endDate);
+    endDate.setHours(0, 0, 0, 0);
+    return endDate >= today;
+  });
+};
+
+export const getCompletedChallenges = (challenges: ChallengeData[]): ChallengeData[] => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return challenges.filter(challenge => {
+    const endDate = new Date(challenge.endDate);
+    endDate.setHours(0, 0, 0, 0);
+    return endDate < today;
+  });
 };
 
 export const addHabit = async (userId: string | null, habit: HabitData) => {
@@ -111,6 +133,7 @@ export const addChallenge = async (userId: string, challenge: ChallengeData) => 
     start_date: format(new Date(challenge.startDate), dateFormat),
     end_date: format(new Date(challenge.endDate), dateFormat),
     habits: challenge.habits,
+    status: challenge.status || 'active',
   };
 
   const { data, error } = await supabase
@@ -129,6 +152,7 @@ export const addChallenge = async (userId: string, challenge: ChallengeData) => 
     startDate: format(challenge.start_date, dateFormat),
     endDate: format(challenge.end_date, dateFormat),
     habits: challenge.habits,
+    status: challenge.status || 'active',
   }));
 };
 

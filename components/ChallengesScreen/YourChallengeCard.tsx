@@ -7,6 +7,10 @@ import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import ChallengeInfoModal from "../modals/ChallengeInfoModal";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { format } from "date-fns";
+import { dateFormat } from "@/constants/Constants";
+import { getCompletedChallenges } from "@/src/service/apiService";
 
 interface YourChallengeCardProps {
   challenge: ChallengeData;
@@ -16,16 +20,30 @@ export default function YourChallengeCard({
   challenge,
 }: YourChallengeCardProps) {
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
+  const router = useRouter();
 
   const startDate = new Date(challenge.startDate);
   const endDate = new Date(challenge.endDate);
   const totalDays = differenceInDays(endDate, startDate) + 1;
 
+  const isCompleted = getCompletedChallenges([challenge]).length > 0;
+
+  const handlePress = () => {
+    if (isCompleted) {
+      router.push({
+        pathname: "/challenge-summary",
+        params: { challengeId: challenge.id },
+      });
+    } else {
+      setIsInfoModalVisible(true);
+    }
+  };
+
   return (
     <>
       <TouchableOpacity
-        style={styles.container}
-        onPress={() => setIsInfoModalVisible(true)}
+        style={[styles.container, isCompleted && styles.completedContainer]}
+        onPress={handlePress}
       >
         <View style={styles.content}>
           <Image
@@ -70,6 +88,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
+  },
+  completedContainer: {
+    opacity: 0.7,
   },
   content: {
     flexDirection: "row",

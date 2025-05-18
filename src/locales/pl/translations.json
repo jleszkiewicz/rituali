@@ -89,7 +89,9 @@
   "delete_habit": "Usuń nawyk",
   "completed_for_today": "Ukończono na dzisiaj 👏",
   "please_complete_me": "Proszę o ukończenie 🥺",
-  "your_challenges": "Twoje wyzwania",
+  "your_open_challenges": "Twoje aktywne wyzwania",
+  "completed_challenges": "Ukończone wyzwania",
+  "no_completed_challenges": "Brak ukończonych wyzwań",
   "recommended_challenges": "Zalecane wyzwania",
   "add_selected_habits": "Dodaj wybrane nawyki",
   "no_available_habits": "Brak dostępnych nawyków",
@@ -149,5 +151,12 @@
   "challenge_start_error": "Wystąpił błąd podczas rozpoczynania wyzwania",
   "contact_us": "Skontaktuj się z nami",
   "contact_description": "Zgłoś problem lub zaproponuj nową funkcjonalność",
-  "email_client_not_available": "Klient poczty nie jest dostępny na Twoim urządzeniu. Upewnij się, że masz zainstalowaną aplikację pocztową."
+  "email_client_not_available": "Klient poczty nie jest dostępny na Twoim urządzeniu. Upewnij się, że masz zainstalowaną aplikację pocztową.",
+  "mark_as_completed": "Oznacz jako ukończone",
+  "mark_as_active": "Oznacz jako aktywne",
+  "challenge_summary": "Podsumowanie wyzwania",
+  "total_days": "Łączna liczba dni",
+  "total_completions": "Łączna liczba ukończeń",
+  "completion_rate": "Wskaźnik ukończenia",
+  "completions": "ukończeń"
 }
