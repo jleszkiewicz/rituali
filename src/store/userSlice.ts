@@ -2,29 +2,25 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface UserState {
   userId: string | null;
-  firstName: string | null;
-  lastName: string | null;
+  email: string | null;
 }
 
 const initialState: UserState = {
   userId: null,
-  firstName: null,
-  lastName: null,
+  email: null,
 };
 
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUserData: (state, action: PayloadAction<{ userId: string; firstName: string; lastName: string }>) => {
+    setUserData: (state, action: PayloadAction<{ userId: string; email: string }>) => {
       state.userId = action.payload.userId;
-      state.firstName = action.payload.firstName;
-      state.lastName = action.payload.lastName;
+      state.email = action.payload.email;
     },
     clearUserData: (state) => {
       state.userId = null;
-      state.firstName = null;
-      state.lastName = null;
+      state.email = null;
     },
   },
 });
@@ -32,7 +28,6 @@ const userSlice = createSlice({
 export const { setUserData, clearUserData } = userSlice.actions;
 
 export const selectUserId = (state: { user: UserState }) => state.user.userId;
-export const selectFirstName = (state: { user: UserState }) => state.user.firstName;
-export const selectLastName = (state: { user: UserState }) => state.user.lastName;
+export const selectEmail = (state: { user: UserState }) => state.user.email;
 
 export default userSlice.reducer; 

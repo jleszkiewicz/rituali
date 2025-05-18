@@ -1,21 +1,9 @@
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  Modal,
-  TextInput,
-  TouchableOpacity,
-  Switch,
-} from "react-native";
+import { Pressable, StyleSheet, TextInput, View, Switch } from "react-native";
 import { Colors } from "@/constants/Colors";
 import DaySelector from "../AddHabitModal/DaySelector";
 import FrequencySelector from "../AddHabitModal/FrequencySelector";
-import {
-  Frequency,
-  HabitCategory,
-  HabitData,
-  HabitStatus,
-} from "../AddHabitModal/types";
+import { HabitData } from "../AddHabitModal/types";
 import { addHabit, updateChallengeHabits } from "@/src/service/apiService";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
@@ -164,174 +152,173 @@ const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
     }));
   };
 
+  if (!isVisible) return null;
+
   return (
-    <Modal
-      visible={isVisible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <ModalHeader
-            title={t("add_habit")}
-            onClose={onClose}
-            color={Colors.PrimaryGray}
-          />
+    <Pressable style={styles.container} onPress={onClose}>
+      <Pressable style={styles.content} onPress={(e) => e.stopPropagation()}>
+        <ModalHeader
+          title={t("add_habit")}
+          onClose={onClose}
+          color={Colors.PrimaryGray}
+        />
 
-          <View style={styles.inputContainer}>
-            <ThemedText style={styles.label}>{t("habit_name")}</ThemedText>
-            <TextInput
-              style={[styles.input, errors.name ? styles.inputError : null]}
-              value={habitData.name}
-              onChangeText={(text) => {
-                setHabitData({ ...habitData, name: text });
-                setErrors({ ...errors, name: "" });
-              }}
-              placeholder={t("habit_name")}
-            />
-            {errors.name ? (
-              <ThemedText style={styles.errorText}>{errors.name}</ThemedText>
-            ) : null}
-          </View>
-
-          <CategoriesSelector
-            onCategoryChange={(category) => {
-              setHabitData({ ...habitData, category });
+        <View style={styles.inputContainer}>
+          <ThemedText style={styles.label}>{t("habit_name")}</ThemedText>
+          <TextInput
+            style={[styles.input, errors.name ? styles.inputError : null]}
+            value={habitData.name}
+            onChangeText={(text) => {
+              setHabitData({ ...habitData, name: text });
+              setErrors({ ...errors, name: "" });
             }}
-            initialCategory={habitData.category}
           />
+          {errors.name ? (
+            <ThemedText style={styles.errorText}>{errors.name}</ThemedText>
+          ) : null}
+        </View>
 
-          <View style={styles.inputContainer}>
-            <TouchableOpacity
-              style={styles.switchContainer}
-              onPress={handleTogglePartOfChallenge}
-            >
-              <ThemedText style={styles.switchText} bold>
-                {t("part_of_challenge")}
-              </ThemedText>
-              <Switch
-                value={isPartOfChallenge}
-                onValueChange={handleTogglePartOfChallenge}
-                trackColor={{ false: Colors.LightGray, true: Colors.HotPink }}
-                thumbColor={Colors.White}
-                ios_backgroundColor={Colors.LightGray}
-              />
-            </TouchableOpacity>
+        <CategoriesSelector
+          onCategoryChange={(category) => {
+            setHabitData({ ...habitData, category });
+          }}
+          initialCategory={habitData.category}
+        />
 
-            {isPartOfChallenge && (
-              <Dropdown
-                isExpanded={isChallengesExpanded}
-                onToggle={() => setIsChallengesExpanded(!isChallengesExpanded)}
-                selectedText={
-                  selectedChallengeIds.length > 0
-                    ? `${t("challenges_selected")}: ${
-                        selectedChallengeIds.length
-                      }`
-                    : ""
-                }
-                placeholder={t("select_challenges")}
-                items={challenges.map((challenge) => ({
-                  id: challenge.id,
-                  label: challenge.name,
-                  isSelected: selectedChallengeIds.includes(challenge.id),
-                }))}
-                onItemSelect={handleChallengeChange}
-                noItemsText={t("no_active_challenges")}
-                error={errors.challenges}
-                expandHeight
-                additionalStyle={styles.dropdown}
-              />
-            )}
-            {errors.challenges && (
+        <FrequencySelector
+          onFrequencyChange={(frequency) => {
+            setHabitData({ ...habitData, frequency });
+          }}
+          frequency={habitData.frequency}
+        />
+
+        {habitData.frequency === "weekly" && (
+          <DaySelector
+            selectedDays={habitData.selectedDays}
+            onDayToggle={handleDaySelect}
+          />
+        )}
+
+        <View style={styles.challengeContainer}>
+          <ThemedText style={styles.label}>{t("part_of_challenge")}</ThemedText>
+          <Switch
+            value={isPartOfChallenge}
+            onValueChange={handleTogglePartOfChallenge}
+            trackColor={{ false: Colors.LightGray, true: Colors.HotPink }}
+            thumbColor={Colors.White}
+          />
+        </View>
+
+        {isPartOfChallenge && (
+          <View style={styles.challengesList}>
+            <Dropdown
+              isExpanded={isChallengesExpanded}
+              onToggle={() => setIsChallengesExpanded(!isChallengesExpanded)}
+              selectedText={
+                selectedChallengeIds.length > 0
+                  ? `${t("challenges_selected")}: ${
+                      selectedChallengeIds.length
+                    }`
+                  : ""
+              }
+              placeholder={t("select_challenges")}
+              items={challenges.map((challenge) => ({
+                id: challenge.id,
+                label: challenge.name,
+                isSelected: selectedChallengeIds.includes(challenge.id),
+              }))}
+              onItemSelect={handleChallengeChange}
+              noItemsText={t("no_active_challenges")}
+              error={errors.challenges}
+              expandHeight
+            />
+            {errors.challenges ? (
               <ThemedText style={styles.errorText}>
                 {errors.challenges}
               </ThemedText>
-            )}
+            ) : null}
           </View>
+        )}
 
-          <FrequencySelector
-            frequency={habitData.frequency}
-            onFrequencyChange={(frequency) =>
-              setHabitData((prev) => ({ ...prev, frequency }))
-            }
-          />
-
-          {habitData.frequency === "selected_days" && (
-            <>
-              <DaySelector
-                selectedDays={habitData.selectedDays}
-                onDayToggle={handleDaySelect}
-              />
-              {errors.selectedDays && (
-                <ThemedText style={styles.errorText}>
-                  {errors.selectedDays}
-                </ThemedText>
-              )}
-            </>
-          )}
-
-          <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
-        </View>
-      </View>
-    </Modal>
+        <ModalButtons onCancel={handleCloseModal} onSubmit={handleSubmit} />
+      </Pressable>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
+  container: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+    zIndex: 1000,
   },
-  modalContent: {
+  content: {
     backgroundColor: Colors.White,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingBottom: 40,
     paddingHorizontal: 20,
+    paddingBottom: 40,
     width: "100%",
     maxHeight: "90%",
   },
   inputContainer: {
-    marginBottom: 15,
+    marginBottom: 20,
   },
   label: {
     fontSize: 16,
-    marginBottom: 5,
-    fontWeight: "bold",
+    marginBottom: 8,
+    color: Colors.PrimaryGray,
   },
   input: {
     borderWidth: 1,
     borderColor: Colors.LightGray,
-    borderRadius: 5,
+    borderRadius: 10,
     padding: 10,
     fontSize: 16,
-    fontFamily: "Poppins-Regular",
   },
   inputError: {
-    borderColor: Colors.PrimaryRed,
+    borderColor: Colors.HotPink,
   },
   errorText: {
-    color: Colors.PrimaryRed,
-    fontSize: 12,
+    color: Colors.HotPink,
+    fontSize: 14,
     marginTop: 5,
   },
-  switchContainer: {
+  challengeContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    justifyContent: "space-between",
+    marginBottom: 20,
   },
-  switchText: {
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: Colors.HotPink,
+    borderRadius: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  challengesList: {
+    marginBottom: 20,
+  },
+  challengeItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.LightGray,
+  },
+  challengeItemText: {
     fontSize: 16,
+    color: Colors.PrimaryGray,
   },
-  dropdown: {
-    zIndex: 3,
-    position: "absolute",
-    width: "100%",
-    top: 50,
-    backgroundColor: Colors.White,
+  selectedChallengeText: {
+    color: Colors.HotPink,
+    fontWeight: "bold",
   },
 });
 

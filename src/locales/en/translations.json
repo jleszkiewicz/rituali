@@ -141,5 +141,11 @@
   "onboarding_challenges_description": "Join challenges and motivate yourself with others",
   "onboarding_stats_title": "Statistics",
   "onboarding_stats_description": "Analyze your progress and celebrate successes",
-  "onboarding_start_button": "Let's Start"
+  "onboarding_start_button": "Let's Start",
+  "login_required": "You must be logged in to start a challenge",
+  "success": "Success",
+  "challenge_started": "Challenge has been started",
+  "challenge_start_error": "An error occurred while starting the challenge",
+  "no_active_challenges": "No active challenges, first create a challenge.",
+  "no_active_habits": "No active habits, first create a habit."
 }

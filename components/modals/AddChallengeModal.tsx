@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Modal, Animated } from "react-native";
+import { View, StyleSheet, Pressable } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import {
@@ -49,39 +49,12 @@ export default function AddChallengeModal({
   });
   const [isHabitsExpanded, setIsHabitsExpanded] = useState(false);
   const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
-  const [modalHeight] = useState(new Animated.Value(0));
 
   useEffect(() => {
     if (isVisible) {
-      Animated.timing(modalHeight, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
-    } else {
-      Animated.timing(modalHeight, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
+      // No need to animate the modal content as it's handled by the Pressable component
     }
   }, [isVisible]);
-
-  useEffect(() => {
-    if (isAddHabitModalVisible) {
-      Animated.timing(modalHeight, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
-    } else {
-      Animated.timing(modalHeight, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
-    }
-  }, [isAddHabitModalVisible]);
 
   const validateForm = () => {
     const newErrors = {
@@ -114,6 +87,13 @@ export default function AddChallengeModal({
       const days = parseInt(durationDays);
       const endDate = new Date(challengeData.startDate);
       endDate.setDate(endDate.getDate() + days - 1);
+
+      const challengeToSubmit = {
+        ...challengeData,
+        endDate: format(endDate, dateFormat),
+      };
+
+      await addChallenge(userId, challengeToSubmit);
 
       const [freshChallenges, freshHabits] = await Promise.all([
         fetchUserChallenges(userId),
@@ -168,90 +148,78 @@ export default function AddChallengeModal({
     }
   };
 
+  if (!isVisible) return null;
+
   return (
-    <Modal
-      visible={isVisible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalContainer}>
-        <Animated.View
-          style={[
-            styles.modalContent,
-            {
-              transform: [
-                {
-                  translateY: modalHeight.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1000, 0],
-                  }),
-                },
-              ],
-              opacity: modalHeight,
-            },
-          ]}
-        >
-          <ModalHeader
-            title={t("add_challenge")}
-            onClose={onClose}
-            color={Colors.PrimaryGray}
-          />
+    <Pressable style={styles.modalContainer} onPress={onClose}>
+      <Pressable
+        style={styles.modalContent}
+        onPress={(e) => e.stopPropagation()}
+      >
+        <ModalHeader
+          title={t("add_challenge")}
+          onClose={onClose}
+          color={Colors.PrimaryGray}
+        />
 
-          <ChallengeNameInput
-            value={challengeData.name}
-            error={errors.name}
-            onChange={(text) => {
-              setChallengeData({ ...challengeData, name: text });
-              setErrors({ ...errors, name: "" });
-            }}
-          />
+        <ChallengeNameInput
+          value={challengeData.name}
+          error={errors.name}
+          onChange={(text) => {
+            setChallengeData({ ...challengeData, name: text });
+            setErrors({ ...errors, name: "" });
+          }}
+        />
 
-          <DateSelector
-            label={t("start_date")}
-            date={new Date(challengeData.startDate)}
-            onDateChange={(date) =>
-              setChallengeData({
-                ...challengeData,
-                startDate: format(date, dateFormat),
-              })
-            }
-            minDate={new Date()}
-            maxDate={new Date(challengeData.endDate)}
-          />
+        <DateSelector
+          label={t("start_date")}
+          date={new Date(challengeData.startDate)}
+          onDateChange={(date) =>
+            setChallengeData({
+              ...challengeData,
+              startDate: format(date, dateFormat),
+            })
+          }
+          minDate={new Date()}
+          maxDate={new Date(challengeData.endDate)}
+        />
 
-          <DurationInput
-            value={durationDays}
-            error={errors.durationDays}
-            onChange={handleDurationChange}
-          />
+        <DurationInput
+          value={durationDays}
+          error={errors.durationDays}
+          onChange={handleDurationChange}
+        />
 
-          <HabitsSelector
-            selectedHabits={challengeData.habits}
-            error={errors.habits}
-            isExpanded={isHabitsExpanded}
-            onToggleExpanded={() => setIsHabitsExpanded(!isHabitsExpanded)}
-            onToggleHabit={toggleHabit}
-            onAddHabit={() => setIsAddHabitModalVisible(true)}
-          />
+        <HabitsSelector
+          selectedHabits={challengeData.habits}
+          error={errors.habits}
+          isExpanded={isHabitsExpanded}
+          onToggleExpanded={() => setIsHabitsExpanded(!isHabitsExpanded)}
+          onToggleHabit={toggleHabit}
+          onAddHabit={() => setIsAddHabitModalVisible(true)}
+        />
 
-          <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
-        </Animated.View>
-      </View>
+        <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
+      </Pressable>
 
       <AddHabitModal
         isVisible={isAddHabitModalVisible}
         onClose={handleAddHabit}
       />
-    </Modal>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   modalContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+    zIndex: 1000,
   },
   modalContent: {
     backgroundColor: Colors.White,

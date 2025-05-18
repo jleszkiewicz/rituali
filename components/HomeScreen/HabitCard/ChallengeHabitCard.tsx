@@ -98,8 +98,9 @@ const styles = StyleSheet.create({
   },
   habitName: {
     fontSize: 16,
-    marginLeft: 10,
+    marginStart: 10,
     color: Colors.PrimaryGray,
+    maxWidth: "80%",
   },
   deleteButton: {
     padding: 5,

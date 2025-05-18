@@ -1,33 +1,28 @@
 import React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 
 interface HabitCheckboxProps {
   isCompleted: boolean;
-  isLoading: boolean;
-  isFutureDate: boolean;
+  isDisabled: boolean;
   onPress: () => void;
 }
 
 const HabitCheckbox: React.FC<HabitCheckboxProps> = ({
   isCompleted,
-  isLoading,
-  isFutureDate,
+  isDisabled,
   onPress,
 }) => {
-  if (isFutureDate) return null;
-
   return (
     <TouchableOpacity
+      onPress={onPress}
+      disabled={isDisabled}
       style={[
         styles.checkbox,
-        isCompleted && styles.checkboxChecked,
-        isLoading && styles.checkboxDisabled,
+        isCompleted && styles.checkboxCompleted,
+        isDisabled && styles.checkboxDisabled,
       ]}
-      onPress={onPress}
-      activeOpacity={0.7}
-      disabled={isLoading}
     >
       {isCompleted && (
         <Ionicons name="checkmark" size={20} color={Colors.White} />
@@ -40,18 +35,18 @@ const styles = StyleSheet.create({
   checkbox: {
     width: 24,
     height: 24,
-    borderRadius: 6,
+    borderRadius: 12,
     borderWidth: 2,
-    borderColor: Colors.PrimaryGray,
+    borderColor: Colors.HotPink,
     alignItems: "center",
     justifyContent: "center",
   },
-  checkboxChecked: {
-    backgroundColor: Colors.PrimaryGray,
+  checkboxCompleted: {
+    backgroundColor: Colors.HotPink,
+    borderColor: Colors.HotPink,
   },
   checkboxDisabled: {
     opacity: 0.5,
-    backgroundColor: Colors.LightGray,
   },
 });
 

@@ -17,12 +17,13 @@ import { t } from "@/src/service/translateService";
 import { Ionicons } from "@expo/vector-icons";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
 import * as Notifications from "expo-notifications";
-import { selectUserId } from "@/src/store/userSlice";
+import { selectUserId, selectEmail } from "@/src/store/userSlice";
 
 const ProfileScreen = () => {
   const { logout, deleteAccount } = useAuth();
   const router = useRouter();
-  const user = useSelector(selectUserId);
+  const userId = useSelector(selectUserId);
+  const email = useSelector(selectEmail);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
@@ -68,9 +69,7 @@ const ProfileScreen = () => {
         <View style={styles.section}>
           <View style={styles.settingItem}>
             <ThemedText style={styles.settingLabel}>{t("email")}</ThemedText>
-            <ThemedText style={styles.settingValue}>
-              user@example.com
-            </ThemedText>
+            <ThemedText style={styles.settingValue}>{email}</ThemedText>
           </View>
 
           <View style={styles.settingItem}>
@@ -122,7 +121,6 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
   },
   section: {
     backgroundColor: Colors.PrimaryGray,

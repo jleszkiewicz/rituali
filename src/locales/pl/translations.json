@@ -142,5 +142,9 @@
   "onboarding_challenges_description": "Dołącz do wyzwań i motywuj się razem z innymi",
   "onboarding_stats_title": "Statystyki",
   "onboarding_stats_description": "Analizuj swoje postępy i świętuj sukcesy",
-  "onboarding_start_button": "Zaczynamy"
+  "onboarding_start_button": "Zaczynamy",
+  "login_required": "Musisz być zalogowany, aby rozpocząć wyzwanie",
+  "success": "Sukces",
+  "challenge_started": "Wyzwanie zostało rozpoczęte",
+  "challenge_start_error": "Wystąpił błąd podczas rozpoczynania wyzwania"
 }

@@ -120,5 +120,16 @@
   "edit_habit": "Modifier l'habitude",
   "select_challenges": "Sélectionner des défis",
   "challenges_selected": "Défis sélectionnés",
-  "start": "Commencer"
+  "start": "Commencer",
+  "login_required": "Vous devez être connecté pour commencer un défi",
+  "success": "Succès",
+  "challenge_started": "Le défi a commencé",
+  "challenge_start_error": "Une erreur s'est produite lors du démarrage du défi",
+  "onboarding_track_habits_title": "Suivez vos habitudes",
+  "onboarding_track_habits_description": "Commencez à construire de meilleures habitudes et suivez votre progression chaque jour",
+  "onboarding_challenges_title": "Défis",
+  "onboarding_challenges_description": "Rejoignez des défis et motivez-vous avec les autres",
+  "onboarding_stats_title": "Statistiques",
+  "onboarding_stats_description": "Analysez votre progression et célébrez vos succès",
+  "onboarding_start_button": "Commençons"
 }

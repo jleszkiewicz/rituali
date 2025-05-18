@@ -1,10 +1,10 @@
 import React from "react";
-import { TouchableOpacity, StyleSheet, Modal, View } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
-import { LinearGradient } from "expo-linear-gradient";
 import PrimaryButton from "../Commons/PrimaryButton";
+
 interface AddOptionsModalProps {
   isVisible: boolean;
   onClose: () => void;
@@ -18,56 +18,47 @@ const AddOptionsModal = ({
   onAddHabit,
   onAddChallenge,
 }: AddOptionsModalProps) => {
+  if (!isVisible) return null;
+
   return (
-    <Modal
-      visible={isVisible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <PrimaryButton
-            title={t("add_habit")}
-            onPress={onAddHabit}
-            style={styles.option}
-          />
-          <PrimaryButton
-            title={t("add_challenge")}
-            onPress={onAddChallenge}
-            style={styles.option}
-          />
-          <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-            <ThemedText style={styles.cancelButtonText}>
-              {t("cancel")}
-            </ThemedText>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
+    <Pressable style={styles.container} onPress={onClose}>
+      <Pressable style={styles.content} onPress={(e) => e.stopPropagation()}>
+        <PrimaryButton
+          title={t("add_habit")}
+          onPress={onAddHabit}
+          style={styles.option}
+        />
+        <PrimaryButton
+          title={t("add_challenge")}
+          onPress={onAddChallenge}
+          style={styles.option}
+        />
+        <Pressable style={styles.cancelButton} onPress={onClose}>
+          <ThemedText style={styles.cancelButtonText}>{t("cancel")}</ThemedText>
+        </Pressable>
+      </Pressable>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
+  container: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+    zIndex: 1000,
   },
-  modalContent: {
+  content: {
     backgroundColor: Colors.White,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
   },
-  title: {
-    fontSize: 20,
-    marginBottom: 20,
-    textAlign: "center",
-  },
   option: {
-    padding: 15,
-    borderRadius: 10,
     marginBottom: 10,
   },
   cancelButton: {

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { t } from "@/src/service/translateService";
@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { selectActiveHabits } from "@/src/store/habitsSlice";
 import { ThemedText } from "../Commons/ThemedText";
 import Dropdown from "../Commons/Dropdown";
+import { Ionicons } from "@expo/vector-icons";
 
 interface HabitsSelectorProps {
   selectedHabits: string[];
@@ -29,9 +30,21 @@ export default function HabitsSelector({
 
   return (
     <View style={styles.inputContainer}>
-      <ThemedText style={styles.label} bold>
-        {t("habits")}
-      </ThemedText>
+      <View style={styles.header}>
+        <ThemedText style={styles.label} bold>
+          {t("habits")}
+        </ThemedText>
+        <TouchableOpacity style={styles.addButton} onPress={onAddHabit}>
+          <Ionicons
+            name="add-circle-outline"
+            size={24}
+            color={Colors.HotPink}
+          />
+          <ThemedText style={styles.addButtonText}>
+            {t("add_new_habit")}
+          </ThemedText>
+        </TouchableOpacity>
+      </View>
       <Dropdown
         isExpanded={isExpanded}
         onToggle={onToggleExpanded}
@@ -48,10 +61,6 @@ export default function HabitsSelector({
         }))}
         onItemSelect={onToggleHabit}
         noItemsText={t("no_active_habits")}
-        addButton={{
-          text: t("add_new_habit"),
-          onPress: onAddHabit,
-        }}
         error={error}
         expandHeight
       />
@@ -63,9 +72,23 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 15,
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 5,
+  },
   label: {
     textTransform: "capitalize",
     fontSize: 16,
-    marginBottom: 5,
+  },
+  addButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  addButtonText: {
+    color: Colors.HotPink,
+    fontSize: 14,
   },
 });

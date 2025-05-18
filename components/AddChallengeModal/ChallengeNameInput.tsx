@@ -23,7 +23,6 @@ export default function ChallengeNameInput({
         style={[styles.input, error ? styles.inputError : null]}
         value={value}
         onChangeText={onChange}
-        placeholder={t("challenge_name")}
       />
       {error ? <ThemedText style={styles.errorText}>{error}</ThemedText> : null}
     </View>

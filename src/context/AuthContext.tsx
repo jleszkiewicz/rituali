@@ -37,45 +37,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { showError } = useErrorModal();
 
-  const fetchAndSetUserData = async (authId: string) => {
-    const { data: userData, error } = await supabase
-      .from("users")
-      .select("auth_id, first_name, last_name")
-      .eq("auth_id", authId)
-      .single();
-
-    if (userData) {
-      dispatch(
-        setUserData({
-          userId: userData.auth_id,
-          firstName: userData.first_name,
-          lastName: userData.last_name,
-        })
-      );
-      setIsAuthenticated(true);
-    } else {
-      const { error: insertError } = await supabase.from("users").insert([
-        {
-          auth_id: authId,
-          first_name: "",
-          last_name: "",
-        },
-      ]);
-
-      if (!insertError) {
-        dispatch(
-          setUserData({
-            userId: authId,
-            firstName: "",
-            lastName: "",
-          })
-        );
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-        dispatch(clearUserData());
-      }
-    }
+  const setUserDataFromAuth = (user: any) => {
+    dispatch(
+      setUserData({
+        userId: user.id,
+        email: user.email || "",
+      })
+    );
+    setIsAuthenticated(true);
   };
 
   useEffect(() => {
@@ -91,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      await fetchAndSetUserData(user.id);
+      setUserDataFromAuth(user);
       setIsLoading(false);
     };
 
@@ -101,7 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
-        await fetchAndSetUserData(session.user.id);
+        setUserDataFromAuth(session.user);
       } else if (event === "SIGNED_OUT") {
         setIsAuthenticated(false);
         dispatch(clearUserData());
@@ -131,7 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
 
-      await fetchAndSetUserData(data.user.id);
+      setUserDataFromAuth(data.user);
       return true;
     } catch (error) {
       showError(t("invalid_credentials"));
@@ -193,72 +162,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (data.user) {
-        setIsAuthenticated(true);
-        const { error: insertError } = await supabase.from("users").insert([
-          {
-            auth_id: data.user.id,
-            first_name: "",
-            last_name: "",
-          },
-        ]);
-
-        if (!insertError) {
-          dispatch(
-            setUserData({
-              userId: data.user.id,
-              firstName: "",
-              lastName: "",
-            })
-          );
-          return { success: true };
-        } else {
-          return {
-            success: false,
-            error: "Register error",
-          };
-        }
+        setUserDataFromAuth(data.user);
+        return { success: true };
       }
 
-      return { success: false, error: "Unknown register error" };
+      return { success: false, error: "Registration failed" };
+    } catch (error) {
+      return { success: false, error: "Registration failed" };
     } finally {
       setIsLoading(false);
     }
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setIsAuthenticated(false);
-    dispatch(clearUserData());
+    try {
+      await supabase.auth.signOut();
+      setIsAuthenticated(false);
+      dispatch(clearUserData());
+    } catch (error) {
+      showError(t("logout_error"));
+    }
   };
 
   const deleteAccount = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) return;
-
-    const { error: deleteUserError } = await supabase
-      .from("users")
-      .delete()
-      .eq("auth_id", user.id);
-
-    if (deleteUserError) {
-      showError(t("delete_account_error_message"));
-      throw deleteUserError;
+    try {
+      const { error } = await supabase.auth.admin.deleteUser(
+        (await supabase.auth.getUser()).data.user?.id || ""
+      );
+      if (error) throw error;
+      await logout();
+    } catch (error) {
+      showError(t("delete_account_error"));
     }
-
-    const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(
-      user.id
-    );
-
-    if (deleteAuthError) {
-      showError(t("delete_account_error_message"));
-      throw deleteAuthError;
-    }
-
-    setIsAuthenticated(false);
-    dispatch(clearUserData());
   };
 
   return (

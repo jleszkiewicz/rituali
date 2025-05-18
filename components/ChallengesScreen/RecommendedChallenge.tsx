@@ -1,27 +1,95 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "../Commons/ThemedText";
 import { RecommendedChallengeData } from "../AddHabitModal/types";
 import { getHabitsForCurrentLanguage } from "./methods";
 import { t } from "@/src/service/translateService";
+import { useSelector } from "react-redux";
+import { selectUserId } from "@/src/store/userSlice";
+import { addChallenge, addHabit } from "@/src/service/apiService";
+import { format, addDays } from "date-fns";
+import { dateFormat } from "@/constants/Constants";
+import { useDispatch } from "react-redux";
+import { setHabits } from "@/src/store/habitsSlice";
+import { setChallenges } from "@/src/store/challengesSlice";
+import { fetchUserHabits, fetchUserChallenges } from "@/src/service/apiService";
 
 const RecommendedChallengeCard = ({
-  key,
   challenge,
 }: {
-  key: string;
   challenge: RecommendedChallengeData;
 }) => {
+  const userId = useSelector(selectUserId);
+  const dispatch = useDispatch();
+
   if (!challenge) {
     return null;
   }
 
   const habits = getHabitsForCurrentLanguage(challenge);
 
+  const handleStart = async () => {
+    if (!userId) {
+      Alert.alert(t("error"), t("login_required"));
+      return;
+    }
+
+    try {
+      // Dodaj nawyki
+      const habitPromises = habits.map(async (habitName) => {
+        const habit = {
+          id: "", // ID zostanie wygenerowane przez bazę danych
+          name: habitName,
+          frequency: "daily" as const,
+          selectedDays: [],
+          completionDates: [],
+          category: "other" as const,
+          isPartOfChallenge: true,
+          startDate: format(new Date(), dateFormat),
+          endDate: null,
+          status: "active" as const,
+        };
+        const result = await addHabit(userId, habit);
+        return result[0];
+      });
+
+      const addedHabits = await Promise.all(habitPromises);
+      const habitIds = addedHabits.map((habit) => habit.id);
+
+      // Dodaj wyzwanie
+      const startDate = new Date();
+      const endDate = addDays(startDate, parseInt(challenge.duration) - 1);
+
+      const challengeData = {
+        id: "", // ID zostanie wygenerowane przez bazę danych
+        name: challenge.name,
+        startDate: format(startDate, dateFormat),
+        endDate: format(endDate, dateFormat),
+        habits: habitIds,
+      };
+
+      await addChallenge(userId, challengeData);
+
+      // Odśwież dane
+      const [updatedHabits, updatedChallenges] = await Promise.all([
+        fetchUserHabits(userId),
+        fetchUserChallenges(userId),
+      ]);
+
+      dispatch(setHabits(updatedHabits));
+      dispatch(setChallenges(updatedChallenges));
+
+      Alert.alert(t("success"), t("challenge_started"));
+    } catch (error) {
+      console.error("Error starting challenge:", error);
+      Alert.alert(t("error"), t("challenge_start_error"));
+    }
+  };
+
   return (
-    <View style={styles.container} key={key}>
+    <View style={styles.container} key={challenge.id}>
       <View style={styles.headerContainer}>
         <ThemedText style={styles.title}>{challenge.name}</ThemedText>
         <View style={styles.durationContainer}>
@@ -39,7 +107,7 @@ const RecommendedChallengeCard = ({
           >{`• ${habit}`}</ThemedText>
         ))}
       </View>
-      <TouchableOpacity style={styles.buttonContainer}>
+      <TouchableOpacity style={styles.buttonContainer} onPress={handleStart}>
         <ThemedText style={styles.buttonText}>{t("start")}</ThemedText>
         <Ionicons name="arrow-forward" size={24} color={Colors.HotPink} />
       </TouchableOpacity>

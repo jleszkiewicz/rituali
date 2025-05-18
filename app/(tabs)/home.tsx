@@ -16,7 +16,6 @@ import { Colors } from "@/constants/Colors";
 import type { HabitData } from "../../components/AddHabitModal/types";
 import AddHabitModal from "@/components/modals/AddHabitModal";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
-import HabitCard from "@/components/HomeScreen/HabitCard";
 import { dateFormat } from "@/constants/Constants";
 import { getTitle } from "@/components/HomeScreen/methods/methods";
 import Loading from "@/components/Commons/Loading";
@@ -27,6 +26,7 @@ import ScreenHeader from "@/components/Commons/ScreenHeader";
 import { ThemedText } from "@/components/Commons/ThemedText";
 import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
 import { Ionicons } from "@expo/vector-icons";
+import HabitCard from "@/components/HomeScreen/HabitCard";
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
