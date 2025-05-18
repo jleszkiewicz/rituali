@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  Dimensions,
-} from "react-native";
+import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
 import { ThemedText } from "@/components/Commons/ThemedText";
 import { useSelector } from "react-redux";
 import YourChallengeCard from "@/components/ChallengesScreen/YourChallengeCard";
@@ -24,6 +18,7 @@ import PageIndicator from "@/components/Commons/PageIndicator";
 import Carousel from "react-native-reanimated-carousel";
 import { t } from "@/src/service/translateService";
 import ConditionalRenderer from "@/components/Commons/ConditionalRenderer";
+import Loading from "@/components/Commons/Loading";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const PAGE_WIDTH = SCREEN_WIDTH - 40;
@@ -31,6 +26,7 @@ const ITEM_MARGIN = 10;
 
 const ChallengesScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const challenges = useSelector(
     (state: RootState) => state.challenges.challenges
   );
@@ -45,35 +41,49 @@ const ChallengesScreen = () => {
   const completedChallenges = getCompletedChallenges(challenges);
 
   useEffect(() => {
-    const loadChallenges = async () => {
-      try {
-        const recommendedChallengesData = await fetchRecommendedChallenges();
+    let isMounted = true;
 
-        const filteredChallenges = recommendedChallengesData.filter(
-          (recommendedChallenge) => {
-            const isActive = activeChallenges.some(
-              (userChallenge) =>
-                userChallenge.name === recommendedChallenge.name
+    const loadChallenges = async () => {
+      if (!isDataLoaded) {
+        try {
+          setIsLoading(true);
+          const recommendedChallengesData = await fetchRecommendedChallenges();
+
+          if (isMounted) {
+            const filteredChallenges = recommendedChallengesData.filter(
+              (recommendedChallenge) => {
+                const isActive = activeChallenges.some(
+                  (userChallenge) =>
+                    userChallenge.name === recommendedChallenge.name
+                );
+                return !isActive;
+              }
             );
-            return !isActive;
+            setRecommendedChallenges(filteredChallenges);
+            setIsDataLoaded(true);
           }
-        );
-        setRecommendedChallenges(filteredChallenges);
-      } catch (err) {
-        console.error("Error loading recommended challenges:", err);
-      } finally {
-        setIsLoading(false);
+        } catch (err) {
+          console.error("Error loading recommended challenges:", err);
+        } finally {
+          if (isMounted) {
+            setIsLoading(false);
+          }
+        }
       }
     };
 
     loadChallenges();
-  }, [challenges]);
 
-  return isLoading ? (
-    <View style={styles.container}>
-      <ActivityIndicator size="large" color={Colors.HotPink} />
-    </View>
-  ) : (
+    return () => {
+      isMounted = false;
+    };
+  }, [activeChallenges]);
+
+  if (isLoading || !isDataLoaded) {
+    return <Loading />;
+  }
+
+  return (
     <ScreenWrapper>
       <ScreenHeader title={t("challenges")} />
       <ScrollView showsVerticalScrollIndicator={false}>

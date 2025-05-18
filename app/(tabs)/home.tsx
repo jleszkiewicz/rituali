@@ -37,6 +37,7 @@ export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   const activeChallenges = challenges.filter(
     (challenge) =>
@@ -50,12 +51,14 @@ export default function HomeScreen() {
 
       try {
         dispatch(setLoading(true));
+        setIsDataLoaded(false);
         const [habitsData, challengesData] = await Promise.all([
           fetchUserHabits(userId),
           fetchUserChallenges(userId),
         ]);
         dispatch(setHabits(habitsData));
         dispatch(setChallenges(challengesData));
+        setIsDataLoaded(true);
       } catch (error) {
         console.error("Error loading data:", error);
       } finally {
@@ -86,7 +89,7 @@ export default function HomeScreen() {
     })
     .sort((a: HabitData, b: HabitData) => a.name.localeCompare(b.name));
 
-  if (isLoading) {
+  if (isLoading || !isDataLoaded) {
     return <Loading />;
   }
 
