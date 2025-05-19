@@ -161,5 +161,8 @@
   "completion_rate": "Completion Rate",
   "completions": "completions",
   "offline_mode": "You're Offline",
-  "offline_mode_description": "Please check your internet connection. Some features may be limited while offline."
+  "offline_mode_description": "Please check your internet connection. Some features may be limited while offline.",
+  "before_photo": "Before Photo",
+  "add_before_photo": "Add Before Photo",
+  "before_photo_description": "This photo will only be visible to you in the challenge summary and only if you attach after photo after completing the challenge."
 }

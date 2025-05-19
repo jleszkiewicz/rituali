@@ -28,7 +28,7 @@ export default function ChallengeSummaryScreen() {
   }
 
   const challengeHabits = habits.filter((habit) => {
-    return challenge.habits.includes(habit.id) && habit.status === "active";
+    return challenge.habits.includes(habit.id);
   });
 
   const startDate = new Date(challenge.startDate);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Pressable } from "react-native";
+import { View, StyleSheet, Pressable, ScrollView } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import {
@@ -22,6 +22,7 @@ import { ThemedText } from "../Commons/ThemedText";
 import { format } from "date-fns";
 import { dateFormat } from "@/constants/Constants";
 import ModalHeader from "./ChallengeInfoModal/ModalHeader";
+import BeforePhotoPicker from "../AddChallengeModal/BeforePhotoPicker";
 
 interface AddChallengeModalProps {
   isVisible: boolean;
@@ -40,6 +41,7 @@ export default function AddChallengeModal({
     startDate: format(new Date(), dateFormat),
     endDate: format(new Date(), dateFormat),
     habits: [],
+    beforePhotoUri: "",
   });
   const [durationDays, setDurationDays] = useState("30");
   const [errors, setErrors] = useState({
@@ -103,6 +105,7 @@ export default function AddChallengeModal({
         startDate: format(new Date(), dateFormat),
         endDate: format(new Date(), dateFormat),
         habits: [],
+        beforePhotoUri: "",
       });
       setDurationDays("30");
       setIsHabitsExpanded(false);
@@ -155,45 +158,52 @@ export default function AddChallengeModal({
           onClose={onClose}
           color={Colors.PrimaryGray}
         />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <ChallengeNameInput
+            value={challengeData.name}
+            error={errors.name}
+            onChange={(text) => {
+              setChallengeData({ ...challengeData, name: text });
+              setErrors({ ...errors, name: "" });
+            }}
+          />
 
-        <ChallengeNameInput
-          value={challengeData.name}
-          error={errors.name}
-          onChange={(text) => {
-            setChallengeData({ ...challengeData, name: text });
-            setErrors({ ...errors, name: "" });
-          }}
-        />
+          <DateSelector
+            label={t("start_date")}
+            date={new Date(challengeData.startDate)}
+            onDateChange={(date) =>
+              setChallengeData({
+                ...challengeData,
+                startDate: format(date, dateFormat),
+              })
+            }
+            minDate={new Date()}
+            maxDate={new Date(challengeData.endDate)}
+          />
 
-        <DateSelector
-          label={t("start_date")}
-          date={new Date(challengeData.startDate)}
-          onDateChange={(date) =>
-            setChallengeData({
-              ...challengeData,
-              startDate: format(date, dateFormat),
-            })
-          }
-          minDate={new Date()}
-          maxDate={new Date(challengeData.endDate)}
-        />
+          <DurationInput
+            value={durationDays}
+            error={errors.durationDays}
+            onChange={handleDurationChange}
+          />
 
-        <DurationInput
-          value={durationDays}
-          error={errors.durationDays}
-          onChange={handleDurationChange}
-        />
+          <HabitsSelector
+            selectedHabits={challengeData.habits}
+            error={errors.habits}
+            isExpanded={isHabitsExpanded}
+            onToggleExpanded={() => setIsHabitsExpanded(!isHabitsExpanded)}
+            onToggleHabit={toggleHabit}
+            onAddHabit={() => setIsAddHabitModalVisible(true)}
+          />
+          <BeforePhotoPicker
+            photoUri={challengeData.beforePhotoUri}
+            onPhotoChange={(uri) =>
+              setChallengeData({ ...challengeData, beforePhotoUri: uri })
+            }
+          />
 
-        <HabitsSelector
-          selectedHabits={challengeData.habits}
-          error={errors.habits}
-          isExpanded={isHabitsExpanded}
-          onToggleExpanded={() => setIsHabitsExpanded(!isHabitsExpanded)}
-          onToggleHabit={toggleHabit}
-          onAddHabit={() => setIsAddHabitModalVisible(true)}
-        />
-
-        <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
+          <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
+        </ScrollView>
       </Pressable>
 
       <AddHabitModal

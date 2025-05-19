@@ -133,7 +133,7 @@ export const addChallenge = async (userId: string, challenge: ChallengeData) => 
     start_date: format(new Date(challenge.startDate), dateFormat),
     end_date: format(new Date(challenge.endDate), dateFormat),
     habits: challenge.habits,
-    status: challenge.status || 'active',
+    before_photo_uri: challenge.beforePhotoUri,
   };
 
   const { data, error } = await supabase
@@ -152,7 +152,7 @@ export const addChallenge = async (userId: string, challenge: ChallengeData) => 
     startDate: format(challenge.start_date, dateFormat),
     endDate: format(challenge.end_date, dateFormat),
     habits: challenge.habits,
-    status: challenge.status || 'active',
+    beforePhotoUri: challenge.before_photo,
   }));
 };
 

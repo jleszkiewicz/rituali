@@ -66,6 +66,7 @@ const RecommendedChallengeCard = ({
         startDate: format(startDate, dateFormat),
         endDate: format(endDate, dateFormat),
         habits: habitIds,
+        beforePhotoUri: "",
       };
 
       await addChallenge(userId, challengeData);

@@ -160,5 +160,8 @@
   "completion_rate": "Wskaźnik ukończenia",
   "completions": "ukończeń",
   "offline_mode": "Jesteś Offline",
-  "offline_mode_description": "Sprawdź swoje połączenie z internetem. Niektóre funkcje mogą być ograniczone w trybie offline."
+  "offline_mode_description": "Sprawdź swoje połączenie z internetem. Niektóre funkcje mogą być ograniczone w trybie offline.",
+  "before_photo": "Zdjęcie przed",
+  "add_before_photo": "Dodaj zdjęcie przed",
+  "before_photo_description": "To zdjęcie zobaczysz tylko Ty w podsumowaniu wyzwania i tylko jeśli po zakończeniu wyzwania dołączysz zdjęcie \"po\"."
 }
