@@ -50,12 +50,6 @@ export default function AddChallengeModal({
   const [isHabitsExpanded, setIsHabitsExpanded] = useState(false);
   const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
 
-  useEffect(() => {
-    if (isVisible) {
-      // No need to animate the modal content as it's handled by the Pressable component
-    }
-  }, [isVisible]);
-
   const validateForm = () => {
     const newErrors = {
       name: "",

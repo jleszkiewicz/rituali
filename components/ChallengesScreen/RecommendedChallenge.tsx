@@ -37,10 +37,9 @@ const RecommendedChallengeCard = ({
     }
 
     try {
-      // Dodaj nawyki
       const habitPromises = habits.map(async (habitName) => {
         const habit = {
-          id: "", // ID zostanie wygenerowane przez bazę danych
+          id: "",
           name: habitName,
           frequency: "daily" as const,
           selectedDays: [],
@@ -58,12 +57,11 @@ const RecommendedChallengeCard = ({
       const addedHabits = await Promise.all(habitPromises);
       const habitIds = addedHabits.map((habit) => habit.id);
 
-      // Dodaj wyzwanie
       const startDate = new Date();
       const endDate = addDays(startDate, parseInt(challenge.duration) - 1);
 
       const challengeData = {
-        id: "", // ID zostanie wygenerowane przez bazę danych
+        id: "",
         name: challenge.name,
         startDate: format(startDate, dateFormat),
         endDate: format(endDate, dateFormat),
@@ -72,7 +70,6 @@ const RecommendedChallengeCard = ({
 
       await addChallenge(userId, challengeData);
 
-      // Odśwież dane
       const [updatedHabits, updatedChallenges] = await Promise.all([
         fetchUserHabits(userId),
         fetchUserChallenges(userId),

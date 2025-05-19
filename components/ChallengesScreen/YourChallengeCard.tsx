@@ -41,10 +41,7 @@ export default function YourChallengeCard({
 
   return (
     <>
-      <TouchableOpacity
-        style={[styles.container, isCompleted && styles.completedContainer]}
-        onPress={handlePress}
-      >
+      <TouchableOpacity style={styles.container} onPress={handlePress}>
         <View style={styles.content}>
           <Image
             source={require("@/assets/ilustrations/medal.png")}
@@ -88,9 +85,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
-  },
-  completedContainer: {
-    opacity: 0.7,
   },
   content: {
     flexDirection: "row",

@@ -5,6 +5,7 @@ import {
   updateHabit,
   fetchUserHabits,
   updateChallengeHabits,
+  fetchUserChallenges,
 } from "@/src/service/apiService";
 import { useDispatch, useSelector } from "react-redux";
 import { selectHabits, setHabits } from "@/src/store/habitsSlice";
@@ -33,35 +34,37 @@ const DeleteHabitModal = ({
   const userId = useSelector(selectUserId);
 
   const handleDelete = async () => {
+    if (!userId) return;
+
     try {
       const habitToUpdate = habits.find((h) => h.id === habitId);
+      if (!habitToUpdate) return;
 
-      if (habitToUpdate && userId) {
-        const updatedHabit = {
-          ...habitToUpdate,
-          status: "deleted" as HabitStatus,
-          endDate: format(new Date(), dateFormat),
-        };
-        await updateHabit(habitId, updatedHabit);
+      const updatedHabit = {
+        ...habitToUpdate,
+        status: "deleted" as HabitStatus,
+        endDate: format(new Date(), dateFormat),
+      };
+      await updateHabit(habitId, updatedHabit);
 
-        const associatedChallenges = challenges.filter((challenge) =>
-          challenge.habits.includes(habitId)
-        );
+      const associatedChallenges = challenges.filter((challenge) =>
+        challenge.habits.includes(habitId)
+      );
 
-        for (const challenge of associatedChallenges) {
-          const updatedHabits = challenge.habits.filter((id) => id !== habitId);
-          await updateChallengeHabits(challenge.id, updatedHabits);
-        }
+      const updatePromises = associatedChallenges.map((challenge) => {
+        const updatedHabits = challenge.habits.filter((id) => id !== habitId);
+        return updateChallengeHabits(challenge.id, updatedHabits);
+      });
+      await Promise.all(updatePromises);
 
-        const updatedChallenges = challenges.map((challenge) => ({
-          ...challenge,
-          habits: challenge.habits.filter((id) => id !== habitId),
-        }));
-        dispatch(setChallenges(updatedChallenges));
+      const [freshHabits, freshChallenges] = await Promise.all([
+        fetchUserHabits(userId),
+        fetchUserChallenges(userId),
+      ]);
 
-        const updatedHabits = await fetchUserHabits(userId);
-        dispatch(setHabits(updatedHabits));
-      }
+      dispatch(setHabits(freshHabits));
+      dispatch(setChallenges(freshChallenges));
+
       onClose();
     } catch (error) {
       console.error("Error deleting habit:", error);

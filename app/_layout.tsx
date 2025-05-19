@@ -54,10 +54,8 @@ function AuthWrapper() {
       const inAuthGroup = segments[0] === "(auth)";
 
       if (!isAuthenticated && !inAuthGroup) {
-        // Jeśli użytkownik nie jest zalogowany i nie jest w grupie auth, przekieruj do logowania
         router.replace(AuthRoutes.Login);
       } else if (isAuthenticated && inAuthGroup) {
-        // Jeśli użytkownik jest zalogowany i jest w grupie auth, przekieruj do głównej aplikacji
         router.replace(AppRoutes.Home);
       }
     }
