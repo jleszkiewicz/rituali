@@ -104,7 +104,7 @@
   "completed_for_today": "Completed for today 👏",
   "please_complete_me": "Please complete me 🥺",
   "your_open_challenges": "Your open challenges",
-  "completed_challenges": "Completed challenges",
+  "completed_challenges": "Completed Challenges",
   "no_completed_challenges": "No completed challenges yet",
   "recommended_challenges": "Recommended challenges",
   "add_selected_habits": "Add selected habits",
@@ -164,5 +164,16 @@
   "offline_mode_description": "Please check your internet connection. Some features may be limited while offline.",
   "before_photo": "Before Photo",
   "add_before_photo": "Add Before Photo",
-  "before_photo_description": "This photo will only be visible to you in the challenge summary and only if you attach after photo after completing the challenge."
+  "before_photo_description": "This photo will only be visible to you in the challenge summary and only if you attach after photo after completing the challenge.",
+  "add_after_photo": "Add After Photo",
+  "skip_after_photo": "Skip After Photo",
+  "view_summary": "View Summary",
+  "no_before_photo": "No Before Photo",
+  "before": "Before",
+  "after": "After",
+  "challenge_completed": "Congratulations!",
+  "challenge_completed_description": "You've successfully completed the {{name}} challenge",
+  "add_after_photo_description": "Add a photo that shows the results of your challenge",
+  "add_photo": "Add Photo",
+  "after_photo": "After Photo"
 }

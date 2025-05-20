@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, ScrollView, View, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  TouchableOpacity,
+  RefreshControl,
+} from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import {
@@ -27,6 +33,8 @@ import { ThemedText } from "@/components/Commons/ThemedText";
 import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
 import { Ionicons } from "@expo/vector-icons";
 import HabitCard from "@/components/HomeScreen/HabitCard";
+import { CompletedChallengeCard } from "@/components/HomeScreen/CompletedChallengeCard";
+import { useCompletedChallenges } from "@/src/hooks/useCompletedChallenges";
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
@@ -38,6 +46,8 @@ export default function HomeScreen() {
   const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+
+  const { completedChallenges, refreshing, refresh } = useCompletedChallenges();
 
   const activeChallenges = challenges.filter(
     (challenge) =>
@@ -100,55 +110,78 @@ export default function HomeScreen() {
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
       />
-      {activeHabits.length > 0 ? (
-        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-          <ConditionalRenderer condition={activeChallenges.length > 0}>
-            <ThemedText style={styles.sectionTitle} bold>
-              {t("challenges")}
-            </ThemedText>
-            <ChallengesList
-              challenges={activeChallenges}
-              habits={habits}
-              selectedDate={format(selectedDate, dateFormat)}
-            />
-          </ConditionalRenderer>
-          <ConditionalRenderer condition={activeHabits.length > 0}>
-            <View style={styles.habitsHeader}>
-              <ThemedText style={styles.sectionTitle} bold>
-                {t("habits")}
-              </ThemedText>
-              <TouchableOpacity
-                onPress={() => setIsEditMode(!isEditMode)}
-                style={styles.editButton}
-              >
-                <Ionicons
-                  name={isEditMode ? "close" : "create-outline"}
-                  size={24}
-                  color={Colors.HotPink}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refresh} />
+        }
+      >
+        {completedChallenges.length > 0 && (
+          <View style={styles.completedChallengesContainer}>
+            {completedChallenges.map((challenge) => {
+              console.log("Rendering completed challenge:", challenge);
+              return (
+                <CompletedChallengeCard
+                  key={challenge.id}
+                  challenge={challenge}
                 />
-                <ThemedText style={styles.editButtonText} bold>
-                  {isEditMode ? t("editing_done") : t("edit")}
-                </ThemedText>
-              </TouchableOpacity>
-            </View>
-            {activeHabits.map((habit) => (
-              <HabitCard
-                key={habit.id}
-                habit={habit}
+              );
+            })}
+          </View>
+        )}
+
+        {activeHabits.length > 0 ? (
+          <>
+            <ConditionalRenderer condition={activeChallenges.length > 0}>
+              <ThemedText style={styles.sectionTitle} bold>
+                {t("challenges")}
+              </ThemedText>
+              <ChallengesList
+                challenges={activeChallenges}
+                habits={habits}
                 selectedDate={format(selectedDate, dateFormat)}
-                isEditMode={isEditMode}
               />
-            ))}
-          </ConditionalRenderer>
-        </ScrollView>
-      ) : (
-        <EmptyHabitsList
-          imageWidth={250}
-          textColor={Colors.PrimaryGray}
-          title={t("no_habits_title")}
-          description={t("no_recorded_habits")}
-        />
-      )}
+            </ConditionalRenderer>
+            <ConditionalRenderer condition={activeHabits.length > 0}>
+              <View style={styles.habitsHeader}>
+                <ThemedText style={styles.sectionTitle} bold>
+                  {t("habits")}
+                </ThemedText>
+                <TouchableOpacity
+                  onPress={() => setIsEditMode(!isEditMode)}
+                  style={styles.editButton}
+                >
+                  <Ionicons
+                    name={isEditMode ? "close" : "create-outline"}
+                    size={24}
+                    color={Colors.HotPink}
+                  />
+                  <ThemedText style={styles.editButtonText} bold>
+                    {isEditMode ? t("editing_done") : t("edit")}
+                  </ThemedText>
+                </TouchableOpacity>
+              </View>
+              {activeHabits.map((habit) => (
+                <HabitCard
+                  key={habit.id}
+                  habit={habit}
+                  selectedDate={format(selectedDate, dateFormat)}
+                  isEditMode={isEditMode}
+                />
+              ))}
+            </ConditionalRenderer>
+          </>
+        ) : (
+          <EmptyHabitsList
+            imageWidth={250}
+            textColor={Colors.PrimaryGray}
+            title={t("no_habits_title")}
+            description={t("no_recorded_habits")}
+          />
+        )}
+      </ScrollView>
+
       <AddHabitModal
         isVisible={isAddHabitModalVisible}
         onClose={() => setIsAddHabitModalVisible(false)}
@@ -186,5 +219,14 @@ const styles = StyleSheet.create({
   editButtonText: {
     color: Colors.HotPink,
     fontSize: 16,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  completedChallengesContainer: {
+    marginBottom: 20,
+  },
+  completedChallengesScrollContent: {
+    paddingHorizontal: 10,
   },
 });

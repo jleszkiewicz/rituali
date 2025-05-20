@@ -1,0 +1,15 @@
+{
+  "completed_challenges": "Zakończone wyzwania",
+  "add_after_photo": "Dodaj zdjęcie po",
+  "skip_after_photo": "Pomiń zdjęcie po",
+  "view_summary": "Zobacz podsumowanie",
+  "no_before_photo": "Brak zdjęcia przed",
+  "before": "Przed",
+  "after": "Po",
+  "challenge_completed": "Gratulacje!",
+  "challenge_completed_description": "Udało Ci się zakończyć wyzwanie {{name}}",
+  "add_after_photo_description": "Dodaj zdjęcie, które pokaże efekty Twojego wyzwania",
+  "add_photo": "Dodaj zdjęcie",
+  "before_photo": "Zdjęcie przed",
+  "after_photo": "Zdjęcie po"
+} 

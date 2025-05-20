@@ -258,3 +258,73 @@ export const fetchRecommendedChallenges = async (): Promise<RecommendedChallenge
     throw error;
   }
 };
+
+interface CompletedChallengeDb {
+  id: string;
+  name: string;
+  before_photo_uri: string | null;
+  after_photo_uri: string | null;
+  end_date: string;
+}
+
+export interface CompletedChallenge {
+  id: string;
+  name: string;
+  beforePhotoUri: string | null;
+  afterPhotoUri: string | null;
+  endDate: string;
+}
+
+const mapCompletedChallengeFromDb = (dbChallenge: CompletedChallengeDb): CompletedChallenge => ({
+  id: dbChallenge.id,
+  name: dbChallenge.name,
+  beforePhotoUri: dbChallenge.before_photo_uri,
+  afterPhotoUri: dbChallenge.after_photo_uri,
+  endDate: dbChallenge.end_date,
+});
+
+export const fetchCompletedChallenges = async (): Promise<CompletedChallenge[]> => {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  console.log('Fetching completed challenges from DB...');
+  console.log('Yesterday date:', yesterday.toISOString());
+
+  const { data, error } = await supabase
+    .from('challenges')
+    .select('*')
+    .lte('end_date', yesterday.toISOString())
+    .order('end_date', { ascending: false });
+
+  if (error) {
+    console.error('Supabase error:', error);
+    throw error;
+  }
+
+  console.log('Raw data from DB:', data);
+
+  const mappedData = data.map((challenge) => ({
+    id: challenge.id,
+    name: challenge.name,
+    beforePhotoUri: challenge.before_photo_uri,
+    afterPhotoUri: challenge.after_photo_uri,
+    endDate: challenge.end_date,
+  }));
+
+  console.log('Mapped data:', mappedData);
+
+  return mappedData;
+};
+
+export const skipAfterPhoto = async (challengeId: string) => {
+  const { error } = await supabase
+    .from('challenges')
+    .update({ after_photo_uri: 'skipped' })
+    .eq('id', challengeId);
+
+  if (error) {
+    console.error('Error skipping after photo:', error);
+    throw error;
+  }
+};

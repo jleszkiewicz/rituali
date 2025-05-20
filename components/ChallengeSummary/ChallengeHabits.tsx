@@ -18,11 +18,26 @@ export const ChallengeHabits = ({
   endDate,
   totalDays,
 }: ChallengeHabitsProps) => {
+  console.log("ChallengeHabits props:", {
+    habits,
+    startDate,
+    endDate,
+    totalDays,
+  });
+
+  if (!habits || habits.length === 0) {
+    return (
+      <View style={styles.container}>
+        <ThemedText style={styles.noHabitsText}>
+          {t("no_habits_in_challenge_description")}
+        </ThemedText>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.habitsSection}>
-      <ThemedText style={styles.sectionTitle} bold>
-        {t("habits")}
-      </ThemedText>
+    <View style={styles.container}>
+      <ThemedText style={styles.title}>{t("habits")}</ThemedText>
       {habits.map((habit) => {
         const habitCompletions = habit.completionDates.filter((date) => {
           const completionDate = new Date(date);
@@ -46,17 +61,13 @@ export const ChallengeHabits = ({
 
         return (
           <View key={habit.id} style={styles.habitItem}>
-            <ThemedText style={styles.habitName} bold>
-              {habit.name}
+            <ThemedText style={styles.habitName}>{habit.name}</ThemedText>
+            <ThemedText style={styles.habitStats}>
+              {habitCompletions} / {totalDays} {t("completions")}
             </ThemedText>
-            <View style={styles.habitStats}>
-              <ThemedText style={styles.habitStat}>
-                {habitCompletions} {t("completions")}
-              </ThemedText>
-              <ThemedText style={styles.habitStat}>
-                {habitCompletionRate}%
-              </ThemedText>
-            </View>
+            <ThemedText style={styles.habitStat}>
+              {habitCompletionRate}%
+            </ThemedText>
           </View>
         );
       })}
@@ -65,35 +76,52 @@ export const ChallengeHabits = ({
 };
 
 const styles = StyleSheet.create({
-  habitsSection: {
-    marginBottom: 20,
+  container: {
+    backgroundColor: Colors.White,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    shadowColor: Colors.PrimaryGray,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  sectionTitle: {
-    fontSize: 20,
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
     color: Colors.PrimaryGray,
-    marginBottom: 15,
-    lineHeight: 26,
+    marginBottom: 16,
   },
   habitItem: {
-    backgroundColor: Colors.PrimaryGray,
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.LightGray,
   },
   habitName: {
     fontSize: 16,
-    color: Colors.White,
-    marginBottom: 8,
-    lineHeight: 22,
+    color: Colors.PrimaryGray,
   },
   habitStats: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    fontSize: 14,
+    color: Colors.PrimaryGray,
+    opacity: 0.7,
   },
   habitStat: {
     fontSize: 14,
-    color: Colors.White,
+    color: Colors.PrimaryGray,
     opacity: 0.7,
-    lineHeight: 20,
+  },
+  noHabitsText: {
+    fontSize: 14,
+    color: Colors.PrimaryGray,
+    opacity: 0.7,
+    textAlign: "center",
   },
 });
