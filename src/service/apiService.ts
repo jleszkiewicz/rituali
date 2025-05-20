@@ -259,20 +259,24 @@ export const fetchRecommendedChallenges = async (): Promise<RecommendedChallenge
   }
 };
 
-interface CompletedChallengeDb {
-  id: string;
-  name: string;
-  before_photo_uri: string | null;
-  after_photo_uri: string | null;
-  end_date: string;
-}
-
 export interface CompletedChallenge {
   id: string;
   name: string;
   beforePhotoUri: string | null;
   afterPhotoUri: string | null;
   endDate: string;
+  startDate: string;
+  habits: string[];
+}
+
+interface CompletedChallengeDb {
+  id: string;
+  name: string;
+  before_photo_uri: string | null;
+  after_photo_uri: string | null;
+  end_date: string;
+  start_date: string;
+  habits: string[];
 }
 
 const mapCompletedChallengeFromDb = (dbChallenge: CompletedChallengeDb): CompletedChallenge => ({
@@ -281,20 +285,50 @@ const mapCompletedChallengeFromDb = (dbChallenge: CompletedChallengeDb): Complet
   beforePhotoUri: dbChallenge.before_photo_uri,
   afterPhotoUri: dbChallenge.after_photo_uri,
   endDate: dbChallenge.end_date,
+  startDate: dbChallenge.start_date,
+  habits: dbChallenge.habits,
 });
+
+export const markChallengeAsViewed = async (challengeId: string) => {
+  try {
+    
+    if (!challengeId) {
+      throw new Error('Challenge ID is required');
+    }
+
+    const { data, error } = await supabase
+      .from('challenges')
+      .update({ was_displayed: true })
+      .eq('id', challengeId)
+      .select();
+
+    if (error) {
+      console.error('Supabase error in markChallengeAsViewed:', error);
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      console.error('No data returned after update');
+      throw new Error('No data returned after update');
+    }
+
+    return data[0];
+  } catch (error) {
+    console.error('Error in markChallengeAsViewed:', error);
+    throw error;
+  }
+};
 
 export const fetchCompletedChallenges = async (): Promise<CompletedChallenge[]> => {
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-
-  console.log('Fetching completed challenges from DB...');
-  console.log('Yesterday date:', yesterday.toISOString());
-
+  
   const { data, error } = await supabase
     .from('challenges')
     .select('*')
     .lte('end_date', yesterday.toISOString())
+    .eq('was_displayed', false)
     .order('end_date', { ascending: false });
 
   if (error) {
@@ -302,19 +336,15 @@ export const fetchCompletedChallenges = async (): Promise<CompletedChallenge[]> 
     throw error;
   }
 
-  console.log('Raw data from DB:', data);
-
-  const mappedData = data.map((challenge) => ({
+  return data.map((challenge) => ({
     id: challenge.id,
     name: challenge.name,
     beforePhotoUri: challenge.before_photo_uri,
     afterPhotoUri: challenge.after_photo_uri,
     endDate: challenge.end_date,
+    startDate: challenge.start_date,
+    habits: challenge.habits || [],
   }));
-
-  console.log('Mapped data:', mappedData);
-
-  return mappedData;
 };
 
 export const skipAfterPhoto = async (challengeId: string) => {

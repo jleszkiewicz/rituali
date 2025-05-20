@@ -15,7 +15,12 @@ import {
   selectHabitsLoading,
 } from "@/src/store/habitsSlice";
 import { selectChallenges, setChallenges } from "@/src/store/challengesSlice";
-import { fetchUserHabits, fetchUserChallenges } from "@/src/service/apiService";
+import {
+  fetchUserHabits,
+  fetchUserChallenges,
+  fetchCompletedChallenges,
+} from "@/src/service/apiService";
+import type { CompletedChallenge } from "@/src/service/apiService";
 import CalendarCarousel from "@/components/HomeScreen/CalendarCarousel";
 import { format } from "date-fns";
 import { Colors } from "@/constants/Colors";
@@ -35,6 +40,7 @@ import { Ionicons } from "@expo/vector-icons";
 import HabitCard from "@/components/HomeScreen/HabitCard";
 import { CompletedChallengeCard } from "@/components/HomeScreen/CompletedChallengeCard";
 import { useCompletedChallenges } from "@/src/hooks/useCompletedChallenges";
+import { selectViewedChallengeIds } from "@/src/store/viewedChallengesSlice";
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
@@ -45,9 +51,12 @@ export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [completedChallenges, setCompletedChallenges] = useState<
+    CompletedChallenge[]
+  >([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const { completedChallenges, refreshing, refresh } = useCompletedChallenges();
+  const viewedChallengeIds = useSelector(selectViewedChallengeIds);
 
   const activeChallenges = challenges.filter(
     (challenge) =>
@@ -55,20 +64,46 @@ export default function HomeScreen() {
       new Date(challenge.startDate) <= selectedDate
   );
 
+  const filteredCompletedChallenges = completedChallenges.filter(
+    (challenge) => !viewedChallengeIds.includes(challenge.id)
+  );
+
+  const refresh = async () => {
+    setRefreshing(true);
+    try {
+      const [habitsData, challengesData, completedChallengesData] =
+        await Promise.all([
+          fetchUserHabits(userId),
+          fetchUserChallenges(userId),
+          fetchCompletedChallenges(),
+        ]);
+
+      dispatch(setHabits(habitsData));
+      dispatch(setChallenges(challengesData));
+      setCompletedChallenges(completedChallengesData);
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       if (!userId) return;
 
       try {
         dispatch(setLoading(true));
-        setIsDataLoaded(false);
-        const [habitsData, challengesData] = await Promise.all([
-          fetchUserHabits(userId),
-          fetchUserChallenges(userId),
-        ]);
+        const [habitsData, challengesData, completedChallengesData] =
+          await Promise.all([
+            fetchUserHabits(userId),
+            fetchUserChallenges(userId),
+            fetchCompletedChallenges(),
+          ]);
+
         dispatch(setHabits(habitsData));
         dispatch(setChallenges(challengesData));
-        setIsDataLoaded(true);
+        setCompletedChallenges(completedChallengesData);
       } catch (error) {
         console.error("Error loading data:", error);
       } finally {
@@ -99,8 +134,12 @@ export default function HomeScreen() {
     })
     .sort((a: HabitData, b: HabitData) => a.name.localeCompare(b.name));
 
-  if (isLoading || !isDataLoaded) {
-    return <Loading />;
+  if (isLoading) {
+    return (
+      <ScreenWrapper>
+        <Loading />
+      </ScreenWrapper>
+    );
   }
 
   return (
@@ -117,10 +156,9 @@ export default function HomeScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={refresh} />
         }
       >
-        {completedChallenges.length > 0 && (
+        {filteredCompletedChallenges.length > 0 && (
           <View style={styles.completedChallengesContainer}>
-            {completedChallenges.map((challenge) => {
-              console.log("Rendering completed challenge:", challenge);
+            {filteredCompletedChallenges.map((challenge) => {
               return (
                 <CompletedChallengeCard
                   key={challenge.id}
@@ -224,7 +262,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   completedChallengesContainer: {
-    marginBottom: 20,
+    marginVertical: 20,
   },
   completedChallengesScrollContent: {
     paddingHorizontal: 10,

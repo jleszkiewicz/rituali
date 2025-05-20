@@ -18,13 +18,6 @@ export const ChallengeHabits = ({
   endDate,
   totalDays,
 }: ChallengeHabitsProps) => {
-  console.log("ChallengeHabits props:", {
-    habits,
-    startDate,
-    endDate,
-    totalDays,
-  });
-
   if (!habits || habits.length === 0) {
     return (
       <View style={styles.container}>

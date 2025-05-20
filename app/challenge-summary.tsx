@@ -48,7 +48,6 @@ export default function ChallengeSummaryScreen() {
   useEffect(() => {
     const fetchChallenge = async () => {
       try {
-        console.log("Fetching challenge with ID:", challengeId);
         const { data, error } = await supabase
           .from("challenges")
           .select("*")
@@ -60,8 +59,6 @@ export default function ChallengeSummaryScreen() {
           throw error;
         }
 
-        console.log("Challenge data from DB:", data);
-
         if (data) {
           const challengeData = {
             id: data.id,
@@ -72,10 +69,7 @@ export default function ChallengeSummaryScreen() {
             startDate: data.start_date,
             habits: data.habits || [],
           };
-          console.log("Mapped challenge data:", challengeData);
           setChallenge(challengeData);
-        } else {
-          console.log("No challenge data found for ID:", challengeId);
         }
       } catch (error) {
         console.error("Error fetching challenge:", error);
@@ -89,7 +83,6 @@ export default function ChallengeSummaryScreen() {
 
   const handlePhotoAdded = async () => {
     setIsAddAfterPhotoModalVisible(false);
-    // Odśwież dane wyzwania
     const { data, error } = await supabase
       .from("challenges")
       .select("*")
@@ -130,16 +123,8 @@ export default function ChallengeSummaryScreen() {
   }
 
   const challengeHabits = habits.filter((habit) => {
-    console.log(
-      "Checking habit:",
-      habit.id,
-      "against challenge habits:",
-      challenge?.habits
-    );
     return challenge?.habits?.includes(habit.id);
   });
-
-  console.log("Filtered challenge habits:", challengeHabits);
 
   const startDate = new Date(challenge?.startDate || "");
   const endDate = new Date(challenge?.endDate || "");
@@ -164,13 +149,6 @@ export default function ChallengeSummaryScreen() {
   const completionRate = Math.round(
     (totalCompletions / (totalDays * challengeHabits.length)) * 100
   );
-
-  console.log("Challenge stats:", {
-    totalDays,
-    totalCompletions,
-    completionRate,
-    challengeHabitsLength: challengeHabits.length,
-  });
 
   return (
     <ScreenWrapper>

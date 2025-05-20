@@ -4,11 +4,19 @@ import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../Commons/ThemedText";
 import { useRouter } from "expo-router";
 import { t } from "../../src/service/translateService";
+import { useDispatch } from "react-redux";
+import { markChallengeAsViewed } from "@/src/service/apiService";
+import { Ionicons } from "@expo/vector-icons";
 
 interface CompletedChallengeCardProps {
   challenge: {
     id: string;
     name: string;
+    beforePhotoUri: string | null;
+    afterPhotoUri: string | null;
+    endDate: string;
+    startDate: string;
+    habits: string[];
   };
 }
 
@@ -17,14 +25,22 @@ export const CompletedChallengeCard: React.FC<CompletedChallengeCardProps> = ({
 }) => {
   const router = useRouter();
 
-  console.log("CompletedChallengeCard props:", challenge);
+  const handleViewSummary = async () => {
+    if (!challenge.id) {
+      console.error("Challenge ID is undefined");
+      return;
+    }
 
-  const handleViewSummary = () => {
-    console.log("Navigating to challenge summary with challenge:", challenge);
-    router.push({
-      pathname: "/challenge-summary",
-      params: { challengeId: challenge.id },
-    });
+    try {
+      const result = await markChallengeAsViewed(challenge.id);
+
+      router.push({
+        pathname: "/challenge-summary",
+        params: { challengeId: challenge.id },
+      });
+    } catch (error) {
+      console.error("Error in handleViewSummary:", error);
+    }
   };
 
   return (
@@ -46,6 +62,7 @@ export const CompletedChallengeCard: React.FC<CompletedChallengeCardProps> = ({
         </ThemedText>
         <TouchableOpacity style={styles.button} onPress={handleViewSummary}>
           <ThemedText style={styles.buttonText}>{t("view_summary")}</ThemedText>
+          <Ionicons name="chevron-forward" size={18} color={Colors.White} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -88,11 +105,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   button: {
-    backgroundColor: Colors.PrimaryPink,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    backgroundColor: Colors.HotPink,
+    padding: 8,
     borderRadius: 8,
     alignSelf: "flex-end",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
   },
   buttonText: {
     color: Colors.White,

@@ -40,7 +40,6 @@ const AddAfterPhotoModal: React.FC<AddAfterPhotoModalProps> = ({
     try {
       setIsSubmitting(true);
 
-      // Upload photo to Supabase
       const fileName = `${Date.now()}.jpg`;
       const filePath = `${fileName}`;
 
@@ -60,7 +59,6 @@ const AddAfterPhotoModal: React.FC<AddAfterPhotoModalProps> = ({
         data: { publicUrl },
       } = supabase.storage.from("after").getPublicUrl(filePath);
 
-      // Update challenge in database
       const { error: updateError } = await supabase
         .from("challenges")
         .update({ after_photo_url: publicUrl })
