@@ -163,5 +163,9 @@
   "offline_mode_description": "Sprawdź swoje połączenie z internetem. Niektóre funkcje mogą być ograniczone w trybie offline.",
   "before_photo": "Zdjęcie przed",
   "add_before_photo": "Dodaj zdjęcie przed",
-  "before_photo_description": "To zdjęcie zobaczysz tylko Ty w podsumowaniu wyzwania i tylko jeśli po zakończeniu wyzwania dołączysz zdjęcie \"po\"."
+  "before_photo_description": "To zdjęcie zobaczysz tylko Ty w podsumowaniu wyzwania i tylko jeśli po zakończeniu wyzwania dołączysz zdjęcie \"po\".",
+  "after_photo_description": "To zdjęcie zobaczysz tylko Ty w podsumowaniu wyzwania i tylko jeśli dołączyłeś zdjęcie \"przed\".",
+  "delete_photo": "Usuń zdjęcie",
+  "delete_photo_confirmation": "Czy jesteś pewien, że chcesz usunąć to zdjęcie?",
+  "pick_photo": "Wybierz zdjęcie"
 }

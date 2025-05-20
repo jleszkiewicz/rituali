@@ -3,6 +3,8 @@ import { HabitData, RecommendedChallengeData } from "../../components/AddHabitMo
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { format } from "date-fns";
 import { dateFormat } from "@/constants/Constants";
+import * as FileSystem from "expo-file-system";
+import { decode } from "base64-arraybuffer";
 
 const mapHabitFromDb = (dbHabit: any): HabitData => ({
   id: dbHabit.id,
@@ -355,6 +357,195 @@ export const skipAfterPhoto = async (challengeId: string) => {
 
   if (error) {
     console.error('Error skipping after photo:', error);
+    throw error;
+  }
+};
+
+export interface Challenge {
+  id: string;
+  name: string;
+  beforePhotoUri: string | null;
+  afterPhotoUri: string | null;
+  endDate: string;
+  startDate: string;
+  habits: string[];
+}
+
+export const fetchChallengeById = async (challengeId: string): Promise<Challenge> => {
+
+  const { data, error } = await supabase
+    .from("challenges")
+    .select("*")
+    .eq("id", challengeId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching challenge:", error);
+    throw error;
+  }
+
+  if (!data) {
+    throw new Error("Challenge not found");
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    beforePhotoUri: data.before_photo_uri,
+    afterPhotoUri: data.after_photo_uri,
+    endDate: data.end_date,
+    startDate: data.start_date,
+    habits: data.habits || [],
+  };
+};
+
+export const uploadAfterPhoto = async (challengeId: string, photoUri: string) => {
+  try {
+    const fileName = `after_${Date.now()}.jpg`;
+
+    const base64 = await FileSystem.readAsStringAsync(photoUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const { error: uploadError, data: uploadData } = await supabase.storage
+      .from("after")
+      .upload(fileName, decode(base64), {
+        contentType: "image/jpeg",
+        upsert: true
+      });
+
+    if (uploadError) {
+      console.error("Supabase storage upload error:", uploadError);
+      throw uploadError;
+    }
+
+    const { error: updateError, data: updateData } = await supabase
+      .from("challenges")
+      .update({ after_photo_uri: fileName })
+      .eq("id", challengeId)
+      .select();
+
+    if (updateError) {
+      console.error("Database update error:", updateError);
+      throw updateError;
+    }
+
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+      .from("after")
+      .createSignedUrl(fileName, 3600);
+
+    if (signedUrlError) {
+      console.error("Error creating signed URL:", signedUrlError);
+      throw signedUrlError;
+    }
+
+    return signedUrlData.signedUrl;
+  } catch (error) {
+    console.error("Error uploading after photo:", error);
+    throw error;
+  }
+};
+
+export const uploadBeforePhoto = async (challengeId: string, photoUri: string): Promise<string> => {
+  try {
+    const fileName = `before_${Date.now()}.jpg`;
+
+    const base64 = await FileSystem.readAsStringAsync(photoUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from("before")
+      .upload(fileName, decode(base64), {
+        contentType: "image/jpeg",
+      });
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data: { signedUrl }, error: signedUrlError } = await supabase.storage
+      .from("before")
+      .createSignedUrl(fileName, 3600);
+
+    if (signedUrlError) {
+      throw signedUrlError;
+    }
+
+    const { error: updateError } = await supabase
+      .from("challenges")
+      .update({ before_photo_uri: fileName })
+      .eq("id", challengeId);
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    return signedUrl;
+  } catch (error) {
+    console.error("Error uploading before photo:", error);
+    throw error;
+  }
+};
+
+export const getSignedUrl = async (bucket: string, url: string) => {
+  try {
+    let fileName = url;
+    if (url.includes("supabase.co/storage/v1/object")) {
+      const urlParts = url.split("/");
+      fileName = urlParts[urlParts.length - 1].split("?")[0];
+    }
+
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(fileName, 60 * 60);
+
+    if (error) {
+      console.error("Error creating signed URL:", error);
+      return null;
+    }
+
+    return data.signedUrl;
+  } catch (error) {
+    console.error("Error in getSignedUrl:", error);
+    return null;
+  }
+};
+
+export const deletePhoto = async (challengeId: string, photoType: 'before' | 'after') => {
+  try {
+    const { data: challenge } = await supabase
+      .from("challenges")
+      .select(`${photoType}_photo_uri`)
+      .eq("id", challengeId)
+      .single();
+
+    if (!challenge) {
+      throw new Error("Challenge not found");
+    }
+
+    const photoUri = challenge[`${photoType}_photo_uri`];
+    if (!photoUri) {
+      return;
+    }
+
+    const { error: storageError } = await supabase.storage
+      .from(photoType)
+      .remove([photoUri]);
+
+    if (storageError) {
+      throw storageError;
+    }
+
+    const { error: updateError } = await supabase
+      .from("challenges")
+      .update({ [`${photoType}_photo_uri`]: null })
+      .eq("id", challengeId);
+
+    if (updateError) {
+      throw updateError;
+    }
+  } catch (error) {
     throw error;
   }
 };

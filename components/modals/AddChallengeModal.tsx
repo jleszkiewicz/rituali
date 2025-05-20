@@ -22,7 +22,8 @@ import { ThemedText } from "../Commons/ThemedText";
 import { format } from "date-fns";
 import { dateFormat } from "@/constants/Constants";
 import ModalHeader from "./ChallengeInfoModal/ModalHeader";
-import BeforePhotoPicker from "../AddChallengeModal/BeforePhotoPicker";
+import PhotoPicker from "../Commons/PhotoPicker";
+import * as ImagePicker from "expo-image-picker";
 
 interface AddChallengeModalProps {
   isVisible: boolean;
@@ -145,6 +146,33 @@ export default function AddChallengeModal({
     }
   };
 
+  const handlePickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setChallengeData({
+          ...challengeData,
+          beforePhotoUri: result.assets[0].uri,
+        });
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setChallengeData({
+      ...challengeData,
+      beforePhotoUri: "",
+    });
+  };
+
   if (!isVisible) return null;
 
   return (
@@ -195,12 +223,22 @@ export default function AddChallengeModal({
             onToggleHabit={toggleHabit}
             onAddHabit={() => setIsAddHabitModalVisible(true)}
           />
-          <BeforePhotoPicker
-            photoUri={challengeData.beforePhotoUri}
-            onPhotoChange={(uri) =>
-              setChallengeData({ ...challengeData, beforePhotoUri: uri })
-            }
-          />
+
+          <View style={styles.photoSection}>
+            <ThemedText style={styles.sectionTitle}>
+              {t("before_photo")}
+            </ThemedText>
+            <ThemedText style={styles.description}>
+              {t("before_photo_description")}
+            </ThemedText>
+            <PhotoPicker
+              onPress={handlePickImage}
+              height={200}
+              style={styles.photo}
+              imageUri={challengeData.beforePhotoUri}
+              onRemove={handleRemovePhoto}
+            />
+          </View>
 
           <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
         </ScrollView>
@@ -233,5 +271,25 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     width: "100%",
     maxHeight: "90%",
+  },
+  photoSection: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: Colors.PrimaryGray,
+    marginBottom: 12,
+  },
+  description: {
+    fontSize: 14,
+    color: Colors.PrimaryGray,
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  photo: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
   },
 });
