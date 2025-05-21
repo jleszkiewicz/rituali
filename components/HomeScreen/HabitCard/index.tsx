@@ -6,8 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectHabits, setHabits } from "@/src/store/habitsSlice";
 import { updateHabitCompletion } from "@/src/service/apiService";
 import { isAfter, isToday, parseISO } from "date-fns";
-import DeleteHabitModal from "../../modals/DeleteHabitModal";
-import EditHabitModal from "../../modals/EditHabitModal";
 import { calculateStreak } from "@/src/utils/streakUtils";
 import HabitTitle from "./HabitTitle";
 import HabitActions from "./HabitActions";
@@ -18,18 +16,20 @@ interface HabitCardProps {
   habit: HabitData;
   selectedDate: string;
   isEditMode: boolean;
+  onEdit: (habit: HabitData) => void;
+  onDelete: (habitId: string) => void;
 }
 
 const HabitCard: React.FC<HabitCardProps> = ({
   habit,
   selectedDate,
   isEditMode,
+  onEdit,
+  onDelete,
 }) => {
   const dispatch = useDispatch();
   const habits = useSelector(selectHabits);
   const [isLoading, setIsLoading] = useState(false);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
   const isFutureDate = isAfter(parseISO(selectedDate), new Date());
   const isTodayDate = isToday(parseISO(selectedDate));
@@ -69,42 +69,26 @@ const HabitCard: React.FC<HabitCardProps> = ({
   );
 
   return (
-    <>
-      <View style={styles.card}>
-        <View style={styles.content}>
-          <View style={styles.leftContent}>
-            <HabitIcon category={habit.category} />
-            <HabitTitle
-              name={habit.name}
-              streak={streak}
-              isToday={isTodayDate}
-            />
-          </View>
-          {isEditMode ? (
-            <HabitActions
-              onEdit={() => setIsEditModalVisible(true)}
-              onDelete={() => setIsDeleteModalVisible(true)}
-            />
-          ) : (
-            <HabitCheckbox
-              isCompleted={isCompleted}
-              isDisabled={isLoading || isFutureDate}
-              onPress={toggleCompletion}
-            />
-          )}
+    <View style={styles.card}>
+      <View style={styles.content}>
+        <View style={styles.leftContent}>
+          <HabitIcon category={habit.category} />
+          <HabitTitle name={habit.name} streak={streak} isToday={isTodayDate} />
         </View>
+        {isEditMode ? (
+          <HabitActions
+            onEdit={() => onEdit(habit)}
+            onDelete={() => onDelete(habit.id)}
+          />
+        ) : (
+          <HabitCheckbox
+            isCompleted={isCompleted}
+            isDisabled={isLoading || isFutureDate}
+            onPress={toggleCompletion}
+          />
+        )}
       </View>
-      <DeleteHabitModal
-        isVisible={isDeleteModalVisible}
-        onClose={() => setIsDeleteModalVisible(false)}
-        habitId={habit.id}
-      />
-      <EditHabitModal
-        isVisible={isEditModalVisible}
-        onClose={() => setIsEditModalVisible(false)}
-        habit={habit}
-      />
-    </>
+    </View>
   );
 };
 

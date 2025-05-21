@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Pressable, Image } from "react-native";
 import { Colors } from "@/constants/Colors";
 import {
   updateHabit,
@@ -71,87 +71,119 @@ const DeleteHabitModal = ({
     }
   };
 
+  if (!isVisible) return null;
+
   return (
-    <Modal
-      visible={isVisible}
-      animationType="fade"
-      transparent={true}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <ThemedText style={styles.title}>{t("delete_habit")}</ThemedText>
-          <ThemedText style={styles.message}>
-            {t("delete_habit_confirmation")}
-          </ThemedText>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={onClose}
-            >
-              <ThemedText style={styles.buttonText}>{t("cancel")}</ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.deleteButton]}
-              onPress={handleDelete}
-            >
-              <ThemedText style={styles.buttonText}>{t("delete")}</ThemedText>
-            </TouchableOpacity>
-          </View>
+    <Pressable style={styles.modalOverlay} onPress={onClose}>
+      <Pressable
+        style={styles.modalContent}
+        onPress={(e) => e.stopPropagation()}
+      >
+        <Image
+          source={require("@/assets/ilustrations/trash.png")}
+          style={styles.illustration}
+          resizeMode="contain"
+        />
+        <ThemedText style={styles.title}>{t("delete_habit")}</ThemedText>
+        <ThemedText style={styles.description}>
+          {t("delete_habit_confirmation")}
+        </ThemedText>
+        <View style={styles.buttonContainer}>
+          <Pressable
+            style={[styles.button, styles.cancelButton]}
+            onPress={onClose}
+          >
+            <ThemedText style={styles.buttonText}>{t("cancel")}</ThemedText>
+          </Pressable>
+          <Pressable
+            style={[styles.button, styles.deleteButton]}
+            onPress={handleDelete}
+          >
+            <ThemedText style={[styles.buttonText, styles.deleteButtonText]}>
+              {t("delete")}
+            </ThemedText>
+          </Pressable>
         </View>
-      </View>
-    </Modal>
+      </Pressable>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
+  modalOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 9999,
+    flex: 1,
+    marginHorizontal: -20,
   },
   modalContent: {
     backgroundColor: Colors.White,
     borderRadius: 20,
-    padding: 20,
+    padding: 24,
     width: "90%",
     maxWidth: 400,
+    alignItems: "center",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  illustration: {
+    width: 120,
+    height: 120,
+    marginBottom: 24,
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 15,
+    fontWeight: "600",
+    color: Colors.PrimaryGray,
+    marginBottom: 12,
     textAlign: "center",
   },
-  message: {
+  description: {
     fontSize: 16,
     color: Colors.PrimaryGray,
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: "center",
-    lineHeight: 22,
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 10,
+    justifyContent: "space-between",
+    width: "100%",
   },
   button: {
-    padding: 12,
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
     borderRadius: 8,
-    minWidth: 120,
-    alignItems: "center",
+    marginHorizontal: 8,
   },
   cancelButton: {
-    backgroundColor: Colors.LightGray,
+    backgroundColor: Colors.White,
+    borderWidth: 1,
+    borderColor: Colors.PrimaryGray,
   },
   deleteButton: {
     backgroundColor: Colors.HotPink,
   },
   buttonText: {
-    color: Colors.White,
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  deleteButtonText: {
+    color: Colors.White,
   },
 });
 

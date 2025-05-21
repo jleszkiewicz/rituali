@@ -6,6 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   Switch,
+  Pressable,
+  ScrollView,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
 import DaySelector from "../AddHabitModal/DaySelector";
@@ -202,21 +204,20 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
     }));
   };
 
-  return (
-    <Modal
-      visible={isVisible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <ModalHeader
-            title={t("edit_habit")}
-            onClose={onClose}
-            color={Colors.PrimaryGray}
-          />
+  if (!isVisible) return null;
 
+  return (
+    <Pressable style={styles.modalContainer} onPress={onClose}>
+      <Pressable
+        style={styles.modalContent}
+        onPress={(e) => e.stopPropagation()}
+      >
+        <ModalHeader
+          title={t("edit_habit")}
+          onClose={onClose}
+          color={Colors.PrimaryGray}
+        />
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.inputContainer}>
             <ThemedText style={styles.label}>{t("habit_name")}</ThemedText>
             <TextInput
@@ -310,24 +311,30 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
           )}
 
           <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
-        </View>
-      </View>
-    </Modal>
+        </ScrollView>
+      </Pressable>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   modalContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+    zIndex: 1000,
+    marginHorizontal: -20,
   },
   modalContent: {
     backgroundColor: Colors.White,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingBottom: 40,
     paddingHorizontal: 20,
+    paddingBottom: 40,
     width: "100%",
     maxHeight: "90%",
   },
