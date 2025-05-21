@@ -27,14 +27,18 @@ import ModalHeader from "./ChallengeInfoModal/ModalHeader";
 import { fetchUserChallenges } from "@/src/service/apiService";
 import { setChallenges } from "@/src/store/challengesSlice";
 import Dropdown from "../Commons/Dropdown";
-import AddChallengeModal from "./AddChallengeModal";
 
 interface AddHabitModalProps {
   isVisible: boolean;
   onClose: () => void;
+  onAddChallenge?: () => void;
 }
 
-const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
+const AddHabitModal = ({
+  isVisible,
+  onClose,
+  onAddChallenge,
+}: AddHabitModalProps) => {
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
   const challenges = useSelector(selectChallenges);
@@ -65,8 +69,6 @@ const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
     status: "active",
   };
   const [habitData, setHabitData] = useState<HabitData>(habitDataInitialState);
-  const [isAddChallengeModalVisible, setIsAddChallengeModalVisible] =
-    useState(false);
 
   const handleCloseModal = () => {
     setHabitData(habitDataInitialState);
@@ -160,10 +162,6 @@ const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
         ? prev.selectedDays.filter((d) => d !== day)
         : [...prev.selectedDays, day],
     }));
-  };
-
-  const handleAddChallenge = () => {
-    setIsAddChallengeModalVisible(false);
   };
 
   if (!isVisible) return null;
@@ -262,11 +260,6 @@ const AddHabitModal = ({ isVisible, onClose }: AddHabitModalProps) => {
           <ModalButtons onCancel={handleCloseModal} onSubmit={handleSubmit} />
         </ScrollView>
       </Pressable>
-
-      <AddChallengeModal
-        isVisible={isAddChallengeModalVisible}
-        onClose={handleAddChallenge}
-      />
     </Pressable>
   );
 };

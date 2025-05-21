@@ -228,12 +228,14 @@ export default function HomeScreen() {
             </ConditionalRenderer>
           </>
         ) : (
-          <EmptyHabitsList
-            imageWidth={250}
-            textColor={Colors.PrimaryGray}
-            title={t("no_habits_title")}
-            description={t("no_recorded_habits")}
-          />
+          <View style={styles.emptyHabitsContainer}>
+            <EmptyHabitsList
+              imageWidth={250}
+              textColor={Colors.PrimaryGray}
+              title={t("no_habits_title")}
+              description={t("no_recorded_habits")}
+            />
+          </View>
         )}
       </ScrollView>
 
@@ -304,5 +306,10 @@ const styles = StyleSheet.create({
   },
   completedChallengesScrollContent: {
     paddingHorizontal: 10,
+  },
+  emptyHabitsContainer: {
+    marginTop: 80,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

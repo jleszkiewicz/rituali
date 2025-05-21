@@ -79,9 +79,6 @@ export default function RegisterScreen() {
   return (
     <ScreenWrapper>
       <View style={styles.innerContainer}>
-        <ThemedText style={styles.title} bold>
-          {t("register_title")}
-        </ThemedText>
         <Image
           source={require("@/assets/ilustrations/register.png")}
           style={styles.image}
@@ -193,12 +190,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  title: {
-    fontSize: 28,
-    color: Colors.PrimaryRed,
-    marginBottom: 40,
-    lineHeight: 34,
-  },
   inputContainer: {
     width: "100%",
     marginBottom: 10,
@@ -258,8 +249,8 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
   image: {
-    width: 200,
-    height: 200,
+    width: 250,
+    height: 250,
     marginBottom: 20,
   },
 });

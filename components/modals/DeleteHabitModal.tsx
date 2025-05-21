@@ -16,6 +16,7 @@ import { selectUserId } from "@/src/store/userSlice";
 import { ThemedText } from "../Commons/ThemedText";
 import { format } from "date-fns";
 import { dateFormat } from "@/constants/Constants";
+import PrimaryButton from "../Commons/PrimaryButton";
 
 interface DeleteHabitModalProps {
   isVisible: boolean;
@@ -95,14 +96,14 @@ const DeleteHabitModal = ({
           >
             <ThemedText style={styles.buttonText}>{t("cancel")}</ThemedText>
           </Pressable>
-          <Pressable
-            style={[styles.button, styles.deleteButton]}
-            onPress={handleDelete}
-          >
-            <ThemedText style={[styles.buttonText, styles.deleteButtonText]}>
+          <PrimaryButton style={styles.button} onPress={handleDelete}>
+            <ThemedText
+              style={[styles.buttonText, styles.deleteButtonText]}
+              bold
+            >
               {t("delete")}
             </ThemedText>
-          </Pressable>
+          </PrimaryButton>
         </View>
       </Pressable>
     </Pressable>
@@ -174,16 +175,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.PrimaryGray,
   },
-  deleteButton: {
-    backgroundColor: Colors.HotPink,
-  },
   buttonText: {
     fontSize: 16,
     fontWeight: "600",
     textAlign: "center",
   },
   deleteButtonText: {
-    color: Colors.White,
+    color: Colors.HotPink,
   },
 });
 

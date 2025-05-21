@@ -11,7 +11,7 @@ import { updateChallengeHabits, updateHabit } from "@/src/service/apiService";
 import { setHabits } from "@/src/store/habitsSlice";
 import { setChallenges } from "@/src/store/challengesSlice";
 import { fetchUserHabits, fetchUserChallenges } from "@/src/service/apiService";
-import ConfirmationModal from "../../modals/ConfirmationModal";
+import ConfirmationModal from "../../modals/DeleteAccountModal";
 import HabitIcon from "./HabitIcon";
 
 interface ChallengeHabitCardProps {

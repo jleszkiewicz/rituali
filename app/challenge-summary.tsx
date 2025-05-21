@@ -5,11 +5,10 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  Alert,
+  Dimensions,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Colors } from "@/constants/Colors";
-import { useChallenges } from "@/src/hooks/useChallenges";
 import { ChallengeHeader } from "@/components/ChallengeSummary/ChallengeHeader";
 import { ChallengeDates } from "@/components/ChallengeSummary/ChallengeDates";
 import { ChallengeStats } from "@/components/ChallengeSummary/ChallengeStats";
@@ -21,7 +20,6 @@ import { RootState } from "@/src/store";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
 import { ThemedText } from "@/components/Commons/ThemedText";
-import AddAfterPhotoModal from "@/components/modals/AddAfterPhotoModal";
 import {
   fetchChallengeById,
   getSignedUrl,
@@ -34,24 +32,34 @@ import { Ionicons } from "@expo/vector-icons";
 import DeletePhotoModal from "@/components/modals/DeletePhotoModal";
 import * as ImagePicker from "expo-image-picker";
 import PhotoPicker from "@/components/Commons/PhotoPicker";
+import Carousel from "react-native-reanimated-carousel";
+import PageIndicator from "@/components/Commons/PageIndicator";
+
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const PAGE_WIDTH = SCREEN_WIDTH - 40;
+
+type PhotoType = "before" | "after";
+
+interface PhotoItem {
+  type: PhotoType;
+  uri: string | null;
+  photoUri: string | null;
+}
 
 export default function ChallengeSummaryScreen() {
   const { challengeId } = useLocalSearchParams();
   const router = useRouter();
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAddAfterPhotoModalVisible, setIsAddAfterPhotoModalVisible] =
-    useState(false);
   const [isDeletePhotoModalVisible, setIsDeletePhotoModalVisible] =
     useState(false);
-  const [photoToDelete, setPhotoToDelete] = useState<"before" | "after" | null>(
-    null
-  );
+  const [photoToDelete, setPhotoToDelete] = useState<PhotoType | null>(null);
   const [beforePhotoUrl, setBeforePhotoUrl] = useState<string | null>(null);
   const [afterPhotoUrl, setAfterPhotoUrl] = useState<string | null>(null);
   const habits: HabitData[] = useSelector(
     (state: RootState) => state.habits.habits
   );
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   const refreshPhotoUrls = async () => {
     if (challenge?.beforePhotoUri) {
@@ -87,19 +95,7 @@ export default function ChallengeSummaryScreen() {
     }
   }, [challenge]);
 
-  const handlePhotoAdded = async () => {
-    setIsAddAfterPhotoModalVisible(false);
-    try {
-      const data = await fetchChallengeById(challengeId as string);
-      if (data) {
-        setChallenge(data);
-      }
-    } catch (error) {
-      console.error("Error refreshing challenge:", error);
-    }
-  };
-
-  const handleDeletePhoto = async (photoType: "before" | "after") => {
+  const handleDeletePhoto = async (photoType: PhotoType) => {
     if (!challenge) return;
     setPhotoToDelete(photoType);
     setIsDeletePhotoModalVisible(true);
@@ -125,7 +121,7 @@ export default function ChallengeSummaryScreen() {
     }
   };
 
-  const handlePickImage = async (type: "before" | "after") => {
+  const handlePickImage = async (type: PhotoType) => {
     if (!challenge) return;
 
     try {
@@ -145,13 +141,10 @@ export default function ChallengeSummaryScreen() {
           setBeforePhotoUrl(publicUrl);
           const updatedChallenge = await fetchChallengeById(challenge.id);
           setChallenge(updatedChallenge);
-        } else {
-          setIsAddAfterPhotoModalVisible(true);
         }
       }
     } catch (error) {
       console.error("Error picking image:", error);
-      Alert.alert(t("error"), t("error_picking_image"));
     }
   };
 
@@ -159,16 +152,6 @@ export default function ChallengeSummaryScreen() {
     return (
       <ScreenWrapper>
         <Loading />
-      </ScreenWrapper>
-    );
-  }
-
-  if (!challenge) {
-    return (
-      <ScreenWrapper>
-        <View style={styles.container}>
-          <ThemedText>Challenge not found</ThemedText>
-        </View>
       </ScreenWrapper>
     );
   }
@@ -201,18 +184,31 @@ export default function ChallengeSummaryScreen() {
     (totalCompletions / (totalDays * challengeHabits.length)) * 100
   );
 
+  const photoItems: PhotoItem[] = [
+    {
+      type: "before",
+      uri: beforePhotoUrl,
+      photoUri: challenge?.beforePhotoUri || null,
+    },
+    {
+      type: "after",
+      uri: afterPhotoUrl,
+      photoUri: challenge?.afterPhotoUri || null,
+    },
+  ];
+
   return (
     <ScreenWrapper>
       <ScreenHeader
         title={t("challenge_summary")}
-        onBack={() => router.back()}
+        onBack={() => router.push("/challenges")}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}
         contentContainerStyle={styles.content}
       >
-        <ChallengeHeader title={challenge.name} />
+        <ChallengeHeader title={challenge?.name || ""} />
 
         <ChallengeDates startDate={startDate} endDate={endDate} />
 
@@ -230,99 +226,75 @@ export default function ChallengeSummaryScreen() {
         />
 
         <View style={styles.photosContainer}>
-          <View style={styles.photoSection}>
-            <View style={styles.photoHeader}>
-              <ThemedText style={styles.sectionTitle}>
-                {t("before_photo")}
-              </ThemedText>
-              {challenge.beforePhotoUri && (
-                <TouchableOpacity
-                  onPress={() => handleDeletePhoto("before")}
-                  style={styles.deleteButton}
-                >
-                  <Ionicons
-                    name="trash-outline"
-                    size={24}
-                    color={Colors.HotPink}
-                  />
-                </TouchableOpacity>
-              )}
-            </View>
-            {challenge.beforePhotoUri ? (
-              beforePhotoUrl ? (
-                <Image
-                  source={{ uri: beforePhotoUrl }}
-                  style={styles.photo}
-                  resizeMode="cover"
-                  onError={(error) => {
-                    console.error(
-                      "Error loading before photo:",
-                      error.nativeEvent
-                    );
-                  }}
-                />
-              ) : (
-                <View style={styles.loadingContainer}>
-                  <Loading />
-                  <ThemedText style={styles.loadingText}>
-                    Loading before photo...
-                  </ThemedText>
+          <View style={{ width: PAGE_WIDTH, alignSelf: "center" }}>
+            <Carousel
+              loop={false}
+              width={PAGE_WIDTH}
+              height={360}
+              data={photoItems}
+              onSnapToItem={setCurrentPhotoIndex}
+              renderItem={({ item }) => (
+                <View style={styles.photoSection}>
+                  <View style={styles.photoHeader}>
+                    <ThemedText style={styles.photoTitle}>
+                      {t(
+                        item.type === "before" ? "before_photo" : "after_photo"
+                      )}
+                    </ThemedText>
+                    {item.photoUri && (
+                      <TouchableOpacity
+                        onPress={() => handleDeletePhoto(item.type)}
+                        style={styles.deleteButton}
+                      >
+                        <Ionicons
+                          name="trash-outline"
+                          size={24}
+                          color={Colors.HotPink}
+                        />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                  <View style={styles.photoWrapper}>
+                    {item.photoUri ? (
+                      item.uri ? (
+                        <Image
+                          source={{ uri: item.uri }}
+                          style={styles.photo}
+                          resizeMode="cover"
+                          onError={(error) => {
+                            console.error(
+                              "Error loading photo:",
+                              error.nativeEvent
+                            );
+                          }}
+                        />
+                      ) : (
+                        <View style={styles.loadingContainer}>
+                          <ThemedText style={styles.loadingText}>
+                            {t("loading_photo")}
+                          </ThemedText>
+                        </View>
+                      )
+                    ) : (
+                      <PhotoPicker
+                        onPress={() => handlePickImage(item.type)}
+                        height={300}
+                        style={styles.photo}
+                      />
+                    )}
+                  </View>
                 </View>
-              )
-            ) : (
-              <PhotoPicker
-                onPress={() => handlePickImage("before")}
-                height={300}
-                style={styles.photo}
-              />
-            )}
-          </View>
-
-          <View style={styles.photoSection}>
-            <View style={styles.photoHeader}>
-              <ThemedText style={styles.sectionTitle}>
-                {t("after_photo")}
-              </ThemedText>
-              {challenge.afterPhotoUri && (
-                <TouchableOpacity
-                  onPress={() => handleDeletePhoto("after")}
-                  style={styles.deleteButton}
-                >
-                  <Ionicons
-                    name="trash-outline"
-                    size={24}
-                    color={Colors.HotPink}
-                  />
-                </TouchableOpacity>
               )}
-            </View>
-            {challenge.afterPhotoUri ? (
-              afterPhotoUrl ? (
-                <Image
-                  source={{ uri: afterPhotoUrl }}
-                  style={styles.photo}
-                  resizeMode="cover"
-                />
-              ) : (
-                <ThemedText>Loading after photo...</ThemedText>
-              )
-            ) : (
-              <PhotoPicker
-                onPress={() => handlePickImage("after")}
-                height={300}
-                style={styles.photo}
-              />
-            )}
+            />
           </View>
+          <PageIndicator
+            count={2}
+            currentIndex={currentPhotoIndex}
+            isVisible={true}
+            activeColor={Colors.HotPink}
+            inactiveColor={Colors.LightGray}
+          />
         </View>
-
-        <AddAfterPhotoModal
-          isVisible={isAddAfterPhotoModalVisible}
-          onClose={() => setIsAddAfterPhotoModalVisible(false)}
-          challengeId={challenge.id}
-          onPhotoAdded={handlePhotoAdded}
-        />
-
         <DeletePhotoModal
           isVisible={isDeletePhotoModalVisible}
           onClose={() => {
@@ -381,9 +353,6 @@ const styles = StyleSheet.create({
   },
   photosContainer: {
     marginBottom: 24,
-  },
-  photoSection: {
-    marginBottom: 24,
     backgroundColor: Colors.White,
     borderRadius: 12,
     padding: 16,
@@ -396,48 +365,33 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  photo: {
+  photoSection: {
     width: "100%",
-    height: 300,
-    borderRadius: 12,
-  },
-  addPhotoButton: {
-    backgroundColor: Colors.HotPink,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignSelf: "center",
-    marginTop: 20,
-  },
-  buttonText: {
-    color: Colors.White,
-    fontSize: 16,
-    fontWeight: "600",
+    paddingHorizontal: 8,
   },
   photoHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
+    paddingHorizontal: 4,
   },
-  deleteButton: {
-    marginBottom: 12,
+  photoWrapper: {
+    borderRadius: 12,
+    overflow: "hidden",
   },
-  photoPicker: {
+  photoTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: Colors.PrimaryGray,
+  },
+  photo: {
     width: "100%",
     height: 300,
     borderRadius: 12,
-    backgroundColor: Colors.White,
-    borderWidth: 2,
-    borderColor: Colors.PrimaryGray,
-    borderStyle: "dashed",
-    justifyContent: "center",
-    alignItems: "center",
   },
-  pickerText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: Colors.PrimaryGray,
+  deleteButton: {
+    marginBottom: 12,
   },
   loadingContainer: {
     height: 300,

@@ -24,7 +24,7 @@ import ModalHeader from "./ChallengeInfoModal/ModalHeader";
 import ProgressSection from "./ChallengeInfoModal/ProgressSection";
 import HabitsSection from "./ChallengeInfoModal/HabitsSection";
 import { dateFormat } from "@/constants/Constants";
-import ConfirmationModal from "./ConfirmationModal";
+import ConfirmationModal from "./DeleteAccountModal";
 import PrimaryButton from "../Commons/PrimaryButton";
 
 interface ChallengeInfoModalProps {
@@ -88,6 +88,9 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
 
       dispatch(setHabits(updatedHabits));
       dispatch(setChallenges(updatedChallenges));
+
+      // Close only the select habits modal
+      setIsSelectHabitsModalVisible(false);
     } catch (error) {
       console.error("Error adding habits to challenge:", error);
     }
@@ -137,12 +140,9 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
             style={styles.deleteButton}
             onPress={() => setIsDeleteConfirmationVisible(true)}
           >
-            <>
-              <Ionicons name="trash-outline" size={24} color={Colors.HotPink} />
-              <ThemedText style={styles.deleteButtonText} bold>
-                {t("delete_challenge")}
-              </ThemedText>
-            </>
+            <ThemedText style={styles.deleteButtonText} bold>
+              {t("delete_challenge")}
+            </ThemedText>
           </PrimaryButton>
         </View>
 

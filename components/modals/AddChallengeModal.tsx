@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, Pressable, ScrollView } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
@@ -12,7 +12,6 @@ import { selectUserId } from "@/src/store/userSlice";
 import { setChallenges } from "@/src/store/challengesSlice";
 import { setHabits } from "@/src/store/habitsSlice";
 import DateSelector from "../AddHabitModal/DateSelector";
-import AddHabitModal from "./AddHabitModal";
 import ChallengeNameInput from "../AddChallengeModal/ChallengeNameInput";
 import DurationInput from "../AddChallengeModal/DurationInput";
 import HabitsSelector from "../AddChallengeModal/HabitsSelector";
@@ -28,11 +27,13 @@ import * as ImagePicker from "expo-image-picker";
 interface AddChallengeModalProps {
   isVisible: boolean;
   onClose: () => void;
+  onAddHabit?: () => void;
 }
 
 export default function AddChallengeModal({
   isVisible,
   onClose,
+  onAddHabit,
 }: AddChallengeModalProps) {
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
@@ -51,7 +52,6 @@ export default function AddChallengeModal({
     habits: "",
   });
   const [isHabitsExpanded, setIsHabitsExpanded] = useState(false);
-  const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
 
   const validateForm = () => {
     const newErrors = {
@@ -126,10 +126,6 @@ export default function AddChallengeModal({
     setErrors((prev) => ({ ...prev, habits: "" }));
   };
 
-  const handleAddHabit = () => {
-    setIsAddHabitModalVisible(false);
-  };
-
   const handleDurationChange = (text: string) => {
     const number = parseInt(text);
     if (!isNaN(number) && number >= 1 && number <= 1000) {
@@ -176,16 +172,14 @@ export default function AddChallengeModal({
   if (!isVisible) return null;
 
   return (
-    <Pressable style={styles.modalContainer} onPress={onClose}>
-      <Pressable
-        style={styles.modalContent}
-        onPress={(e) => e.stopPropagation()}
-      >
+    <Pressable style={styles.container} onPress={onClose}>
+      <Pressable style={styles.content} onPress={(e) => e.stopPropagation()}>
         <ModalHeader
           title={t("add_challenge")}
           onClose={onClose}
           color={Colors.PrimaryGray}
         />
+
         <ScrollView showsVerticalScrollIndicator={false}>
           <ChallengeNameInput
             value={challengeData.name}
@@ -221,11 +215,11 @@ export default function AddChallengeModal({
             isExpanded={isHabitsExpanded}
             onToggleExpanded={() => setIsHabitsExpanded(!isHabitsExpanded)}
             onToggleHabit={toggleHabit}
-            onAddHabit={() => setIsAddHabitModalVisible(true)}
+            onAddHabit={onAddHabit}
           />
 
           <View style={styles.photoSection}>
-            <ThemedText style={styles.sectionTitle}>
+            <ThemedText style={styles.sectionTitle} bold>
               {t("before_photo")}
             </ThemedText>
             <ThemedText style={styles.description}>
@@ -243,17 +237,12 @@ export default function AddChallengeModal({
           <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
         </ScrollView>
       </Pressable>
-
-      <AddHabitModal
-        isVisible={isAddHabitModalVisible}
-        onClose={handleAddHabit}
-      />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  modalContainer: {
+  container: {
     position: "absolute",
     top: 0,
     left: 0,
@@ -263,33 +252,31 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     zIndex: 1000,
   },
-  modalContent: {
+  content: {
     backgroundColor: Colors.White,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 20,
-    paddingBottom: 40,
     width: "100%",
     maxHeight: "90%",
   },
   photoSection: {
-    marginBottom: 24,
+    marginTop: 20,
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
     color: Colors.PrimaryGray,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   description: {
     fontSize: 14,
     color: Colors.PrimaryGray,
     marginBottom: 12,
-    lineHeight: 20,
   },
   photo: {
     width: "100%",
-    height: 200,
     borderRadius: 12,
   },
 });

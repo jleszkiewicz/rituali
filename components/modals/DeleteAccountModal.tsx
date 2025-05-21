@@ -1,22 +1,28 @@
 import React from "react";
-import { View, StyleSheet, Pressable, Dimensions, Image } from "react-native";
+import { View, StyleSheet, Pressable, Image } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../Commons/ThemedText";
 import { t } from "@/src/service/translateService";
 import PrimaryButton from "../Commons/PrimaryButton";
 
-interface DeletePhotoModalProps {
+interface DeleteAccountModalProps {
   isVisible: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
 }
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-
-const DeletePhotoModal: React.FC<DeletePhotoModalProps> = ({
+const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   isVisible,
   onClose,
   onConfirm,
+  title,
+  message,
+  confirmText = t("delete"),
+  cancelText = t("cancel"),
 }) => {
   if (!isVisible) return null;
 
@@ -29,20 +35,21 @@ const DeletePhotoModal: React.FC<DeletePhotoModalProps> = ({
           style={styles.illustration}
           resizeMode="contain"
         />
-        <ThemedText style={styles.title}>{t("delete_photo")}</ThemedText>
-        <ThemedText style={styles.description}>
-          {t("delete_photo_confirmation")}
-        </ThemedText>
+        <ThemedText style={styles.title}>{title}</ThemedText>
+        <ThemedText style={styles.description}>{message}</ThemedText>
         <View style={styles.buttonContainer}>
           <Pressable
             style={[styles.button, styles.cancelButton]}
             onPress={onClose}
           >
-            <ThemedText style={styles.buttonText}>{t("cancel")}</ThemedText>
+            <ThemedText style={styles.buttonText}>{cancelText}</ThemedText>
           </Pressable>
           <PrimaryButton style={styles.button} onPress={onConfirm}>
-            <ThemedText style={[styles.buttonText, styles.deleteButtonText]}>
-              {t("delete")}
+            <ThemedText
+              style={[styles.buttonText, styles.deleteButtonText]}
+              bold
+            >
+              {confirmText}
             </ThemedText>
           </PrimaryButton>
         </View>
@@ -123,4 +130,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DeletePhotoModal;
+export default DeleteAccountModal;

@@ -80,9 +80,6 @@ export default function LoginScreen() {
   return (
     <ScreenWrapper>
       <View style={styles.innerContainer}>
-        <ThemedText style={styles.title} bold>
-          {t("login_title")}
-        </ThemedText>
         <Image
           source={require("@/assets/ilustrations/login.png")}
           style={styles.image}
@@ -167,15 +164,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  title: {
-    fontSize: 28,
-    color: Colors.PrimaryRed,
-    marginBottom: 40,
-    lineHeight: 34,
-  },
   image: {
-    width: 200,
-    height: 200,
+    width: 250,
+    height: 250,
     marginBottom: 20,
   },
   inputContainer: {

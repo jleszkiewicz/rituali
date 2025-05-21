@@ -15,7 +15,7 @@ import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
 import { t } from "@/src/service/translateService";
 import { Ionicons } from "@expo/vector-icons";
-import ConfirmationModal from "@/components/modals/ConfirmationModal";
+import ConfirmationModal from "@/components/modals/DeleteAccountModal";
 import * as Notifications from "expo-notifications";
 import { selectUserId, selectEmail } from "@/src/store/userSlice";
 import FeedbackSection from "@/components/ProfileScreen/FeedbackSection";
@@ -115,7 +115,7 @@ const ProfileScreen = () => {
         onConfirm={handleDeleteAccount}
         title={t("delete_account_confirmation_title")}
         message={t("delete_account_confirmation_message")}
-        confirmText={t("delete_account")}
+        confirmText={t("delete")}
       />
     </ScreenWrapper>
   );
