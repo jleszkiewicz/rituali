@@ -58,8 +58,6 @@ export default function LoginScreen() {
       const success = await login(email, password);
       if (!success) {
         showError(t("invalid_credentials"));
-      } else {
-        router.replace(AppRoutes.Home);
       }
     }
   };
@@ -188,15 +186,6 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: Colors.PrimaryRed,
   },
-  errorContainer: {
-    width: "100%",
-    backgroundColor: Colors.LightPink,
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: Colors.PrimaryRed,
-  },
   errorText: {
     color: Colors.PrimaryRed,
     fontSize: 14,
@@ -248,8 +237,5 @@ const styles = StyleSheet.create({
     color: Colors.PrimaryRed,
     fontSize: 16,
     textDecorationLine: "underline",
-  },
-  buttonDisabled: {
-    opacity: 0.7,
   },
 });

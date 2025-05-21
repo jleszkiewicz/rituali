@@ -33,7 +33,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const { showError } = useErrorModal();
 
@@ -49,7 +48,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      setIsLoading(true);
       const { data, error } = await supabase.auth.getUser();
       const user = data?.user;
 
@@ -83,7 +81,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [dispatch]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -105,17 +102,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       showError(t("invalid_credentials"));
       return false;
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const loginWithGoogle = async () => {
-    if (isAuthenticating) return;
-
-    setIsAuthenticating(true);
-    setIsLoading(true);
-
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -137,9 +127,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       setIsAuthenticated(false);
       showError("Błąd logowania przez Google");
-    } finally {
-      setIsLoading(false);
-      setIsAuthenticating(false);
     }
   };
 
@@ -147,7 +134,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     email: string,
     password: string
   ): Promise<{ success: boolean; error?: string }> => {
-    setIsLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -169,8 +155,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return { success: false, error: "Registration failed" };
     } catch (error) {
       return { success: false, error: "Registration failed" };
-    } finally {
-      setIsLoading(false);
     }
   };
 

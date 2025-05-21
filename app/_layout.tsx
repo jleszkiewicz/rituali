@@ -1,7 +1,6 @@
 import { Slot } from "expo-router";
 import { useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
-import { View, ActivityIndicator } from "react-native";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { ErrorProvider } from "../src/context/ErrorContext";
 import { ErrorModalProvider } from "../src/context/ErrorModalContext";
@@ -60,14 +59,6 @@ function AuthWrapper() {
       }
     }
   }, [isLoading, isAuthenticated, segments, router]);
-
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
 
   return <Slot />;
 }
