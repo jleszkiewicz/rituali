@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { HabitData } from "@/components/AddHabitModal/types";
@@ -8,6 +8,7 @@ import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import { AppRoutes } from "@/src/routes/AppRoutes";
 import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 interface ChallengeCardProps {
   challenge: ChallengeData;
@@ -47,6 +48,12 @@ export default function ChallengeCard({
 
   const isCompleted = completedHabits === totalHabits && totalHabits > 0;
 
+  const getStatusIcon = () => {
+    if (totalHabits === 0) return require("@/assets/ilustrations/warning.png");
+    if (isCompleted) return require("@/assets/ilustrations/clap.png");
+    return require("@/assets/ilustrations/sad.png");
+  };
+
   const naviagteToChallengesScreen = () => {
     router.push(AppRoutes.Challenges);
   };
@@ -57,38 +64,52 @@ export default function ChallengeCard({
         style={[styles.container, { width }, style]}
         onPress={() => naviagteToChallengesScreen()}
       >
+        <View style={styles.statusIconContainer}>
+          <Image source={getStatusIcon()} style={styles.statusIcon} />
+        </View>
+
         <ThemedText style={styles.title} bold>
           {challenge.name}
         </ThemedText>
-        <ThemedText style={styles.statusText} bold>
-          {isCompleted ? t("completed_for_today") : t("please_complete_me")}
-        </ThemedText>
 
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View
-              style={[styles.progressFill, { width: `${progressPercentage}%` }]}
-            />
-          </View>
-          <ThemedText style={styles.progressText} bold>
-            {completedHabits}/{totalHabits} {t("habits")}
-          </ThemedText>
-        </View>
+        {totalHabits > 0 ? (
+          <>
+            <View style={styles.progressContainer}>
+              <View style={styles.progressBar}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    { width: `${progressPercentage}%` },
+                  ]}
+                />
+              </View>
+              <ThemedText style={styles.progressText} bold>
+                {completedHabits}/{totalHabits} {t("habits")}
+              </ThemedText>
+            </View>
 
-        <View style={styles.timeProgressContainer}>
-          <View style={styles.timeProgressBar}>
-            <View
-              style={[
-                styles.timeProgressFill,
-                { width: `${timeProgressPercentage}%` },
-              ]}
-            />
+            <View style={styles.timeProgressContainer}>
+              <View style={styles.timeProgressBar}>
+                <View
+                  style={[
+                    styles.timeProgressFill,
+                    { width: `${timeProgressPercentage}%` },
+                  ]}
+                />
+              </View>
+              <ThemedText style={styles.timeProgressText} bold>
+                {daysPassed}/{totalDays}{" "}
+                {totalDays === 1 ? t("days_one") : t("days")}
+              </ThemedText>
+            </View>
+          </>
+        ) : (
+          <View style={styles.noHabitsContainer}>
+            <ThemedText style={styles.noHabitsText} bold>
+              {t("add_habits_to_challenge")}
+            </ThemedText>
           </View>
-          <ThemedText style={styles.timeProgressText} bold>
-            {daysPassed}/{totalDays}{" "}
-            {totalDays === 1 ? t("days_one") : t("days")}
-          </ThemedText>
-        </View>
+        )}
       </TouchableOpacity>
     </>
   );
@@ -100,6 +121,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     marginRight: 10,
+    height: 200,
+    overflow: "visible",
     shadowColor: Colors.Black,
     shadowOffset: {
       width: 0,
@@ -109,16 +132,21 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  statusIconContainer: {
+    position: "absolute",
+    top: -20,
+    right: -2,
+    zIndex: 1,
+  },
+  statusIcon: {
+    width: 50,
+    height: 50,
+  },
   title: {
     fontSize: 17,
     textAlign: "left",
     color: Colors.White,
-  },
-  statusText: {
-    fontSize: 15,
-    color: Colors.ButterYellow,
-    marginTop: 4,
-    opacity: 0.8,
+    marginBottom: 16,
   },
   progressContainer: {
     marginTop: 10,
@@ -139,6 +167,19 @@ const styles = StyleSheet.create({
     color: Colors.White,
     textAlign: "center",
     marginTop: 5,
+  },
+  noHabitsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    height: 80,
+  },
+  noHabitsText: {
+    fontSize: 14,
+    color: Colors.ButterYellow,
+    lineHeight: 22,
+    textAlign: "center",
   },
   timeProgressContainer: {
     marginTop: 10,

@@ -101,8 +101,8 @@
   "sat": "Sat",
   "sun": "Sun",
   "delete_habit": "Delete habit",
-  "completed_for_today": "Completed for today 👏",
-  "please_complete_me": "Please complete me 🥺",
+  "completed_for_today": "Completed for today",
+  "please_complete_me": "Please complete me",
   "your_open_challenges": "Your open challenges",
   "completed_challenges": "Completed Challenges",
   "no_completed_challenges": "No completed challenges yet",
@@ -179,5 +179,6 @@
   "after_photo_description": "This photo will only be visible to you in the challenge summary and only if you attached before photo",
   "delete_photo": "Delete Photo",
   "delete_photo_confirmation": "Are you sure you want to delete this photo?",
-  "pick_photo": "Pick Photo"
+  "pick_photo": "Pick Photo",
+  "add_habits_to_challenge": "Add habits to challenge"
 }

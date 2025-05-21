@@ -37,19 +37,22 @@ export default function ChallengesList({
 
   return (
     <View style={styles.container}>
-      <View style={{ width: PAGE_WIDTH, alignSelf: "center" }}>
+      <View
+        style={{ width: PAGE_WIDTH, alignSelf: "center", overflow: "visible" }}
+      >
         <Carousel
           loop={false}
           width={PAGE_WIDTH}
           height={200}
           data={pages}
           onSnapToItem={setCurrentPage}
-          style={{ paddingHorizontal: ITEM_MARGIN }}
+          style={{ paddingHorizontal: ITEM_MARGIN, overflow: "visible" }}
           renderItem={({ item: pageItems }) => (
             <View
               style={{
                 flexDirection: "row",
                 width: PAGE_WIDTH - ITEM_MARGIN * 2,
+                overflow: "visible",
               }}
             >
               {pageItems.map((challenge: ChallengeData, idx: number) => (

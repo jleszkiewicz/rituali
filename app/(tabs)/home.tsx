@@ -278,7 +278,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: Colors.PrimaryGray,
-    marginBottom: 10,
+    marginBottom: 16,
+    marginTop: 6,
     textTransform: "capitalize",
   },
   habitsHeader: {

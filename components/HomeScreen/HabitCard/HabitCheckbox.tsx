@@ -25,7 +25,7 @@ const HabitCheckbox: React.FC<HabitCheckboxProps> = ({
       ]}
     >
       {isCompleted && (
-        <Ionicons name="checkmark" size={20} color={Colors.White} />
+        <Ionicons name="checkmark-sharp" size={20} color={Colors.White} />
       )}
     </TouchableOpacity>
   );
@@ -33,9 +33,9 @@ const HabitCheckbox: React.FC<HabitCheckboxProps> = ({
 
 const styles = StyleSheet.create({
   checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     borderWidth: 2,
     borderColor: Colors.HotPink,
     alignItems: "center",

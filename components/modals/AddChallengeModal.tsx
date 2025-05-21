@@ -234,7 +234,9 @@ export default function AddChallengeModal({
             />
           </View>
 
-          <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
+          <View style={styles.buttonsContainer}>
+            <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
+          </View>
         </ScrollView>
       </Pressable>
     </Pressable>
@@ -278,5 +280,8 @@ const styles = StyleSheet.create({
   photo: {
     width: "100%",
     borderRadius: 12,
+  },
+  buttonsContainer: {
+    marginBottom: 20,
   },
 });
