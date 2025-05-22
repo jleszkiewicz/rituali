@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   },
   timeProgressFill: {
     height: "100%",
-    backgroundColor: Colors.White,
+    backgroundColor: Colors.ButterYellow,
     borderRadius: 3,
   },
   timeProgressText: {

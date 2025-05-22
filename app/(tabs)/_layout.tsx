@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Colors } from "@/constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Octicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { TouchableOpacity, StyleSheet, Platform } from "react-native";
 import AddOptionsModal from "@/components/modals/AddOptionsModal";
 import AddHabitModal from "@/components/modals/AddHabitModal";
 import AddChallengeModal from "@/components/modals/AddChallengeModal";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { AppScreens } from "@/src/routes/AppScreens";
 
 export default function TabsLayout() {
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -86,25 +88,27 @@ export default function TabsLayout() {
         }}
       >
         <Tabs.Screen
-          name="home"
+          name={AppScreens.Home}
           options={{
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? "home" : "home-outline"}
-                size={30}
+              <Octicons
+                name="home"
+                size={26}
                 color={color}
+                style={{ opacity: focused ? 1 : 0.6 }}
               />
             ),
           }}
         />
         <Tabs.Screen
-          name="challenges"
+          name={AppScreens.Challenges}
           options={{
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? "trophy" : "trophy-outline"}
-                color={color}
+              <MaterialCommunityIcons
+                name="trophy-outline"
                 size={30}
+                color={color}
+                style={{ opacity: focused ? 1 : 0.6 }}
               />
             ),
           }}
@@ -120,25 +124,27 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="statistics"
+          name={AppScreens.Friends}
           options={{
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? "bar-chart" : "bar-chart-outline"}
+              <Octicons
+                name="people"
+                size={30}
                 color={color}
-                size={26}
+                style={{ opacity: focused ? 1 : 0.6 }}
               />
             ),
           }}
         />
         <Tabs.Screen
-          name="profile"
+          name={AppScreens.Profile}
           options={{
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? "person" : "person-outline"}
-                color={color}
+              <Octicons
+                name="person"
                 size={28}
+                color={color}
+                style={{ opacity: focused ? 1 : 0.6 }}
               />
             ),
           }}
