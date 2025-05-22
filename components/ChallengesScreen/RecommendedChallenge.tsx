@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "../Commons/ThemedText";
@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { setHabits } from "@/src/store/habitsSlice";
 import { setChallenges } from "@/src/store/challengesSlice";
 import { fetchUserHabits, fetchUserChallenges } from "@/src/service/apiService";
+import PrimaryButton from "../Commons/PrimaryButton";
 
 const RecommendedChallengeCard = ({
   challenge,
@@ -32,7 +33,7 @@ const RecommendedChallengeCard = ({
 
   const handleStart = async () => {
     if (!userId) {
-      Alert.alert(t("error"), t("login_required"));
+      console.error("User not found");
       return;
     }
 
@@ -105,33 +106,39 @@ const RecommendedChallengeCard = ({
           >{`• ${habit}`}</ThemedText>
         ))}
       </View>
-      <TouchableOpacity style={styles.buttonContainer} onPress={handleStart}>
-        <ThemedText style={styles.buttonText}>{t("start")}</ThemedText>
-        <Ionicons name="arrow-forward" size={24} color={Colors.HotPink} />
-      </TouchableOpacity>
+      <PrimaryButton style={styles.buttonContainer} onPress={handleStart}>
+        <ThemedText style={styles.buttonText} bold>
+          {t("start")}
+        </ThemedText>
+        <Ionicons name="chevron-forward" size={24} color={Colors.HotPink} />
+      </PrimaryButton>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.PrimaryGray,
+    backgroundColor: Colors.White,
     borderRadius: 10,
     padding: 20,
     width: "100%",
     justifyContent: "space-between",
     marginEnd: 30,
-    height: 350,
+    minHeight: 350,
+    shadowColor: Colors.PrimaryGray,
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 2,
   },
   title: {
     fontSize: 26,
     lineHeight: 30,
     fontWeight: "bold",
-    color: Colors.HotPink,
+    color: Colors.PrimaryGray,
   },
   duration: {
     fontSize: 26,
-    color: Colors.White,
+    color: Colors.HotPink,
     lineHeight: 30,
   },
   rulesContainer: {
@@ -139,14 +146,15 @@ const styles = StyleSheet.create({
   },
   rule: {
     fontSize: 14,
-    color: Colors.White,
+    color: Colors.PrimaryGray,
     marginBottom: 5,
   },
   buttonContainer: {
     marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    justifyContent: "center",
+    gap: 8,
     backgroundColor: Colors.ButterYellow,
     borderRadius: 10,
     padding: 10,
@@ -155,7 +163,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     color: Colors.HotPink,
-    fontWeight: "bold",
   },
   headerContainer: {
     flexDirection: "row",
@@ -164,7 +171,7 @@ const styles = StyleSheet.create({
   },
   durationDays: {
     fontSize: 16,
-    color: Colors.White,
+    color: Colors.HotPink,
   },
   durationContainer: {
     justifyContent: "flex-start",

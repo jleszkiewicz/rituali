@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -20,7 +20,6 @@ import { Ionicons } from "@expo/vector-icons";
 import ConfirmationModal from "@/components/modals/DeleteAccountModal";
 import * as Notifications from "expo-notifications";
 import { selectUserId, selectEmail } from "@/src/store/userSlice";
-import FeedbackSection from "@/components/ProfileScreen/FeedbackSection";
 import { useImageUpload } from "@/src/hooks/useImageUpload";
 import {
   uploadProfilePhoto,
@@ -28,6 +27,7 @@ import {
 } from "@/src/service/apiService";
 import { Linking } from "react-native";
 import PrimaryButton from "@/components/Commons/PrimaryButton";
+import ProfileOption from "@/components/ProfileScreen/ProfileOption";
 
 const ProfileScreen = () => {
   const { logout, deleteAccount } = useAuth();
@@ -41,7 +41,7 @@ const ProfileScreen = () => {
     onError: (error) => Alert.alert(t("error"), error.message),
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!userId) return;
     (async () => {
       const url = await fetchProfilePhotoUrl(userId);
@@ -64,7 +64,7 @@ const ProfileScreen = () => {
       await logout();
       router.replace("/(auth)/login");
     } catch (error) {
-      Alert.alert(t("error"), t("logout_error"));
+      console.error(error);
     }
   };
 
@@ -73,7 +73,7 @@ const ProfileScreen = () => {
       await deleteAccount();
       router.replace("/(auth)/login");
     } catch (error) {
-      Alert.alert(t("error"), t("delete_account_error"));
+      console.error(error);
     }
   };
 
@@ -90,7 +90,7 @@ const ProfileScreen = () => {
         setNotificationsEnabled(false);
       }
     } catch (error) {
-      Alert.alert(t("error"), t("notifications_error"));
+      console.error(error);
     }
   };
 
@@ -303,14 +303,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  optionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F2",
-  },
   optionLabel: {
     fontSize: 16,
     color: Colors.PrimaryGray,
@@ -347,28 +339,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-
-type ProfileOptionProps = {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  onPress: () => void;
-};
-const ProfileOption = ({ icon, label, onPress }: ProfileOptionProps) => (
-  <TouchableOpacity style={styles.optionRow} onPress={onPress}>
-    <Ionicons
-      name={icon}
-      size={22}
-      color={Colors.PrimaryGray}
-      style={{ width: 28 }}
-    />
-    <ThemedText style={styles.optionLabel}>{label}</ThemedText>
-    <Ionicons
-      name="chevron-forward"
-      size={20}
-      color={Colors.PrimaryGray}
-      style={{ marginLeft: "auto" }}
-    />
-  </TouchableOpacity>
-);
 
 export default ProfileScreen;

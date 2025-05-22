@@ -8,7 +8,6 @@ import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import { AppRoutes } from "@/src/routes/AppRoutes";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 interface ChallengeCardProps {
   challenge: ChallengeData;

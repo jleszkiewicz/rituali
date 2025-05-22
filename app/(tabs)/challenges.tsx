@@ -41,43 +41,24 @@ const ChallengesScreen = () => {
   const completedChallenges = getCompletedChallenges(challenges);
 
   useEffect(() => {
-    let isMounted = true;
-
     const loadChallenges = async () => {
       if (!isDataLoaded) {
         try {
           setIsLoading(true);
           const recommendedChallengesData = await fetchRecommendedChallenges();
 
-          if (isMounted) {
-            const filteredChallenges = recommendedChallengesData.filter(
-              (recommendedChallenge) => {
-                const isActive = activeChallenges.some(
-                  (userChallenge) =>
-                    userChallenge.name === recommendedChallenge.name
-                );
-                return !isActive;
-              }
-            );
-            setRecommendedChallenges(filteredChallenges);
-            setIsDataLoaded(true);
-          }
+          setRecommendedChallenges(recommendedChallengesData);
+          setIsDataLoaded(true);
         } catch (err) {
           console.error("Error loading recommended challenges:", err);
         } finally {
-          if (isMounted) {
-            setIsLoading(false);
-          }
+          setIsLoading(false);
         }
       }
     };
 
     loadChallenges();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [activeChallenges]);
+  }, []);
 
   const renderContent = () => {
     if (
