@@ -434,12 +434,10 @@ export const uploadAfterPhoto = async (challengeId: string, photoUri: string) =>
       .from("after")
       .createSignedUrl(fileName, 3600);
 
-    if (signedUrlError) {
-      console.error("Error creating signed URL:", signedUrlError);
-      throw signedUrlError;
+    if (signedUrlError || !data || !data.signedUrl) {
+      throw signedUrlError || new Error("No signed URL returned");
     }
-
-    return signedUrlData.signedUrl;
+    return data.signedUrl;
   } catch (error) {
     console.error("Error uploading after photo:", error);
     throw error;
@@ -468,8 +466,8 @@ export const uploadBeforePhoto = async (challengeId: string, photoUri: string): 
       .from("before")
       .createSignedUrl(fileName, 3600);
 
-    if (signedUrlError) {
-      throw signedUrlError;
+    if (signedUrlError || !data || !data.signedUrl) {
+      throw signedUrlError || new Error("No signed URL returned");
     }
 
     const { error: updateError } = await supabase
@@ -505,6 +503,9 @@ export const getSignedUrl = async (bucket: string, url: string) => {
       return null;
     }
 
+    if (error || !data || !data.signedUrl) {
+      return null;
+    }
     return data.signedUrl;
   } catch (error) {
     console.error("Error in getSignedUrl:", error);
@@ -547,5 +548,48 @@ export const deletePhoto = async (challengeId: string, photoType: 'before' | 'af
     }
   } catch (error) {
     throw error;
+  }
+};
+
+export const uploadProfilePhoto = async (userId: string, photoUri: string): Promise<string> => {
+  try {
+    const fileName = `${userId}.jpg`;
+    const base64 = await FileSystem.readAsStringAsync(photoUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from("profile")
+      .upload(fileName, decode(base64), {
+        contentType: "image/jpeg",
+        upsert: true,
+      });
+    if (uploadError) {
+      throw uploadError;
+    }
+    const { data, error: signedUrlError } = await supabase.storage
+      .from("profile")
+      .createSignedUrl(fileName, 60 * 60 * 24 * 7) as { data: { signedUrl: string } | null, error: any };
+    if (signedUrlError || !data || !data.signedUrl) {
+      throw signedUrlError || new Error("No signed URL returned");
+    }
+    return data.signedUrl;
+  } catch (error) {
+    console.error("Error uploading profile photo:", error);
+    throw error;
+  }
+};
+
+export const fetchProfilePhotoUrl = async (userId: string): Promise<string | null> => {
+  try {
+    const fileName = `${userId}.jpg`;
+    const { data, error } = await supabase.storage
+      .from("profile")
+      .createSignedUrl(fileName, 60 * 60 * 24 * 7) as { data: { signedUrl: string } | null, error: any };
+    if (error || !data || !data.signedUrl) {
+      return null;
+    }
+    return data.signedUrl;
+  } catch (error) {
+    return null;
   }
 };

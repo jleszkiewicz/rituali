@@ -5,6 +5,8 @@ import {
   Switch,
   TouchableOpacity,
   Alert,
+  Image,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/src/context/AuthContext";
@@ -19,6 +21,13 @@ import ConfirmationModal from "@/components/modals/DeleteAccountModal";
 import * as Notifications from "expo-notifications";
 import { selectUserId, selectEmail } from "@/src/store/userSlice";
 import FeedbackSection from "@/components/ProfileScreen/FeedbackSection";
+import { useImageUpload } from "@/src/hooks/useImageUpload";
+import {
+  uploadProfilePhoto,
+  fetchProfilePhotoUrl,
+} from "@/src/service/apiService";
+import { Linking } from "react-native";
+import PrimaryButton from "@/components/Commons/PrimaryButton";
 
 const ProfileScreen = () => {
   const { logout, deleteAccount } = useAuth();
@@ -27,6 +36,28 @@ const ProfileScreen = () => {
   const email = useSelector(selectEmail);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const { pickImage, isLoading: isUploading } = useImageUpload({
+    onError: (error) => Alert.alert(t("error"), error.message),
+  });
+
+  React.useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      const url = await fetchProfilePhotoUrl(userId);
+      setAvatarUrl(url);
+    })();
+  }, [userId]);
+
+  const handlePickAvatar = async () => {
+    if (!userId) return;
+    try {
+      const uri = await pickImage();
+      if (!uri) return;
+      const url = await uploadProfilePhoto(userId, uri);
+      setAvatarUrl(url);
+    } catch (e) {}
+  };
 
   const handleLogout = async () => {
     try {
@@ -66,17 +97,63 @@ const ProfileScreen = () => {
   return (
     <ScreenWrapper showOfflineScreen={false}>
       <ScreenHeader title={t("profile")} />
-      <View style={styles.container}>
-        <View style={styles.section}>
-          <View style={styles.settingItem}>
-            <ThemedText style={styles.settingLabel}>{t("email")}</ThemedText>
-            <ThemedText style={styles.settingValue}>{email}</ThemedText>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.profileHeaderContainer}>
+          <View style={styles.avatarWrapper}>
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+            ) : (
+              <Image
+                source={require("@/assets/ilustrations/profile.png")}
+                style={styles.avatar}
+              />
+            )}
+            <TouchableOpacity
+              style={styles.cameraIcon}
+              onPress={handlePickAvatar}
+              disabled={isUploading}
+            >
+              {isUploading ? (
+                <Ionicons name="refresh" size={20} color={Colors.White} />
+              ) : (
+                <Ionicons name="camera" size={20} color={Colors.White} />
+              )}
+            </TouchableOpacity>
           </View>
-
-          <View style={styles.settingItem}>
-            <ThemedText style={styles.settingLabel}>
-              {t("notifications")}
+          <View style={styles.profileInfo}>
+            <ThemedText style={styles.profileName} bold>
+              {email}
             </ThemedText>
+          </View>
+        </View>
+        <View style={styles.optionsContainer}>
+          <ProfileOption
+            icon={"download-outline" as keyof typeof Ionicons.glyphMap}
+            label={t("downloads")}
+            onPress={() => {}}
+          />
+          <ProfileOption
+            icon={"card-outline" as keyof typeof Ionicons.glyphMap}
+            label={t("subscription")}
+            onPress={() => {}}
+          />
+          <ProfileOption
+            icon={"mail-outline" as keyof typeof Ionicons.glyphMap}
+            label={t("contact_us")}
+            onPress={() => Linking.openURL("mailto:rituali@contact")}
+          />
+          <View style={styles.switchRow}>
+            <View style={styles.leftSwitchConatiner}>
+              <Ionicons
+                name="notifications-outline"
+                size={22}
+                color={Colors.PrimaryGray}
+                style={{ width: 28 }}
+              />
+              <ThemedText style={styles.optionLabel}>
+                {t("notifications")}
+              </ThemedText>
+            </View>
             <Switch
               value={notificationsEnabled}
               onValueChange={toggleNotifications}
@@ -84,31 +161,17 @@ const ProfileScreen = () => {
               thumbColor={Colors.White}
             />
           </View>
-        </View>
-
-        <FeedbackSection onContact={() => {}} />
-
-        <View style={styles.section}>
-          <TouchableOpacity
-            style={[styles.button, styles.logoutButton]}
-            onPress={handleLogout}
-          >
-            <Ionicons name="log-out-outline" size={24} color={Colors.White} />
-            <ThemedText style={styles.buttonText}>{t("logout")}</ThemedText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, styles.deleteButton]}
+          <ProfileOption
+            icon={"trash" as keyof typeof Ionicons.glyphMap}
+            label={t("delete_account")}
             onPress={() => setIsDeleteModalVisible(true)}
-          >
-            <Ionicons name="trash-outline" size={24} color={Colors.HotPink} />
-            <ThemedText style={[styles.buttonText, styles.deleteButtonText]}>
-              {t("delete_account")}
-            </ThemedText>
-          </TouchableOpacity>
+          />
         </View>
-      </View>
-
+        <PrimaryButton onPress={handleLogout} style={styles.logoutRow}>
+          <Ionicons name="log-out-outline" size={22} color={Colors.White} />
+          <ThemedText style={styles.logoutText}>{t("logout")}</ThemedText>
+        </PrimaryButton>
+      </ScrollView>
       <ConfirmationModal
         isVisible={isDeleteModalVisible}
         onClose={() => setIsDeleteModalVisible(false)}
@@ -173,6 +236,139 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: Colors.HotPink,
   },
+  profileHeaderContainer: {
+    alignItems: "center",
+    marginTop: 24,
+    marginBottom: 16,
+  },
+  avatarWrapper: {
+    position: "relative",
+    width: 140,
+    height: 140,
+    marginBottom: 10,
+  },
+  avatar: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    borderWidth: 3,
+    borderColor: Colors.White,
+  },
+  cameraIcon: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    backgroundColor: Colors.PrimaryGray,
+    borderRadius: 16,
+    padding: 4,
+    borderWidth: 2,
+    borderColor: Colors.White,
+  },
+  profileInfo: {
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  profileName: {
+    fontSize: 20,
+    color: Colors.PrimaryGray,
+  },
+  profileUsername: {
+    fontSize: 14,
+    color: Colors.PrimaryGray,
+    opacity: 0.7,
+    marginTop: 2,
+  },
+  editProfileButton: {
+    backgroundColor: Colors.HotPink,
+    borderRadius: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  editProfileButtonText: {
+    color: Colors.White,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  optionsContainer: {
+    backgroundColor: Colors.White,
+    borderRadius: 16,
+    marginHorizontal: 0,
+    marginBottom: 24,
+    paddingVertical: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  optionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F2F2F2",
+  },
+  optionLabel: {
+    fontSize: 16,
+    color: Colors.PrimaryGray,
+    marginLeft: 12,
+  },
+  logoutRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 12,
+    marginBottom: 24,
+    gap: 8,
+    width: "50%",
+    alignSelf: "center",
+    backgroundColor: Colors.HotPink,
+  },
+  logoutText: {
+    color: Colors.White,
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  switchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 16,
+    paddingStart: 24,
+    paddingEnd: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F2F2F2",
+  },
+  leftSwitchConatiner: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
 });
+
+type ProfileOptionProps = {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+};
+const ProfileOption = ({ icon, label, onPress }: ProfileOptionProps) => (
+  <TouchableOpacity style={styles.optionRow} onPress={onPress}>
+    <Ionicons
+      name={icon}
+      size={22}
+      color={Colors.PrimaryGray}
+      style={{ width: 28 }}
+    />
+    <ThemedText style={styles.optionLabel}>{label}</ThemedText>
+    <Ionicons
+      name="chevron-forward"
+      size={20}
+      color={Colors.PrimaryGray}
+      style={{ marginLeft: "auto" }}
+    />
+  </TouchableOpacity>
+);
 
 export default ProfileScreen;
