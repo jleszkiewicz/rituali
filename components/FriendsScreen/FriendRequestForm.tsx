@@ -10,29 +10,52 @@ import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import { FriendRequestModal } from "./FriendRequestModal";
+import { useSelector } from "react-redux";
+import { selectUserId } from "@/src/store/userSlice";
 import { sendFriendRequest } from "@/src/service/apiService";
 
-const FriendRequestForm = () => {
-  const [userId, setUserId] = useState("");
+interface FriendRequestFormProps {
+  onRequestSent: () => void;
+}
+
+const FriendRequestForm = ({ onRequestSent }: FriendRequestFormProps) => {
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState("");
+  const userId = useSelector(selectUserId);
 
   const handleSendFriendRequest = async () => {
-    if (!userId.trim()) {
+    if (!userId) return;
+
+    if (!email) {
+      setError(t("email_required"));
+      return;
+    }
+
+    if (!email.trim()) {
       setIsSuccess(false);
       setShowModal(true);
       return;
     }
 
-    setIsLoading(true);
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setIsSuccess(false);
+      setShowModal(true);
+      return;
+    }
 
     try {
-      await sendFriendRequest(userId);
-      setUserId("");
+      setIsLoading(true);
+      await sendFriendRequest(userId, email);
+      setEmail("");
+      setError("");
       setIsSuccess(true);
       setShowModal(true);
-    } catch (err) {
+      onRequestSent();
+    } catch (error: any) {
+      setError(error.message || t("error_sending_request"));
       setIsSuccess(false);
       setShowModal(true);
     } finally {
@@ -48,24 +71,26 @@ const FriendRequestForm = () => {
           style={styles.image}
         />
         <ThemedText style={styles.title} bold>
-          {t("add_firends_title")}
+          {t("add_friends_title")}
         </ThemedText>
         <ThemedText style={styles.description}>
-          {t("add_firends_description")}
+          {t("add_friends_description")}
         </ThemedText>
         <TextInput
           style={styles.input}
-          placeholder={t("enter_user_id")}
-          value={userId}
-          onChangeText={setUserId}
+          placeholder={t("enter_friend_email")}
+          value={email}
+          onChangeText={setEmail}
           placeholderTextColor={Colors.PrimaryGray}
+          keyboardType="email-address"
+          autoCapitalize="none"
         />
         <TouchableOpacity
           style={[styles.button, isLoading && styles.buttonDisabled]}
           onPress={handleSendFriendRequest}
           disabled={isLoading}
         >
-          <ThemedText style={styles.buttonText}>
+          <ThemedText style={styles.buttonText} bold>
             {isLoading ? t("sending") : t("send_friend_request")}
           </ThemedText>
         </TouchableOpacity>

@@ -602,34 +602,146 @@ export interface FriendRequest {
   created_at: string;
 }
 
-export const sendFriendRequest = async (receiverId: string): Promise<FriendRequest> => {
+export const sendFriendRequest = async (senderId: string, email: string) => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error("You must be logged in to send friend requests");
+    const { data: userData, error: userError } = await supabase
+      .rpc('get_user_by_email', { user_email: email });
+
+    if (userError) {
+      throw new Error("Error finding user");
     }
 
-    const { data, error } = await supabase
+    if (!userData) {
+      throw new Error("User not found");
+    }
+
+    if (userData.id === senderId) {
+      throw new Error("Cannot send friend request to yourself");
+    }
+
+    const { data: existingRequest, error: requestError } = await supabase
+      .from("friend_requests")
+      .select("id, status")
+      .or(`and(sender_id.eq.${senderId},receiver_id.eq.${userData.id}),and(sender_id.eq.${userData.id},receiver_id.eq.${senderId})`)
+      .in("status", ["pending", "accepted"])
+      .single();
+
+    if (requestError && requestError.code !== 'PGRST116') {
+      throw new Error("Error checking existing request");
+    }
+
+    if (existingRequest) {
+      throw new Error(existingRequest.status === "accepted" 
+        ? "You are already friends with this user" 
+        : "Friend request already exists");
+    }
+
+    const { error: sendError } = await supabase
       .from("friend_requests")
       .insert([
         {
-          sender_id: user.id,
-          receiver_id: receiverId.trim(),
+          sender_id: senderId,
+          receiver_id: userData.id,
           status: "pending",
         },
-      ])
-      .select()
-      .single();
+      ]);
 
-    if (error) {
-      console.error("Error sending friend request:", error);
-      throw error;
+    if (sendError) {
+      throw new Error("Error sending friend request");
     }
 
-    return data;
+    return true;
   } catch (error) {
-    console.error("Error sending friend request:", error);
+    throw error;
+  }
+};
+
+interface Friend {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+}
+
+export const fetchFriends = async (userId: string): Promise<Friend[]> => {
+  try {
+    const { data: friends, error } = await supabase
+      .rpc('get_friends', { user_id: userId });
+
+    if (error) throw error;
+
+    return friends?.map((friend: Friend) => ({
+      id: friend.id,
+      display_name: friend.display_name || "User",
+      avatar_url: friend.avatar_url
+    })) || [];
+  } catch (error) {
+    console.error("Error fetching friends:", error);
+    throw error;
+  }
+};
+
+export const fetchPendingFriendRequests = async (userId: string) => {
+  try {
+    const { data: requestsData, error: requestsError } = await supabase
+      .from("friend_requests")
+      .select("id, sender_id, receiver_id")
+      .eq("receiver_id", userId)
+      .eq("status", "pending");
+
+    if (requestsError) throw requestsError;
+
+    if (requestsData && requestsData.length > 0) {
+      const requestsWithUsers = await Promise.all(
+        requestsData.map(async (request) => {
+          const { data: userData, error: userError } = await supabase
+            .rpc('get_friends', { user_id: request.sender_id });
+
+          if (userError) throw userError;
+
+          return {
+            ...request,
+            sender: userData?.[0] || null
+          };
+        })
+      );
+
+      return requestsWithUsers;
+    }
+
+    return [];
+  } catch (error) {
+    console.error("Error fetching pending friend requests:", error);
+    throw error;
+  }
+};
+
+export const handleFriendRequest = async (requestId: string, accept: boolean) => {
+  try {
+    const { error } = await supabase
+      .from("friend_requests")
+      .update({ status: accept ? "accepted" : "declined" })
+      .eq("id", requestId);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error("Error handling friend request:", error);
+    throw error;
+  }
+};
+
+export const removeFriend = async (userId: string, friendId: string) => {
+  try {
+    const { error } = await supabase
+      .from("friend_requests")
+      .update({ status: "declined" })
+      .or(`and(sender_id.eq.${userId},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${userId})`)
+      .eq("status", "accepted");
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error("Error removing friend:", error);
     throw error;
   }
 };

@@ -12,6 +12,7 @@ interface PrimaryButtonProps {
   title?: string;
   style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
+  disabled?: boolean;
 }
 
 const PrimaryButton = ({
@@ -19,13 +20,21 @@ const PrimaryButton = ({
   onPress,
   style,
   children,
+  disabled = false,
 }: PrimaryButtonProps) => {
   return (
-    <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.button, style, disabled && styles.disabled]}
+      onPress={onPress}
+      disabled={disabled}
+    >
       {children ? (
         children
       ) : (
-        <ThemedText style={styles.title} bold>
+        <ThemedText
+          style={[styles.title, disabled && styles.disabledText]}
+          bold
+        >
           {title}
         </ThemedText>
       )}
@@ -44,6 +53,12 @@ const styles = StyleSheet.create({
   title: {
     color: Colors.HotPink,
     textAlign: "center",
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  disabledText: {
+    color: Colors.PrimaryGray,
   },
 });
 

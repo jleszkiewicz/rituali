@@ -173,10 +173,19 @@
   "friends": "Znajomi",
   "sending": "Wysyłanie...",
   "send_friend_request": "Wyślij zaproszenie",
-  "add_firends_title": "Razem raźniej",
-  "add_firends_description": "Dodaj znajomych, aby wspólnie wykonywać wyzwania, śledzić ich postępy i dodawać sobie motywacji.",
+  "add_friends_title": "Razem raźniej",
+  "add_friends_description": "Dodaj znajomych, aby wspólnie wykonywać wyzwania, śledzić ich postępy i dodawać sobie motywacji.",
   "friend_request_sent": "Zaproszenie zostało wysłane",
   "friend_request_sent_description": "Zaproszenie zostało wysłane do użytkownika {{name}}",
-  "friend_request_error": "Nieprawidłowy ID użytkownika",
-  "friend_request_error_description": "Sprawdź, czy ID użytkownika jest poprawne i spróbuj ponownie."
+  "friend_request_error": "Nieprawidłowy e-mail",
+  "friend_request_error_description": "Sprawdź, czy e-mail jest poprawny i spróbuj ponownie.",
+  "name_placeholder": "Imię",
+  "enter_friend_email": "Wprowadź e-mail znajomego",
+  "friends_list": "Twoi znajomi",
+  "pending_requests": "Oczekujące zaproszenia",
+  "accept": "Zaakceptuj",
+  "decline": "Odrzuć",
+  "remove": "Usuń",
+  "remove_friend": "Usuń znajomego",
+  "remove_friend_confirmation": "Czy jesteś pewien, że chcesz usunąć tego znajomego?"
 }

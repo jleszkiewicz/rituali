@@ -24,10 +24,6 @@ const resources = {
   fr: { translation: frTranslation },
   es: { translation: esTranslation },
   pl: { translation: plTranslation},
-  start_date: "Start Date",
-  end_date: "End Date",
-  cancel: "Cancel",
-  submit: "Submit"
 };
 
 export const getLocale = (language?: string) => {

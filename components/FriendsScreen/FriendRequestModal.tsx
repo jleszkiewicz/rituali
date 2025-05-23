@@ -32,21 +32,16 @@ export const FriendRequestModal = ({
             }
             style={styles.modalImage}
           />
-          <ThemedText
-            style={[styles.modalTitle, isSuccess && styles.successTitle]}
-          >
+          <ThemedText style={styles.title} bold>
             {isSuccess ? t("friend_request_sent") : t("friend_request_error")}
           </ThemedText>
-          <ThemedText style={styles.modalText}>
+          <ThemedText style={styles.message}>
             {isSuccess
               ? t("friend_request_sent_description")
               : t("friend_request_error_description")}
           </ThemedText>
-          <TouchableOpacity
-            style={[styles.modalButton, isSuccess && styles.successButton]}
-            onPress={onClose}
-          >
-            <ThemedText style={styles.modalButtonText}>OK</ThemedText>
+          <TouchableOpacity style={styles.button} onPress={onClose}>
+            <ThemedText style={styles.buttonText}>{t("ok")}</ThemedText>
           </TouchableOpacity>
         </View>
       </View>
@@ -63,7 +58,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: Colors.White,
-    borderRadius: 20,
+    borderRadius: 10,
     padding: 20,
     width: "90%",
     alignItems: "center",
@@ -73,33 +68,28 @@ const styles = StyleSheet.create({
     height: 160,
     marginBottom: 10,
   },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: Colors.PrimaryRed,
+  title: {
+    fontSize: 20,
     marginBottom: 10,
     textAlign: "center",
   },
-  successTitle: {
-    color: Colors.HotPink,
-  },
-  modalText: {
+  message: {
     fontSize: 16,
-    color: Colors.Black,
     textAlign: "center",
     marginBottom: 20,
+    color: Colors.PrimaryGray,
   },
-  modalButton: {
-    backgroundColor: Colors.PrimaryRed,
-    paddingHorizontal: 30,
-    paddingVertical: 10,
-    borderRadius: 25,
-  },
-  successButton: {
+  button: {
     backgroundColor: Colors.HotPink,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: "center",
+    width: "40%",
   },
-  modalButtonText: {
+  buttonText: {
     color: Colors.White,
     fontSize: 16,
+    fontWeight: "600",
   },
 });
