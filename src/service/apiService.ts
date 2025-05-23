@@ -593,3 +593,43 @@ export const fetchProfilePhotoUrl = async (userId: string): Promise<string | nul
     return null;
   }
 };
+
+export interface FriendRequest {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  status: 'pending' | 'accepted' | 'declined';
+  created_at: string;
+}
+
+export const sendFriendRequest = async (receiverId: string): Promise<FriendRequest> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      throw new Error("You must be logged in to send friend requests");
+    }
+
+    const { data, error } = await supabase
+      .from("friend_requests")
+      .insert([
+        {
+          sender_id: user.id,
+          receiver_id: receiverId.trim(),
+          status: "pending",
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error sending friend request:", error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error sending friend request:", error);
+    throw error;
+  }
+};

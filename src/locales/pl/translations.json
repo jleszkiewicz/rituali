@@ -170,4 +170,13 @@
   "pick_photo": "Wybierz zdjęcie",
   "downloads": "Pobierania",
   "subscription": "Subskrypcja",
+  "friends": "Znajomi",
+  "sending": "Wysyłanie...",
+  "send_friend_request": "Wyślij zaproszenie",
+  "add_firends_title": "Razem raźniej",
+  "add_firends_description": "Dodaj znajomych, aby wspólnie wykonywać wyzwania, śledzić ich postępy i dodawać sobie motywacji.",
+  "friend_request_sent": "Zaproszenie zostało wysłane",
+  "friend_request_sent_description": "Zaproszenie zostało wysłane do użytkownika {{name}}",
+  "friend_request_error": "Nieprawidłowy ID użytkownika",
+  "friend_request_error_description": "Sprawdź, czy ID użytkownika jest poprawne i spróbuj ponownie."
 }

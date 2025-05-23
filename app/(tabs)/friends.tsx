@@ -1,12 +1,16 @@
 import { View } from "react-native";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
+import ScreenHeader from "@/components/Commons/ScreenHeader";
+import { t } from "@/src/service/translateService";
+import FriendRequestForm from "@/components/FriendsScreen/FriendRequestForm";
 
-const StatisticsScreen = () => {
+const FriendsScreen = () => {
   return (
     <ScreenWrapper showOfflineScreen={false}>
-      <View></View>
+      <ScreenHeader title={t("friends")} />
+      <FriendRequestForm />
     </ScreenWrapper>
   );
 };
 
-export default StatisticsScreen;
+export default FriendsScreen;
