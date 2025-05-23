@@ -118,23 +118,19 @@ const RecommendedChallengeCard = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.White,
+    backgroundColor: Colors.PrimaryGray,
     borderRadius: 10,
     padding: 20,
     width: "100%",
     justifyContent: "space-between",
     marginEnd: 30,
     minHeight: 350,
-    shadowColor: Colors.PrimaryGray,
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 2,
   },
   title: {
     fontSize: 26,
     lineHeight: 30,
     fontWeight: "bold",
-    color: Colors.PrimaryGray,
+    color: Colors.White,
   },
   duration: {
     fontSize: 26,
@@ -146,7 +142,7 @@ const styles = StyleSheet.create({
   },
   rule: {
     fontSize: 14,
-    color: Colors.PrimaryGray,
+    color: Colors.White,
     marginBottom: 5,
   },
   buttonContainer: {

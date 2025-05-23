@@ -30,11 +30,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    color: Colors.PrimaryGray,
+    color: Colors.White,
   },
   streak: {
     fontSize: 14,
-    color: Colors.PrimaryGray,
+    color: Colors.White,
   },
 });
 
