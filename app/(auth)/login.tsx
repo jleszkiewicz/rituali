@@ -9,7 +9,6 @@ import {
 import { useRouter } from "expo-router";
 import { useAuth } from "@/src/context/AuthContext";
 import { useErrorModal } from "@/src/context/ErrorModalContext";
-import { AppRoutes } from "@/src/routes/AppRoutes";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
 import { AuthRoutes } from "@/src/routes/AuthRoutes";
@@ -23,7 +22,7 @@ export default function LoginScreen() {
   const { showErrorModal, errorMessage, showError, hideError } =
     useErrorModal();
   const router = useRouter();
-  const [email, setEmail] = useState("joannaleszkiewicz25@gmail.com");
+  const [email, setEmail] = useState("asku1997@gmail.com");
   const [password, setPassword] = useState("Werginas1!");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({

@@ -7,10 +7,11 @@ import {
   Alert,
   Image,
   ScrollView,
+  TextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/src/context/AuthContext";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "@/components/Commons/ThemedText";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
@@ -19,7 +20,12 @@ import { t } from "@/src/service/translateService";
 import { Ionicons } from "@expo/vector-icons";
 import ConfirmationModal from "@/components/modals/DeleteAccountModal";
 import * as Notifications from "expo-notifications";
-import { selectUserId, selectEmail } from "@/src/store/userSlice";
+import {
+  selectUserId,
+  selectEmail,
+  selectDisplayName,
+  clearUserData,
+} from "@/src/store/userSlice";
 import { useImageUpload } from "@/src/hooks/useImageUpload";
 import {
   uploadProfilePhoto,
@@ -30,13 +36,17 @@ import PrimaryButton from "@/components/Commons/PrimaryButton";
 import ProfileOption from "@/components/ProfileScreen/ProfileOption";
 
 const ProfileScreen = () => {
-  const { logout, deleteAccount } = useAuth();
+  const { logout, deleteAccount, updateDisplayName } = useAuth();
   const router = useRouter();
   const userId = useSelector(selectUserId);
   const email = useSelector(selectEmail);
+  const displayName = useSelector(selectDisplayName);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState(displayName || "");
+  const dispatch = useDispatch();
   const { pickImage, isLoading: isUploading } = useImageUpload({
     onError: (error) => Alert.alert(t("error"), error.message),
   });
@@ -62,18 +72,34 @@ const ProfileScreen = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      dispatch(clearUserData());
       router.replace("/(auth)/login");
     } catch (error) {
-      console.error(error);
+      console.error("Error signing out:", error);
     }
   };
 
   const handleDeleteAccount = async () => {
     try {
       await deleteAccount();
+      dispatch(clearUserData());
       router.replace("/(auth)/login");
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleUpdateName = async () => {
+    if (!newName.trim()) {
+      Alert.alert(t("error"), t("name_required"));
+      return;
+    }
+
+    const result = await updateDisplayName(newName.trim());
+    if (result.success) {
+      setIsEditingName(false);
+    } else {
+      Alert.alert(t("error"), result.error || t("update_name_error"));
     }
   };
 
@@ -121,9 +147,47 @@ const ProfileScreen = () => {
             </TouchableOpacity>
           </View>
           <View style={styles.profileInfo}>
-            <ThemedText style={styles.profileName} bold>
-              {email}
-            </ThemedText>
+            {isEditingName ? (
+              <View style={styles.nameEditContainer}>
+                <TextInput
+                  style={styles.nameInput}
+                  value={newName}
+                  onChangeText={setNewName}
+                  placeholder={t("name_placeholder")}
+                  placeholderTextColor={Colors.PrimaryGray}
+                />
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={handleUpdateName}
+                >
+                  <Ionicons name="checkmark" size={24} color={Colors.White} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => {
+                    setIsEditingName(false);
+                    setNewName(displayName || "");
+                  }}
+                >
+                  <Ionicons name="close" size={24} color={Colors.White} />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.nameContainer}
+                onPress={() => setIsEditingName(true)}
+              >
+                <ThemedText style={styles.profileName} bold>
+                  {displayName || "User"}
+                </ThemedText>
+                <Ionicons
+                  name="create-outline"
+                  size={24}
+                  color={Colors.PrimaryGray}
+                  style={styles.editIcon}
+                />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
         <View style={styles.optionsContainer}>
@@ -337,6 +401,41 @@ const styles = StyleSheet.create({
   leftSwitchConatiner: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  nameContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  editIcon: {
+    marginLeft: 4,
+    marginBottom: 6,
+  },
+  nameEditContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  nameInput: {
+    backgroundColor: Colors.White,
+    borderColor: Colors.PrimaryPink,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 20,
+    color: Colors.Black,
+    minWidth: 150,
+  },
+  saveButton: {
+    backgroundColor: Colors.HotPink,
+    borderRadius: 8,
+    padding: 8,
+  },
+  cancelButton: {
+    backgroundColor: Colors.PrimaryRed,
+    borderRadius: 8,
+    padding: 8,
   },
 });
 

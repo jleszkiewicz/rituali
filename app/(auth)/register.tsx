@@ -23,12 +23,14 @@ export default function RegisterScreen() {
   const { showErrorModal, errorMessage, hideError, showError } =
     useErrorModal();
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -36,10 +38,15 @@ export default function RegisterScreen() {
 
   const validateForm = () => {
     const newErrors = {
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
     };
+
+    if (!name.trim()) {
+      newErrors.name = t("name_required");
+    }
 
     if (!email.trim()) {
       newErrors.email = t("email_required");
@@ -61,13 +68,16 @@ export default function RegisterScreen() {
 
     setErrors(newErrors);
     return (
-      !newErrors.email && !newErrors.password && !newErrors.confirmPassword
+      !newErrors.name &&
+      !newErrors.email &&
+      !newErrors.password &&
+      !newErrors.confirmPassword
     );
   };
 
   const handleRegister = async () => {
     if (validateForm()) {
-      const result = await register(email, password);
+      const result = await register(email, password, name);
       if (result.success) {
         router.replace(AppRoutes.Home);
       } else if (result.error) {
@@ -83,6 +93,21 @@ export default function RegisterScreen() {
           source={require("@/assets/ilustrations/register.png")}
           style={styles.image}
         />
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={[styles.input, errors.name ? styles.inputError : null]}
+            placeholder={t("name_placeholder")}
+            value={name}
+            onChangeText={(text) => {
+              setName(text);
+              setErrors((prev) => ({ ...prev, name: "" }));
+            }}
+            placeholderTextColor={Colors.PrimaryGray}
+          />
+          {errors.name ? (
+            <ThemedText style={styles.errorText}>{errors.name}</ThemedText>
+          ) : null}
+        </View>
         <View style={styles.inputContainer}>
           <TextInput
             style={[styles.input, errors.email ? styles.inputError : null]}

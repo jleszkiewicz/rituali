@@ -22,10 +22,14 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<void>;
   register: (
     email: string,
-    password: string
+    password: string,
+    name: string
   ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
+  updateDisplayName: (
+    name: string
+  ) => Promise<{ success: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,10 +41,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { showError } = useErrorModal();
 
   const setUserDataFromAuth = (user: any) => {
+    console.log("User metadata:", user.user_metadata);
+    const displayName =
+      user.user_metadata?.display_name ||
+      user.user_metadata?.name ||
+      user.user_metadata?.full_name ||
+      null;
+    console.log("Display name from metadata:", displayName);
     dispatch(
       setUserData({
         userId: user.id,
         email: user.email || "",
+        displayName: displayName,
       })
     );
     setIsAuthenticated(true);
@@ -132,15 +144,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (
     email: string,
-    password: string
+    password: string,
+    name: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
+      console.log("Registering with name:", name);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            display_name: name,
+          },
+        },
       });
 
       if (error) {
+        console.error("Registration error:", error);
         if (error.message.includes("already registered")) {
           return { success: false, error: "Email already registered" };
         }
@@ -148,12 +168,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (data.user) {
+        console.log("Registration successful, user data:", data.user);
         setUserDataFromAuth(data.user);
         return { success: true };
       }
 
       return { success: false, error: "Registration failed" };
     } catch (error) {
+      console.error("Registration exception:", error);
       return { success: false, error: "Registration failed" };
     }
   };
@@ -180,6 +202,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateDisplayName = async (
+    name: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.updateUser({
+        data: { display_name: name },
+      });
+
+      if (error) {
+        console.error("Error updating display name:", error);
+        return { success: false, error: error.message };
+      }
+
+      if (user) {
+        setUserDataFromAuth(user);
+        return { success: true };
+      }
+
+      return { success: false, error: "Failed to update display name" };
+    } catch (error) {
+      console.error("Error updating display name:", error);
+      return { success: false, error: "Failed to update display name" };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -190,6 +240,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         register,
         logout,
         deleteAccount,
+        updateDisplayName,
       }}
     >
       {children}

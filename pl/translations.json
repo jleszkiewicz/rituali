@@ -13,5 +13,6 @@
   "before_photo": "Zdjęcie przed",
   "after_photo": "Zdjęcie po",
   "add_habits_to_challenge": "Dodaj naywki do wyzwania",
-  "enter_user_id": "Wprowadź ID użytkownika"
+  "enter_user_id": "Wprowadź ID użytkownika",
+  "name_placeholder": "Imię"
 } 
