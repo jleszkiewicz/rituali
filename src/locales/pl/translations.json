@@ -187,5 +187,13 @@
   "decline": "Odrzuć",
   "remove": "Usuń",
   "remove_friend": "Usuń znajomego",
-  "remove_friend_confirmation": "Czy jesteś pewien, że chcesz usunąć tego znajomego?"
+  "remove_friend_confirmation": "Czy jesteś pewien, że chcesz usunąć tego znajomego?",
+  "poke_sent_success": "Zaczepienie zostało wysłane",
+  "poke_limit_reached": "Osiągnięto limit zaczepień",
+  "unknown_error": "Wystąpił nieznany błąd",
+  "friend_removed_success": "Znajomy został usunięty",
+  "remove_friend_failed": "Nie udało się usunąć znajomego",
+  "poke_sent_failed": "Nie udało się wysłać zaczepienia",
+  "poke_limit_reached_description": "Możesz zaczepić znajomego tylko raz na dzień.",
+  "poke": "Zaczep"
 }

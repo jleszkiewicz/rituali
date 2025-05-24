@@ -201,5 +201,13 @@
   "decline": "Decline",
   "remove": "Remove",
   "remove_friend": "Remove friend",
-  "remove_friend_confirmation": "Are you sure you want to remove this friend?"
+  "remove_friend_confirmation": "Are you sure you want to remove this friend?",
+  "poke_sent_success": "Poke was sent, let's hope that's the motivation they need",
+  "poke_limit_reached": "Poke limit reached",
+  "unknown_error": "Unknown error",
+  "friend_removed_success": "Friend removed",
+  "remove_friend_failed": "Failed to remove friend",
+  "poke_sent_failed": "Failed to send poke",
+  "poke_limit_reached_description": "You can only poke a friend once a day.",
+  "poke": "Poke"
 }

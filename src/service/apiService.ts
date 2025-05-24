@@ -434,10 +434,10 @@ export const uploadAfterPhoto = async (challengeId: string, photoUri: string) =>
       .from("after")
       .createSignedUrl(fileName, 3600);
 
-    if (signedUrlError || !data || !data.signedUrl) {
+    if (signedUrlError || !signedUrlData || !signedUrlData.signedUrl) {
       throw signedUrlError || new Error("No signed URL returned");
     }
-    return data.signedUrl;
+    return signedUrlData.signedUrl;
   } catch (error) {
     console.error("Error uploading after photo:", error);
     throw error;
@@ -462,11 +462,11 @@ export const uploadBeforePhoto = async (challengeId: string, photoUri: string): 
       throw uploadError;
     }
 
-    const { data: { signedUrl }, error: signedUrlError } = await supabase.storage
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
       .from("before")
       .createSignedUrl(fileName, 3600);
 
-    if (signedUrlError || !data || !data.signedUrl) {
+    if (signedUrlError || !signedUrlData || !signedUrlData.signedUrl) {
       throw signedUrlError || new Error("No signed URL returned");
     }
 
@@ -479,7 +479,7 @@ export const uploadBeforePhoto = async (challengeId: string, photoUri: string): 
       throw updateError;
     }
 
-    return signedUrl;
+    return signedUrlData.signedUrl;
   } catch (error) {
     console.error("Error uploading before photo:", error);
     throw error;
@@ -525,7 +525,10 @@ export const deletePhoto = async (challengeId: string, photoType: 'before' | 'af
       throw new Error("Challenge not found");
     }
 
-    const photoUri = challenge[`${photoType}_photo_uri`];
+    const photoUri = photoType === 'before' 
+      ? (challenge as { before_photo_uri: string }).before_photo_uri 
+      : (challenge as { after_photo_uri: string }).after_photo_uri;
+
     if (!photoUri) {
       return;
     }
@@ -572,6 +575,18 @@ export const uploadProfilePhoto = async (userId: string, photoUri: string): Prom
     if (signedUrlError || !data || !data.signedUrl) {
       throw signedUrlError || new Error("No signed URL returned");
     }
+
+    // Update avatar_url using database function
+    const { error: updateError } = await supabase
+      .rpc('update_user_avatar', { 
+        user_id: userId, 
+        avatar_url: data.signedUrl 
+      });
+
+    if (updateError) {
+      throw updateError;
+    }
+
     return data.signedUrl;
   } catch (error) {
     console.error("Error uploading profile photo:", error);
@@ -660,6 +675,7 @@ interface Friend {
   id: string;
   display_name: string | null;
   avatar_url: string | null;
+  completion_percentage: number;
 }
 
 export const fetchFriends = async (userId: string): Promise<Friend[]> => {
@@ -672,7 +688,8 @@ export const fetchFriends = async (userId: string): Promise<Friend[]> => {
     return friends?.map((friend: Friend) => ({
       id: friend.id,
       display_name: friend.display_name || "User",
-      avatar_url: friend.avatar_url
+      avatar_url: friend.avatar_url,
+      completion_percentage: friend.completion_percentage,
     })) || [];
   } catch (error) {
     console.error("Error fetching friends:", error);
@@ -744,4 +761,72 @@ export const removeFriend = async (userId: string, friendId: string) => {
     console.error("Error removing friend:", error);
     throw error;
   }
+};
+
+export const canSendPoke = async (senderId: string, receiverId: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .rpc('can_send_poke', {
+        p_sender_id: senderId,
+        p_receiver_id: receiverId
+      });
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error checking if can send poke:", error);
+    return false;
+  }
+};
+
+export const sendPoke = async (senderId: string, receiverId: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .rpc('send_poke', {
+        p_sender_id: senderId,
+        p_receiver_id: receiverId
+      });
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error sending poke:", error);
+    return false;
+  }
+};
+
+export const subscribeToPokeNotifications = (userId: string, onPokeReceived: (senderName: string) => void) => {
+  const channel = supabase
+    .channel('poke_notifications')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'friend_pokes',
+        filter: `receiver_id=eq.${userId}`
+      },
+      (payload: { new: { sender_id: string } }) => {
+        try {
+          // Fetch sender's name
+          supabase
+            .from('user_profiles')
+            .select('name')
+            .eq('id', payload.new.sender_id)
+            .single()
+            .then(({ data }) => {
+              if (data?.name) {
+                onPokeReceived(data.name);
+              }
+            });
+        } catch (error) {
+          console.error('Error handling poke notification:', error);
+        }
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
 };

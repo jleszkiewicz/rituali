@@ -15,6 +15,7 @@ import {
   fetchPendingFriendRequests,
   handleFriendRequest,
 } from "@/src/service/apiService";
+import ConditionalRender from "../Commons/ConditionalRenderer";
 
 interface User {
   id: string;
@@ -120,17 +121,19 @@ const PendingFriendRequests = ({
   if (requests.length === 0) return null;
 
   return (
-    <View style={styles.container}>
-      <ThemedText style={styles.sectionTitle} bold>
-        {t("pending_requests")}
-      </ThemedText>
-      <FlatList
-        data={requests}
-        renderItem={renderRequest}
-        keyExtractor={(item) => item.id}
-        scrollEnabled={false}
-      />
-    </View>
+    <ConditionalRender condition={requests.length > 0}>
+      <View style={styles.container}>
+        <ThemedText style={styles.sectionTitle} bold>
+          {t("pending_requests")}
+        </ThemedText>
+        <FlatList
+          data={requests}
+          renderItem={renderRequest}
+          keyExtractor={(item) => item.id}
+          scrollEnabled={false}
+        />
+      </View>
+    </ConditionalRender>
   );
 };
 

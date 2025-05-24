@@ -1,23 +1,19 @@
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  Image,
-  TouchableOpacity,
-} from "react-native";
-import { Colors } from "@/constants/Colors";
-import { ThemedText } from "@/components/Commons/ThemedText";
-import { t } from "@/src/service/translateService";
+import { View, StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
-import { removeFriend } from "@/src/service/apiService";
+import { removeFriend, canSendPoke, sendPoke } from "@/src/service/apiService";
+import { t } from "@/src/service/translateService";
+import { FriendCard } from "./FriendCard";
+import { Colors } from "@/constants/Colors";
 import { RemoveFriendModal } from "./RemoveFriendModal";
+import { ThemedText } from "../Commons/ThemedText";
 
 interface Friend {
   id: string;
   display_name: string | null;
   avatar_url: string | null;
+  completion_percentage: number;
 }
 
 interface FriendsListProps {
@@ -25,132 +21,147 @@ interface FriendsListProps {
   onFriendRemoved: () => void;
 }
 
-const FriendsList = ({ friends, onFriendRemoved }: FriendsListProps) => {
+const FriendsList: React.FC<FriendsListProps> = ({
+  friends,
+  onFriendRemoved,
+}) => {
   const userId = useSelector(selectUserId);
-  const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
-  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [isPoking, setIsPoking] = useState<string | null>(null);
+  const [removeModalVisible, setRemoveModalVisible] = useState(false);
+  const [friendToRemove, setFriendToRemove] = useState<string | null>(null);
 
-  const handleRemoveFriend = async (friendId: string) => {
-    if (!userId) return;
-    setSelectedFriendId(friendId);
-    setShowRemoveModal(true);
-  };
-
-  const handleConfirmRemove = async () => {
-    if (!userId || !selectedFriendId) return;
+  const handlePoke = async (friendId: string): Promise<boolean> => {
+    if (!userId) return false;
 
     try {
-      await removeFriend(userId, selectedFriendId);
+      setIsPoking(friendId);
+      const canPoke = await canSendPoke(userId, friendId);
+
+      if (!canPoke) {
+        return false;
+      }
+
+      const success = await sendPoke(userId, friendId);
+      return success;
+    } catch (error) {
+      console.error("Error sending poke:", error);
+      return false;
+    } finally {
+      setIsPoking(null);
+    }
+  };
+
+  const handleRemove = (friendId: string) => {
+    if (!userId) return;
+    setFriendToRemove(friendId);
+    setRemoveModalVisible(true);
+  };
+
+  const confirmRemove = async () => {
+    if (!userId || !friendToRemove) return;
+
+    try {
+      await removeFriend(userId, friendToRemove);
       onFriendRemoved();
     } catch (error) {
       console.error("Error removing friend:", error);
     } finally {
-      setShowRemoveModal(false);
-      setSelectedFriendId(null);
+      setRemoveModalVisible(false);
+      setFriendToRemove(null);
     }
   };
 
-  const handleCancelRemove = () => {
-    setShowRemoveModal(false);
-    setSelectedFriendId(null);
-  };
-
-  const renderFriend = ({ item }: { item: Friend }) => (
-    <View style={styles.friendItem}>
-      <View style={styles.userInfo}>
-        <Image
-          source={
-            item.avatar_url
-              ? { uri: item.avatar_url }
-              : require("@/assets/ilustrations/avatar.png")
-          }
-          style={styles.avatar}
-        />
-        <ThemedText style={styles.userName}>
-          {item.display_name || "User"}
-        </ThemedText>
-      </View>
-      <TouchableOpacity
-        style={styles.removeButton}
-        onPress={() => handleRemoveFriend(item.id)}
-      >
-        <ThemedText style={styles.removeButtonText} bold>
-          {t("remove")}
-        </ThemedText>
-      </TouchableOpacity>
-    </View>
-  );
-
-  if (friends.length === 0) return null;
+  if (friends.length === 0) {
+    return null;
+  }
 
   return (
-    <View style={styles.container}>
-      <ThemedText style={styles.sectionTitle} bold>
-        {t("friends")}
+    <View>
+      <ThemedText style={styles.title} bold>
+        {t("friends_list")}
       </ThemedText>
-      <FlatList
-        data={friends}
-        renderItem={renderFriend}
-        keyExtractor={(item) => item.id}
-        scrollEnabled={false}
-      />
+      {friends.map((friend) => (
+        <FriendCard
+          key={friend.id}
+          friend={friend}
+          onPoke={() => handlePoke(friend.id)}
+          onRemove={() => handleRemove(friend.id)}
+        />
+      ))}
+
       <RemoveFriendModal
-        visible={showRemoveModal}
-        onConfirm={handleConfirmRemove}
-        onCancel={handleCancelRemove}
+        visible={removeModalVisible}
+        onConfirm={confirmRemove}
+        onCancel={() => setRemoveModalVisible(false)}
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  modalOverlay: {
     flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  sectionTitle: {
-    fontSize: 18,
-    marginBottom: 12,
-    color: Colors.PrimaryGray,
-  },
-  friendItem: {
+  modalContent: {
     backgroundColor: Colors.White,
-    padding: 12,
     borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: Colors.Black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    padding: 20,
+    width: "80%",
+    alignItems: "center",
+  },
+  modalIcon: {
+    width: 120,
+    height: 120,
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  modalMessage: {
+    fontSize: 14,
+    color: Colors.PrimaryGray,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  modalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    width: "100%",
   },
-  userInfo: {
-    flexDirection: "row",
-    alignItems: "center",
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginHorizontal: 8,
   },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-  },
-  userName: {
-    fontSize: 16,
-    color: Colors.PrimaryGray,
+  cancelButton: {
+    backgroundColor: Colors.LightGray,
   },
   removeButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: Colors.White,
-    borderWidth: 1,
-    borderColor: Colors.HotPink,
+    backgroundColor: Colors.PrimaryRed,
+  },
+  cancelButtonText: {
+    color: Colors.PrimaryGray,
+    fontSize: 16,
+    fontWeight: "500",
+    textAlign: "center",
   },
   removeButtonText: {
-    color: Colors.HotPink,
-    fontSize: 14,
+    color: Colors.White,
+    fontSize: 16,
+    fontWeight: "500",
+    textAlign: "center",
+  },
+  title: {
+    marginTop: 20,
+    fontSize: 18,
+    color: Colors.PrimaryGray,
   },
 });
 

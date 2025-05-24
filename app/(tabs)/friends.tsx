@@ -7,21 +7,29 @@ import ScreenHeader from "@/components/Commons/ScreenHeader";
 import { t } from "@/src/service/translateService";
 import { useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
-import FriendRequestForm from "@/components/FriendsScreen/FriendRequestForm";
-import FriendsList from "@/components/FriendsScreen/FriendsList";
-import PendingFriendRequests from "@/components/FriendsScreen/PendingFriendRequests";
 import { fetchFriends } from "@/src/service/apiService";
+import {
+  configureNotifications,
+  subscribeToPokeNotifications,
+  sendPokeNotification,
+} from "@/src/service/notificationsService";
+import FriendRequestForm from "@/components/FriendsScreen/FriendRequestForm";
+import PendingFriendRequests from "@/components/FriendsScreen/PendingFriendRequests";
+import FriendsList from "@/components/FriendsScreen/FriendsList";
+import ConditionalRenderer from "@/components/Commons/ConditionalRenderer";
 
 interface Friend {
   id: string;
   display_name: string | null;
   avatar_url: string | null;
+  completion_percentage: number;
 }
 
 const FriendsScreen = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const userId = useSelector(selectUserId);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchFriendsList = async () => {
     if (!userId) return;
@@ -41,6 +49,29 @@ const FriendsScreen = () => {
       fetchFriendsList();
     }
   }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    // Konfiguracja powiadomień
+    configureNotifications();
+
+    // Nasłuchiwanie na poke'ów
+    const unsubscribe = subscribeToPokeNotifications(
+      userId,
+      sendPokeNotification
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [userId]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchFriendsList();
+    setRefreshing(false);
+  };
 
   const handleFriendRemoved = () => {
     fetchFriendsList();
@@ -63,12 +94,16 @@ const FriendsScreen = () => {
       <ScrollView
         style={styles.container}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <FriendRequestForm onRequestSent={fetchFriendsList} />
-        <PendingFriendRequests onRequestHandled={fetchFriendsList} />
-        <FriendsList friends={friends} onFriendRemoved={handleFriendRemoved} />
+        <FriendRequestForm onRequestSent={handleRefresh} />
+        <PendingFriendRequests onRequestHandled={handleRefresh} />
+        <ConditionalRenderer condition={friends.length > 0}>
+          <FriendsList
+            friends={friends}
+            onFriendRemoved={handleFriendRemoved}
+          />
+        </ConditionalRenderer>
       </ScrollView>
     </ScreenWrapper>
   );
@@ -77,9 +112,6 @@ const FriendsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
   },
   loadingContainer: {
     flex: 1,
