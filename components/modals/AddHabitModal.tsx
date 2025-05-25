@@ -167,19 +167,23 @@ const AddHabitModal = ({
   if (!isVisible) return null;
 
   return (
-    <Pressable style={styles.container} onPress={onClose}>
+    <Pressable style={styles.container} onPress={handleCloseModal}>
       <Pressable style={styles.content} onPress={(e) => e.stopPropagation()}>
         <ModalHeader
           title={t("add_habit")}
-          onClose={onClose}
+          onClose={handleCloseModal}
           color={Colors.PrimaryGray}
         />
+
         <ScrollView
-          showsVerticalScrollIndicator={false}
+          style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
           <View style={styles.inputContainer}>
-            <ThemedText style={styles.label}>{t("habit_name")}</ThemedText>
+            <ThemedText style={styles.label} bold>
+              {t("habit_name")}
+            </ThemedText>
             <TextInput
               style={[styles.input, errors.name ? styles.inputError : null]}
               value={habitData.name}
@@ -282,9 +286,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     width: "100%",
     maxHeight: "90%",
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
   inputContainer: {
     marginBottom: 20,
@@ -315,30 +323,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
   },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderWidth: 2,
-    borderColor: Colors.HotPink,
-    borderRadius: 4,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   challengesList: {
     marginBottom: 20,
-  },
-  challengeItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.LightGray,
-  },
-  challengeItemText: {
-    fontSize: 16,
-    color: Colors.PrimaryGray,
-  },
-  selectedChallengeText: {
-    color: Colors.HotPink,
-    fontWeight: "bold",
   },
 });
 

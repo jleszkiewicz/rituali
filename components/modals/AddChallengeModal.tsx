@@ -180,7 +180,11 @@ export default function AddChallengeModal({
           color={Colors.PrimaryGray}
         />
 
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           <ChallengeNameInput
             value={challengeData.name}
             error={errors.name}
@@ -261,6 +265,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     width: "100%",
     maxHeight: "90%",
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
   },
   photoSection: {
     marginTop: 20,
