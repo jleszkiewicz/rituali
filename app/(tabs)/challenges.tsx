@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
 import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
@@ -11,14 +11,15 @@ import {
   getActiveChallenges,
   getCompletedChallenges,
 } from "@/src/service/apiService";
+import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { RecommendedChallengeData } from "@/components/AddHabitModal/types";
-import { Colors } from "@/constants/Colors";
 import RecommendedChallengeCard from "@/components/ChallengesScreen/RecommendedChallenge";
 import PageIndicator from "@/components/Commons/PageIndicator";
 import Carousel from "react-native-reanimated-carousel";
 import { t } from "@/src/service/translateService";
 import ConditionalRenderer from "@/components/Commons/ConditionalRenderer";
 import Loading from "@/components/Commons/Loading";
+import PendingChallengeInvitations from "@/components/ChallengesScreen/PendingChallengeInvitations";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const PAGE_WIDTH = SCREEN_WIDTH - 40;
@@ -27,38 +28,48 @@ const ITEM_MARGIN = 10;
 const ChallengesScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
-  const challenges = useSelector(
-    (state: RootState) => state.challenges.challenges
-  );
+  const [activeChallenges, setActiveChallenges] = useState<ChallengeData[]>([]);
+  const [completedChallenges, setCompletedChallenges] = useState<
+    ChallengeData[]
+  >([]);
   const [recommendedChallenges, setRecommendedChallenges] = useState<
     RecommendedChallengeData[]
   >([]);
   const [yourCurrentPage, setYourCurrentPage] = useState(0);
   const [completedCurrentPage, setCompletedCurrentPage] = useState(0);
   const [recommendedCurrentPage, setRecommendedCurrentPage] = useState(0);
+  const userId = useSelector((state: RootState) => state.user.userId);
 
-  const activeChallenges = getActiveChallenges(challenges);
-  const completedChallenges = getCompletedChallenges(challenges);
+  const loadData = useCallback(async () => {
+    if (!userId) return;
+
+    try {
+      setIsLoading(true);
+
+      const [
+        activeChallengesData,
+        recommendedChallengesData,
+        completedChallengesData,
+      ] = await Promise.all([
+        getActiveChallenges(userId),
+        fetchRecommendedChallenges(),
+        getCompletedChallenges(userId),
+      ]);
+
+      setActiveChallenges(activeChallengesData);
+      setRecommendedChallenges(recommendedChallengesData);
+      setCompletedChallenges(completedChallengesData);
+      setIsDataLoaded(true);
+    } catch (error) {
+      console.error("Error loading challenges:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId]);
 
   useEffect(() => {
-    const loadChallenges = async () => {
-      if (!isDataLoaded) {
-        try {
-          setIsLoading(true);
-          const recommendedChallengesData = await fetchRecommendedChallenges();
-
-          setRecommendedChallenges(recommendedChallengesData);
-          setIsDataLoaded(true);
-        } catch (err) {
-          console.error("Error loading recommended challenges:", err);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadChallenges();
-  }, []);
+    loadData();
+  }, [loadData]);
 
   const renderContent = () => {
     if (
@@ -73,6 +84,8 @@ const ChallengesScreen = () => {
     return (
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
+          <PendingChallengeInvitations onInvitationHandled={loadData} />
+
           <ConditionalRenderer condition={activeChallenges.length > 0}>
             <View style={styles.section}>
               <ThemedText style={styles.sectionTitle}>
@@ -87,7 +100,7 @@ const ChallengesScreen = () => {
                   onSnapToItem={setYourCurrentPage}
                   style={{ paddingHorizontal: ITEM_MARGIN }}
                   renderItem={({ item }) => (
-                    <View style={{ width: PAGE_WIDTH }}>
+                    <View style={{ width: PAGE_WIDTH - ITEM_MARGIN }}>
                       <YourChallengeCard challenge={item} />
                     </View>
                   )}
@@ -115,7 +128,7 @@ const ChallengesScreen = () => {
                   onSnapToItem={setCompletedCurrentPage}
                   style={{ paddingHorizontal: ITEM_MARGIN }}
                   renderItem={({ item }) => (
-                    <View style={{ width: PAGE_WIDTH }}>
+                    <View style={{ width: PAGE_WIDTH - ITEM_MARGIN }}>
                       <YourChallengeCard challenge={item} />
                     </View>
                   )}

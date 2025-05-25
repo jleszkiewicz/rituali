@@ -1,57 +1,53 @@
 import * as Notifications from 'expo-notifications';
 import { supabase } from './supabaseClient';
-import { t } from './translateService';
 
-// Konfiguracja powiadomień
-export const configureNotifications = () => {
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-    }),
-  });
-};
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
-// Funkcja do wysyłania powiadomienia o poke'u
-export const sendPokeNotification = (senderName: string) => {
-  Notifications.scheduleNotificationAsync({
+export const sendPokeNotification = async (senderName: string) => {
+  await Notifications.scheduleNotificationAsync({
     content: {
-      title: t("poke_received_title"),
-      body: t("poke_received_message").replace("{name}", senderName),
-      sound: true,
+      title: 'New Poke!',
+      body: `${senderName} poked you!`,
     },
     trigger: null,
   });
 };
 
-// Funkcja do nasłuchiwania na poke'ów
-export const subscribeToPokeNotifications = (userId: string, onPokeReceived: (senderName: string) => void) => {
+interface PokePayload {
+  new: {
+    sender_id: string;
+  };
+}
+
+
+export const subscribeToPokeNotifications = (userId: string) => {
   const channel = supabase
     .channel('poke_notifications')
+    // @ts-ignore - Supabase types are not properly defined for postgres_changes
     .on(
-      'postgres_changes' as any,
+      'postgres_changes',
       {
         event: '*',
         schema: 'public',
         table: 'friend_pokes',
-        filter: `receiver_id=eq.${userId}`
+        filter: `receiver_id=eq.${userId}`,
       },
-      (payload: { new: { sender_id: string } }) => {
-        try {
-          // Pobierz imię wysyłającego
-          supabase
-            .from('user_profiles')
-            .select('name')
-            .eq('id', payload.new.sender_id)
-            .single()
-            .then(({ data }) => {
-              if (data?.name) {
-                onPokeReceived(data.name);
-              }
-            });
-        } catch (error) {
-          console.error('Error handling poke notification:', error);
+      async (payload: PokePayload) => {
+        const senderId = payload.new.sender_id;
+        const { data: senderData } = await supabase
+          .from('user_profiles')
+          .select('name')
+          .eq('id', senderId)
+          .single();
+
+        if (senderData?.name) {
+          await sendPokeNotification(senderData.name);
         }
       }
     )

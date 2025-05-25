@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { Colors } from "@/constants/Colors";
 import { ThemedText } from "@/components/Commons/ThemedText";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
@@ -8,11 +7,7 @@ import { t } from "@/src/service/translateService";
 import { useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import { fetchFriends } from "@/src/service/apiService";
-import {
-  configureNotifications,
-  subscribeToPokeNotifications,
-  sendPokeNotification,
-} from "@/src/service/notificationsService";
+import { subscribeToPokeNotifications } from "@/src/service/notificationsService";
 import FriendRequestForm from "@/components/FriendsScreen/FriendRequestForm";
 import PendingFriendRequests from "@/components/FriendsScreen/PendingFriendRequests";
 import FriendsList from "@/components/FriendsScreen/FriendsList";
@@ -53,14 +48,7 @@ const FriendsScreen = () => {
   useEffect(() => {
     if (!userId) return;
 
-    // Konfiguracja powiadomień
-    configureNotifications();
-
-    // Nasłuchiwanie na poke'ów
-    const unsubscribe = subscribeToPokeNotifications(
-      userId,
-      sendPokeNotification
-    );
+    const unsubscribe = subscribeToPokeNotifications(userId);
 
     return () => {
       unsubscribe();

@@ -17,7 +17,6 @@ import {
 import { selectChallenges, setChallenges } from "@/src/store/challengesSlice";
 import {
   fetchUserHabits,
-  fetchUserChallenges,
   fetchCompletedChallenges,
 } from "@/src/service/apiService";
 import type { CompletedChallenge } from "@/src/service/apiService";
@@ -39,10 +38,10 @@ import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
 import { Ionicons } from "@expo/vector-icons";
 import HabitCard from "@/components/HomeScreen/HabitCard";
 import { CompletedChallengeCard } from "@/components/HomeScreen/CompletedChallengeCard";
-import { useCompletedChallenges } from "@/src/hooks/useCompletedChallenges";
 import { selectViewedChallengeIds } from "@/src/store/viewedChallengesSlice";
 import DeleteHabitModal from "@/components/modals/DeleteHabitModal";
 import EditHabitModal from "@/components/modals/EditHabitModal";
+import { getActiveChallenges } from "@/src/service/apiService";
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
@@ -79,7 +78,7 @@ export default function HomeScreen() {
       const [habitsData, challengesData, completedChallengesData] =
         await Promise.all([
           fetchUserHabits(userId),
-          fetchUserChallenges(userId),
+          getActiveChallenges(userId),
           fetchCompletedChallenges(),
         ]);
 
@@ -102,7 +101,7 @@ export default function HomeScreen() {
         const [habitsData, challengesData, completedChallengesData] =
           await Promise.all([
             fetchUserHabits(userId),
-            fetchUserChallenges(userId),
+            getActiveChallenges(userId),
             fetchCompletedChallenges(),
           ]);
 

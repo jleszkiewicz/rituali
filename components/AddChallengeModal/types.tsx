@@ -4,5 +4,7 @@ export type ChallengeData = {
   startDate: string;
   endDate: string;
   habits: string[];
-  beforePhotoUri: string | null;
+  beforePhotoUri?: string;
+  afterPhotoUri?: string;
+  participants: string[];
 };

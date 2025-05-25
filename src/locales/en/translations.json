@@ -209,5 +209,20 @@
   "remove_friend_failed": "Failed to remove friend",
   "poke_sent_failed": "Failed to send poke",
   "poke_limit_reached_description": "You can only poke a friend once a day.",
-  "poke": "Poke"
+  "poke": "Poke",
+  "selected_friends": "Selected friends",
+  "challenge_created": "Challenge created",
+  "challenge_created_with_buddy": "Challenge created and sent to buddy",
+  "waiting_for_buddy": "Waiting for buddy",
+  "challenge_with_buddy": "Challenge with buddy",
+  "select_buddy": "Select buddy",
+  "no_friends": "No friends yet",
+  "challenge_created_with_invitations": "Challenge created and invitations sent",
+  "challenge_invitation": "Challenge invitation",
+  "challenge_invitation_from": "{{name}} invites you to a challenge",
+  "challenge_dates": "From {{start}} to {{end}}",
+  "reject": "Reject",
+  "pending_invitations": "Pending challenge invitations",
+  "from": "From",
+  "habits_in_challenge": "Habits in challenge"
 }

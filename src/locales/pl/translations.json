@@ -195,5 +195,20 @@
   "remove_friend_failed": "Nie udało się usunąć znajomego",
   "poke_sent_failed": "Nie udało się wysłać zaczepienia",
   "poke_limit_reached_description": "Możesz zaczepić znajomego tylko raz na dzień.",
-  "poke": "Zaczep"
+  "poke": "Zaczep",
+  "challenge_created": "Wyzwanie zostało utworzone",
+  "challenge_created_with_buddy": "Wyzwanie zostało utworzone i wysłane do znajomego",
+  "waiting_for_buddy": "Czekamy na akceptację znajomego",
+  "challenge_with_buddy": "Wyzwanie ze znajomym",
+  "select_buddy": "Wybierz znajomego",
+  "no_friends": "Nie masz jeszcze żadnych znajomych",
+  "challenge_created_with_invitations": "Wyzwanie zostało utworzone i zaproszenia zostały wysłane",
+  "challenge_invitation": "Zaproszenie do wyzwania",
+  "challenge_invitation_from": "{{name}} zaprasza Cię do wyzwania",
+  "challenge_dates": "Od {{start}} do {{end}}",
+  "reject": "Odrzuć",
+  "selected_friends": "Wybrani znajomi",
+  "pending_invitations": "Oczekujące zaproszenia do wyzwania",
+  "from": "Od",
+  "habits_in_challenge": "Nawyki w wyzwaniu"
 }

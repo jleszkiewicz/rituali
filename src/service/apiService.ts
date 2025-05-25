@@ -1,5 +1,5 @@
 import { supabase } from "./supabaseClient";
-import { HabitData, RecommendedChallengeData } from "../../components/AddHabitModal/types";
+import { HabitData } from "../../components/AddHabitModal/types";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { format } from "date-fns";
 import { dateFormat } from "@/constants/Constants";
@@ -35,6 +35,7 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
   if (!userId) return [];
 
   try {
+    // Get all habits for the user
     const { data, error } = await supabase
       .from("habits")
       .select("*")
@@ -45,7 +46,46 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
       throw error;
     }
 
-    const mappedHabits = data.map(mapHabitFromDb);
+    // Get all challenges where user is a participant
+    const { data: invitations, error: invitationsError } = await supabase
+      .from("challenge_invitations")
+      .select("challenge_id")
+      .eq("receiver_id", userId)
+      .eq("status", "accepted");
+
+    if (invitationsError) {
+      throw invitationsError;
+    }
+
+    const challengeIds = invitations?.map(inv => inv.challenge_id) || [];
+
+    // Get challenges with their habits
+    const { data: challenges, error: challengesError } = await supabase
+      .from("challenges")
+      .select("habits")
+      .in("id", challengeIds);
+
+    if (challengesError) {
+      throw challengesError;
+    }
+
+    // Get all habit IDs from challenges
+    const challengeHabitIds = challenges?.flatMap(challenge => challenge.habits || []) || [];
+
+    // Get habits from challenges
+    const { data: challengeHabits, error: challengeHabitsError } = await supabase
+      .from("habits")
+      .select("*")
+      .in("id", challengeHabitIds);
+
+    if (challengeHabitsError) {
+      throw challengeHabitsError;
+    }
+
+    // Combine regular habits and challenge habits
+    const allHabits = [...(data || []), ...(challengeHabits || [])];
+
+    const mappedHabits = allHabits.map(mapHabitFromDb);
     return mappedHabits;
   } catch (error) {
     console.error("Error fetching user habits:", error);
@@ -53,52 +93,122 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
   }
 };
 
-export const fetchUserChallenges = async (userId: string | null) => {
+export interface RecommendedChallengeData {
+  id: string;
+  name: string;
+  duration: string;
+  habits_en: string[];
+  habits_pl: string[];
+  habits_es: string[];
+  habits_fr: string[];
+  habits_de: string[];
+  habits_it: string[];
+}
+
+export interface Challenge {
+  id: string;
+  name: string;
+  beforePhotoUri: string | null;
+  afterPhotoUri: string | null;
+  endDate: string;
+  startDate: string;
+  habits: string[];
+  participants: string[];
+}
+
+interface DbChallenge {
+  id: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+  habits: string[];
+  before_photo_uri: string | null;
+  after_photo_uri: string | null;
+  participants: string[];
+}
+
+const mapChallengeFromDb = (dbChallenge: DbChallenge): Challenge => {
+  const mapped = {
+    id: dbChallenge.id,
+    name: dbChallenge.name,
+    beforePhotoUri: dbChallenge.before_photo_uri,
+    afterPhotoUri: dbChallenge.after_photo_uri,
+    endDate: dbChallenge.end_date,
+    startDate: dbChallenge.start_date,
+    habits: Array.isArray(dbChallenge.habits) ? dbChallenge.habits : [],
+    participants: Array.isArray(dbChallenge.participants) ? dbChallenge.participants : [],
+  };
+
+  return mapped;
+};
+
+export const getActiveChallenges = async (userId: string): Promise<ChallengeData[]> => {
   try {
+    const today = new Date().toISOString();
+    
     const { data, error } = await supabase
       .from('challenges')
       .select('*')
-      .eq('user_id', userId)
+      .contains('participants', [userId])
+      .gt('end_date', today)
       .order('start_date', { ascending: true });
 
     if (error) {
-      console.error("Error fetching challenges:", error);
+      throw error;
+    }
+
+    if (!data) {
       return [];
     }
 
-    return data.map((challenge: any) => ({
+    return data.map(challenge => ({
       id: challenge.id,
       name: challenge.name,
-      startDate: format(challenge.start_date, dateFormat),
-      endDate: format(challenge.end_date, dateFormat),
-      habits: challenge.habits,
-    })) as ChallengeData[];
-  } catch (err) {
-    console.error("Error fetching challenges:", err);
-    return [];
+      beforePhotoUri: challenge.before_photo_uri,
+      afterPhotoUri: challenge.after_photo_uri,
+      endDate: challenge.end_date,
+      startDate: challenge.start_date,
+      habits: challenge.habits || [],
+      participants: challenge.participants || []
+    }));
+  } catch (error) {
+    throw error;
   }
 };
 
-export const getActiveChallenges = (challenges: ChallengeData[]): ChallengeData[] => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+export const getCompletedChallenges = async (userId: string | { id: string }): Promise<ChallengeData[]> => {
+  try {
+    const today = new Date().toISOString();
+    const actualUserId = typeof userId === 'string' ? userId : userId.id;
 
-  return challenges.filter(challenge => {
-    const endDate = new Date(challenge.endDate);
-    endDate.setHours(0, 0, 0, 0);
-    return endDate >= today;
-  });
-};
+    const { data, error } = await supabase
+      .from('challenges')
+      .select('*')
+      .contains('participants', [actualUserId])
+      .lte('end_date', today)
+      .order('end_date', { ascending: false });
 
-export const getCompletedChallenges = (challenges: ChallengeData[]): ChallengeData[] => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+    if (error) {
+      throw error;
+    }
 
-  return challenges.filter(challenge => {
-    const endDate = new Date(challenge.endDate);
-    endDate.setHours(0, 0, 0, 0);
-    return endDate < today;
-  });
+    if (!data) {
+      return [];
+    }
+
+    return data.map(challenge => ({
+      id: challenge.id,
+      name: challenge.name,
+      beforePhotoUri: challenge.before_photo_uri || undefined,
+      afterPhotoUri: challenge.after_photo_uri || undefined,
+      endDate: challenge.end_date,
+      startDate: challenge.start_date,
+      habits: challenge.habits || [],
+      participants: challenge.participants || []
+    }));
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const addHabit = async (userId: string | null, habit: HabitData) => {
@@ -128,35 +238,235 @@ export const addHabit = async (userId: string | null, habit: HabitData) => {
   return data.map(mapHabitFromDb);
 };
 
-export const addChallenge = async (userId: string, challenge: ChallengeData) => {
-  const dbChallenge = {
-    user_id: userId,
-    name: challenge.name,
-    start_date: format(new Date(challenge.startDate), dateFormat),
-    end_date: format(new Date(challenge.endDate), dateFormat),
-    habits: challenge.habits,
-    before_photo_uri: challenge.beforePhotoUri,
-  };
+interface ChallengeInput {
+  name: string;
+  start_date: string;
+  end_date: string;
+  habits: string[];
+  before_photo_uri?: string;
+  after_photo_uri?: string;
+}
 
-  const { data, error } = await supabase
-    .from("challenges")
-    .insert([dbChallenge])
-    .select();
+export const addChallenge = async (
+  userId: string,
+  challengeData: ChallengeInput
+): Promise<Challenge> => {
+  try {
+    const startDate = challengeData.start_date || new Date().toISOString();
+    const endDate = challengeData.end_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  if (error) {
-    console.error("Error adding challenge:", error);
+    const { data, error } = await supabase
+      .from('challenges')
+      .insert({
+        name: challengeData.name,
+        start_date: startDate,
+        end_date: endDate,
+        habits: challengeData.habits,
+        before_photo_uri: challengeData.before_photo_uri,
+        after_photo_uri: challengeData.after_photo_uri,
+        participants: [userId],
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error in addChallenge:', error);
+      throw error;
+    }
+
+    if (!data) {
+      throw new Error('No data returned after insert');
+    }
+
+    return mapChallengeFromDb(data as DbChallenge);
+  } catch (error) {
+    console.error('Error in addChallenge:', error);
     throw error;
   }
-
-  return data.map((challenge: any) => ({
-    id: challenge.id,
-    name: challenge.name,
-    startDate: format(challenge.start_date, dateFormat),
-    endDate: format(challenge.end_date, dateFormat),
-    habits: challenge.habits,
-    beforePhotoUri: challenge.before_photo,
-  }));
 };
+
+export const sendChallengeInvitation = async (
+  challengeId: string,
+  senderId: string,
+  receiverId: string
+): Promise<ChallengeInvitation> => {
+  try {
+    const { data: challengeData, error: challengeError } = await supabase
+      .from('challenges')
+      .select('*')
+      .eq('id', challengeId)
+      .single();
+
+    if (challengeError) {
+      console.error('Supabase error in sendChallengeInvitation (challenge):', challengeError);
+      throw challengeError;
+    }
+
+    if (!challengeData) {
+      throw new Error('Challenge not found');
+    }
+
+    const { data: invitationData, error: invitationError } = await supabase
+      .from('challenge_invitations')
+      .insert({
+        challenge_id: challengeId,
+        sender_id: senderId,
+        receiver_id: receiverId,
+        status: 'pending',
+      })
+      .select(`
+        *,
+        challenge:challenges(*),
+        sender:profiles(id, username, avatar_url)
+      `)
+      .single();
+
+    if (invitationError) {
+      console.error('Supabase error in sendChallengeInvitation (invitation):', invitationError);
+      throw invitationError;
+    }
+
+    if (!invitationData) {
+      throw new Error('No data returned after insert');
+    }
+
+    return {
+      id: invitationData.id,
+      challenge_id: invitationData.challenge_id,
+      sender_id: invitationData.sender_id,
+      receiver_id: invitationData.receiver_id,
+      status: invitationData.status,
+      created_at: invitationData.created_at,
+      challenge: mapChallengeFromDb(invitationData.challenge as DbChallenge),
+      sender: {
+        id: invitationData.sender.id,
+        username: invitationData.sender.username,
+        avatar_url: invitationData.sender.avatar_url,
+      },
+    };
+  } catch (error) {
+    console.error('Error in sendChallengeInvitation:', error);
+    throw error;
+  }
+};
+
+interface ChallengeInvitation {
+  id: string;
+  challenge_id: string;
+  sender_id: string;
+  receiver_id: string;
+  status: string;
+  created_at: string;
+  challenge: Challenge;
+  sender: {
+    id: string;
+    username: string;
+    avatar_url: string;
+  };
+}
+
+export const respondToChallengeInvitation = async (
+  invitationId: string,
+  status: 'accepted' | 'rejected'
+): Promise<ChallengeInvitation> => {
+  try {
+    const { data: invitationData, error: invitationError } = await supabase
+      .from('challenge_invitations')
+      .update({ status })
+      .eq('id', invitationId)
+      .select(`
+        *,
+        challenge:challenges(*),
+        sender:profiles(id, username, avatar_url)
+      `)
+      .single();
+
+    if (invitationError) {
+      console.error('Supabase error in respondToChallengeInvitation (invitation):', invitationError);
+      throw invitationError;
+    }
+
+    if (!invitationData) {
+      throw new Error('Invitation not found');
+    }
+
+    if (status === 'accepted') {
+      const { error: challengeError } = await supabase
+        .from('challenges')
+        .update({
+          participants: [...invitationData.challenge.participants, invitationData.receiver_id]
+        })
+        .eq('id', invitationData.challenge_id);
+
+      if (challengeError) {
+        console.error('Supabase error in respondToChallengeInvitation (challenge):', challengeError);
+        throw challengeError;
+      }
+    }
+
+    return {
+      id: invitationData.id,
+      challenge_id: invitationData.challenge_id,
+      sender_id: invitationData.sender_id,
+      receiver_id: invitationData.receiver_id,
+      status: invitationData.status,
+      created_at: invitationData.created_at,
+      challenge: mapChallengeFromDb(invitationData.challenge as DbChallenge),
+      sender: {
+        id: invitationData.sender.id,
+        username: invitationData.sender.username,
+        avatar_url: invitationData.sender.avatar_url,
+      },
+    };
+  } catch (error) {
+    console.error('Error in respondToChallengeInvitation:', error);
+    throw error;
+  }
+};
+
+export const fetchChallengeInvitations = async (userId: string): Promise<ChallengeInvitation[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('challenge_invitations')
+      .select(`
+        *,
+        challenge:challenges(*)
+      `)
+      .eq('receiver_id', userId)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error in fetchChallengeInvitations:', error);
+      throw error;
+    }
+
+    if (!data) {
+      return [];
+    }
+
+    return data.map(invitation => ({
+      id: invitation.id,
+      challenge_id: invitation.challenge_id,
+      sender_id: invitation.sender_id,
+      receiver_id: invitation.receiver_id,
+      status: invitation.status,
+      created_at: invitation.created_at,
+      challenge: mapChallengeFromDb(invitation.challenge as DbChallenge),
+      sender: {
+        id: invitation.sender_id,
+        username: 'User',
+        avatar_url: ''
+      },
+    }));
+  } catch (error) {
+    console.error('Error in fetchChallengeInvitations:', error);
+    throw error;
+  }
+};
+
+// Alias for fetchChallengeInvitations to maintain backward compatibility
+export const getPendingChallengeInvitations = fetchChallengeInvitations;
 
 export const updateHabitCompletion = async (habitId: string, completionDates: string[]) => {
   try {
@@ -239,24 +549,20 @@ export const fetchRecommendedChallenges = async (): Promise<RecommendedChallenge
       .from("recommended_challenges")
       .select("*");
 
-    if (error) {
-      console.error("Error fetching recommended challenges:", error);
-      throw error;
-    }
+    if (error) throw error;
 
-    return data.map((challenge: any) => ({
+    return data.map((challenge) => ({
       id: challenge.id,
       name: challenge.name,
-      duration: challenge.duration,
-      habits_pl: challenge.habits_pl || [],
+      duration: challenge.duration.toString(),
       habits_en: challenge.habits_en || [],
+      habits_pl: challenge.habits_pl || [],
       habits_es: challenge.habits_es || [],
       habits_fr: challenge.habits_fr || [],
       habits_de: challenge.habits_de || [],
       habits_it: challenge.habits_it || []
     }));
   } catch (error) {
-    console.error("Error in fetchRecommendedChallenges:", error);
     throw error;
   }
 };
@@ -269,6 +575,7 @@ export interface CompletedChallenge {
   endDate: string;
   startDate: string;
   habits: string[];
+  participants: string[];
 }
 
 interface CompletedChallengeDb {
@@ -279,6 +586,7 @@ interface CompletedChallengeDb {
   end_date: string;
   start_date: string;
   habits: string[];
+  participants: string[];
 }
 
 const mapCompletedChallengeFromDb = (dbChallenge: CompletedChallengeDb): CompletedChallenge => ({
@@ -289,64 +597,35 @@ const mapCompletedChallengeFromDb = (dbChallenge: CompletedChallengeDb): Complet
   endDate: dbChallenge.end_date,
   startDate: dbChallenge.start_date,
   habits: dbChallenge.habits,
+  participants: dbChallenge.participants,
 });
 
-export const markChallengeAsViewed = async (challengeId: string) => {
+export const fetchCompletedChallenges = async (): Promise<Challenge[]> => {
   try {
-    
-    if (!challengeId) {
-      throw new Error('Challenge ID is required');
-    }
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
 
     const { data, error } = await supabase
       .from('challenges')
-      .update({ was_displayed: true })
-      .eq('id', challengeId)
-      .select();
+      .select('*')
+      .lte('end_date', yesterday.toISOString())
+      .eq('was_displayed', false)
+      .order('end_date', { ascending: false });
 
     if (error) {
-      console.error('Supabase error in markChallengeAsViewed:', error);
+      console.error('Supabase error in fetchCompletedChallenges:', error);
       throw error;
     }
 
-    if (!data || data.length === 0) {
-      console.error('No data returned after update');
-      throw new Error('No data returned after update');
+    if (!data) {
+      return [];
     }
 
-    return data[0];
+    return data.map(challenge => mapChallengeFromDb(challenge as DbChallenge));
   } catch (error) {
-    console.error('Error in markChallengeAsViewed:', error);
+    console.error('Error in fetchCompletedChallenges:', error);
     throw error;
   }
-};
-
-export const fetchCompletedChallenges = async (): Promise<CompletedChallenge[]> => {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  
-  const { data, error } = await supabase
-    .from('challenges')
-    .select('*')
-    .lte('end_date', yesterday.toISOString())
-    .eq('was_displayed', false)
-    .order('end_date', { ascending: false });
-
-  if (error) {
-    console.error('Supabase error:', error);
-    throw error;
-  }
-
-  return data.map((challenge) => ({
-    id: challenge.id,
-    name: challenge.name,
-    beforePhotoUri: challenge.before_photo_uri,
-    afterPhotoUri: challenge.after_photo_uri,
-    endDate: challenge.end_date,
-    startDate: challenge.start_date,
-    habits: challenge.habits || [],
-  }));
 };
 
 export const skipAfterPhoto = async (challengeId: string) => {
@@ -361,42 +640,28 @@ export const skipAfterPhoto = async (challengeId: string) => {
   }
 };
 
-export interface Challenge {
-  id: string;
-  name: string;
-  beforePhotoUri: string | null;
-  afterPhotoUri: string | null;
-  endDate: string;
-  startDate: string;
-  habits: string[];
-}
-
 export const fetchChallengeById = async (challengeId: string): Promise<Challenge> => {
+  try {
+    const { data, error } = await supabase
+      .from('challenges')
+      .select('*')
+      .eq('id', challengeId)
+      .single();
 
-  const { data, error } = await supabase
-    .from("challenges")
-    .select("*")
-    .eq("id", challengeId)
-    .single();
+    if (error) {
+      console.error('Supabase error in fetchChallengeById:', error);
+      throw error;
+    }
 
-  if (error) {
-    console.error("Error fetching challenge:", error);
+    if (!data) {
+      throw new Error('Challenge not found');
+    }
+
+    return mapChallengeFromDb(data as DbChallenge);
+  } catch (error) {
+    console.error('Error in fetchChallengeById:', error);
     throw error;
   }
-
-  if (!data) {
-    throw new Error("Challenge not found");
-  }
-
-  return {
-    id: data.id,
-    name: data.name,
-    beforePhotoUri: data.before_photo_uri,
-    afterPhotoUri: data.after_photo_uri,
-    endDate: data.end_date,
-    startDate: data.start_date,
-    habits: data.habits || [],
-  };
 };
 
 export const uploadAfterPhoto = async (challengeId: string, photoUri: string) => {
@@ -673,29 +938,36 @@ export const sendFriendRequest = async (senderId: string, email: string) => {
 
 interface Friend {
   id: string;
-  display_name: string | null;
-  avatar_url: string | null;
-  completion_percentage: number;
+  user_id: string;
+  friend_id: string;
+  created_at: string;
 }
 
-export const fetchFriends = async (userId: string): Promise<Friend[]> => {
+export const getFriends = async (userId: string): Promise<Friend[]> => {
   try {
-    const { data: friends, error } = await supabase
-      .rpc('get_friends', { user_id: userId });
+    const { data, error } = await supabase
+      .from("friend_requests")
+      .select("*")
+      .eq("status", "accepted")
+      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
 
     if (error) throw error;
 
-    return friends?.map((friend: Friend) => ({
-      id: friend.id,
-      display_name: friend.display_name || "User",
-      avatar_url: friend.avatar_url,
-      completion_percentage: friend.completion_percentage,
-    })) || [];
+    // Map the data to Friend interface
+    return (data || []).map(request => ({
+      id: request.id,
+      user_id: request.sender_id === userId ? request.sender_id : request.receiver_id,
+      friend_id: request.sender_id === userId ? request.receiver_id : request.sender_id,
+      created_at: request.created_at
+    }));
   } catch (error) {
-    console.error("Error fetching friends:", error);
+    console.error("Error getting friends:", error);
     throw error;
   }
 };
+
+// Alias for getFriends to maintain backward compatibility
+export const fetchFriends = getFriends;
 
 export const fetchPendingFriendRequests = async (userId: string) => {
   try {
@@ -799,7 +1071,7 @@ export const subscribeToPokeNotifications = (userId: string, onPokeReceived: (se
   const channel = supabase
     .channel('poke_notifications')
     .on(
-      'postgres_changes',
+      'postgres_changes' as any,
       {
         event: '*',
         schema: 'public',
@@ -829,4 +1101,102 @@ export const subscribeToPokeNotifications = (userId: string, onPokeReceived: (se
   return () => {
     supabase.removeChannel(channel);
   };
+};
+
+export const markChallengeAsViewed = async (challengeId: string): Promise<Challenge> => {
+  try {
+    if (!challengeId) {
+      throw new Error('Challenge ID is required');
+    }
+
+    const { data, error } = await supabase
+      .from('challenges')
+      .update({ was_displayed: true })
+      .eq('id', challengeId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error in markChallengeAsViewed:', error);
+      throw error;
+    }
+
+    if (!data) {
+      console.error('No data returned after update');
+      throw new Error('No data returned after update');
+    }
+
+    return mapChallengeFromDb(data as DbChallenge);
+  } catch (error) {
+    console.error('Error in markChallengeAsViewed:', error);
+    throw error;
+  }
+};
+
+export const addRecommendedChallenge = async (
+  userId: string,
+  challengeData: RecommendedChallengeData
+): Promise<Challenge> => {
+  try {
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + Number(challengeData.duration || 30));
+
+    const { data, error } = await supabase
+      .from('challenges')
+      .insert({
+        name: challengeData.name,
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
+        habits: challengeData.habits_en || [],
+        participants: [userId],
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error in addRecommendedChallenge:', error);
+      throw error;
+    }
+
+    if (!data) {
+      throw new Error('No data returned after insert');
+    }
+
+    return mapChallengeFromDb(data as DbChallenge);
+  } catch (error) {
+    console.error('Error in addRecommendedChallenge:', error);
+    throw error;
+  }
+};
+
+export const fetchUserChallenges = async (userId: string): Promise<ChallengeData[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('challenges')
+      .select('*')
+      .contains('participants', [userId])
+      .order('start_date', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      return [];
+    }
+
+    return data.map(challenge => ({
+      id: challenge.id,
+      name: challenge.name,
+      beforePhotoUri: challenge.before_photo_uri || undefined,
+      afterPhotoUri: challenge.after_photo_uri || undefined,
+      endDate: challenge.end_date,
+      startDate: challenge.start_date,
+      habits: challenge.habits || [],
+      participants: challenge.participants || []
+    }));
+  } catch (error) {
+    throw error;
+  }
 };

@@ -41,13 +41,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { showError } = useErrorModal();
 
   const setUserDataFromAuth = (user: any) => {
-    console.log("User metadata:", user.user_metadata);
     const displayName =
       user.user_metadata?.display_name ||
       user.user_metadata?.name ||
       user.user_metadata?.full_name ||
       null;
-    console.log("Display name from metadata:", displayName);
     dispatch(
       setUserData({
         userId: user.id,

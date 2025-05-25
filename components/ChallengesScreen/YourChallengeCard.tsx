@@ -2,15 +2,11 @@ import React, { useState } from "react";
 import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
-import { differenceInDays } from "date-fns";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import ChallengeInfoModal from "../modals/ChallengeInfoModal";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { format } from "date-fns";
-import { dateFormat } from "@/constants/Constants";
-import { getCompletedChallenges } from "@/src/service/apiService";
 
 interface YourChallengeCardProps {
   challenge: ChallengeData;
@@ -22,11 +18,19 @@ export default function YourChallengeCard({
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const router = useRouter();
 
-  const startDate = new Date(challenge.startDate);
-  const endDate = new Date(challenge.endDate);
-  const totalDays = differenceInDays(endDate, startDate) + 1;
+  const startDate = new Date(challenge.startDate + "T00:00:00");
+  const endDate = new Date(challenge.endDate + "T00:00:00");
 
-  const isCompleted = getCompletedChallenges([challenge]).length > 0;
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(0, 0, 0, 0);
+
+  const totalDays = Math.floor(
+    (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const isCompleted = endDate < today;
 
   const handlePress = () => {
     if (isCompleted) {
