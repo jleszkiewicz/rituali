@@ -625,7 +625,7 @@ export const fetchRecommendedChallenges = async (userId: string): Promise<Recomm
   }
 };
 
-export const fetchCompletedChallenges = async (): Promise<Challenge[]> => {
+export const fetchCompletedChallenges = async (): Promise<ChallengeData[]> => {
   try {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
@@ -646,7 +646,7 @@ export const fetchCompletedChallenges = async (): Promise<Challenge[]> => {
       return [];
     }
 
-    return data.map(challenge => mapChallengeFromDb(challenge as DbChallenge));
+    return data.map(challenge => mapChallengeFromDb(challenge as DbChallenge) as ChallengeData);
   } catch (error) {
     console.error('Error in fetchCompletedChallenges:', error);
     throw error;

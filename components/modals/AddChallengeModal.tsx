@@ -267,141 +267,133 @@ export default function AddChallengeModal({
   if (!isVisible) return null;
 
   return (
-    <TouchableWithoutFeedback onPress={onClose}>
-      <View style={styles.container}>
-        <TouchableWithoutFeedback>
-          <View style={styles.content}>
-            <ModalHeader
-              title={t("add_challenge")}
-              onClose={onClose}
-              color={Colors.PrimaryGray}
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <ModalHeader
+          title={t("add_challenge")}
+          onClose={onClose}
+          color={Colors.PrimaryGray}
+        />
+
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.formContainer}>
+            <ChallengeNameInput
+              value={challengeData.name}
+              error={errors.name}
+              onChange={(text) => {
+                setChallengeData({ ...challengeData, name: text });
+                setErrors({ ...errors, name: "" });
+              }}
             />
 
-            <ScrollView
-              style={styles.scrollView}
-              contentContainerStyle={styles.scrollContent}
-              showsVerticalScrollIndicator={false}
-            >
-              <View style={styles.formContainer}>
-                <ChallengeNameInput
-                  value={challengeData.name}
-                  error={errors.name}
-                  onChange={(text) => {
-                    setChallengeData({ ...challengeData, name: text });
-                    setErrors({ ...errors, name: "" });
+            <DateSelector
+              label={t("start_date")}
+              date={new Date(challengeData.startDate)}
+              onDateChange={(date) =>
+                setChallengeData({
+                  ...challengeData,
+                  startDate: format(date, dateFormat),
+                })
+              }
+              minDate={new Date()}
+              maxDate={new Date(challengeData.endDate)}
+            />
+
+            <DurationInput
+              value={durationDays}
+              error={errors.durationDays}
+              onChange={handleDurationChange}
+            />
+
+            <HabitsSelector
+              selectedHabits={challengeData.habits}
+              error={errors.habits}
+              isExpanded={isHabitsExpanded}
+              onToggleExpanded={() => setIsHabitsExpanded(!isHabitsExpanded)}
+              onToggleHabit={toggleHabit}
+              onAddHabit={onAddHabit}
+            />
+
+            <View style={styles.buddyContainer}>
+              <ThemedText style={styles.label}>
+                {t("challenge_with_buddy")}
+              </ThemedText>
+              <Switch
+                value={isWithBuddy}
+                onValueChange={setIsWithBuddy}
+                trackColor={{
+                  false: Colors.LightGray,
+                  true: Colors.HotPink,
+                }}
+                thumbColor={Colors.White}
+              />
+            </View>
+
+            {isWithBuddy && (
+              <View style={styles.buddySelector}>
+                <Dropdown
+                  isExpanded={isBuddyExpanded}
+                  onToggle={() => setIsBuddyExpanded(!isBuddyExpanded)}
+                  selectedText={
+                    selectedBuddies.length > 0
+                      ? `${t("selected_friends")}: ${selectedBuddies.length}`
+                      : ""
+                  }
+                  placeholder={t("select_buddy")}
+                  items={friends.map((friend) => ({
+                    id: friend.id,
+                    label: friend.display_name || t("unknown_user"),
+                    isSelected: selectedBuddies.includes(friend.id),
+                  }))}
+                  onItemSelect={(id) => {
+                    setSelectedBuddies((prev) =>
+                      prev.includes(id)
+                        ? prev.filter((buddyId) => buddyId !== id)
+                        : [...prev, id]
+                    );
                   }}
-                />
-
-                <DateSelector
-                  label={t("start_date")}
-                  date={new Date(challengeData.startDate)}
-                  onDateChange={(date) =>
-                    setChallengeData({
-                      ...challengeData,
-                      startDate: format(date, dateFormat),
-                    })
+                  noItemsText={
+                    isLoadingFriends ? t("loading") : t("no_friends")
                   }
-                  minDate={new Date()}
-                  maxDate={new Date(challengeData.endDate)}
                 />
-
-                <DurationInput
-                  value={durationDays}
-                  error={errors.durationDays}
-                  onChange={handleDurationChange}
-                />
-
-                <HabitsSelector
-                  selectedHabits={challengeData.habits}
-                  error={errors.habits}
-                  isExpanded={isHabitsExpanded}
-                  onToggleExpanded={() =>
-                    setIsHabitsExpanded(!isHabitsExpanded)
-                  }
-                  onToggleHabit={toggleHabit}
-                  onAddHabit={onAddHabit}
-                />
-
-                <View style={styles.buddyContainer}>
-                  <ThemedText style={styles.label}>
-                    {t("challenge_with_buddy")}
-                  </ThemedText>
-                  <Switch
-                    value={isWithBuddy}
-                    onValueChange={setIsWithBuddy}
-                    trackColor={{
-                      false: Colors.LightGray,
-                      true: Colors.HotPink,
-                    }}
-                    thumbColor={Colors.White}
-                  />
-                </View>
-
-                {isWithBuddy && (
-                  <View style={styles.buddySelector}>
-                    <Dropdown
-                      isExpanded={isBuddyExpanded}
-                      onToggle={() => setIsBuddyExpanded(!isBuddyExpanded)}
-                      selectedText={
-                        selectedBuddies.length > 0
-                          ? `${t("selected_friends")}: ${
-                              selectedBuddies.length
-                            }`
-                          : ""
-                      }
-                      placeholder={t("select_buddy")}
-                      items={friends.map((friend) => ({
-                        id: friend.id,
-                        label: friend.display_name || t("unknown_user"),
-                        isSelected: selectedBuddies.includes(friend.id),
-                      }))}
-                      onItemSelect={(id) => {
-                        setSelectedBuddies((prev) =>
-                          prev.includes(id)
-                            ? prev.filter((buddyId) => buddyId !== id)
-                            : [...prev, id]
-                        );
-                      }}
-                      noItemsText={
-                        isLoadingFriends ? t("loading") : t("no_friends")
-                      }
-                    />
-                  </View>
-                )}
-
-                <View style={styles.photoSection}>
-                  <ThemedText style={styles.sectionTitle} bold>
-                    {t("before_photo")}
-                  </ThemedText>
-                  <ThemedText style={styles.description}>
-                    {t("before_photo_description")}
-                  </ThemedText>
-                  <PhotoPicker
-                    onPress={handlePickImage}
-                    height={200}
-                    style={styles.photo}
-                    imageUri={challengeData.beforePhotoUri}
-                    onRemove={handleRemovePhoto}
-                  />
-                </View>
-
-                <View style={styles.buttonsContainer}>
-                  <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
-                </View>
               </View>
-            </ScrollView>
-          </View>
-        </TouchableWithoutFeedback>
+            )}
 
-        <CustomModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-          title={modalConfig.title}
-          message={modalConfig.message}
-          type={modalConfig.type}
-        />
+            <View style={styles.photoSection}>
+              <ThemedText style={styles.sectionTitle} bold>
+                {t("before_photo")}
+              </ThemedText>
+              <ThemedText style={styles.description}>
+                {t("before_photo_description")}
+              </ThemedText>
+              <PhotoPicker
+                onPress={handlePickImage}
+                height={200}
+                style={styles.photo}
+                imageUri={challengeData.beforePhotoUri}
+                onRemove={handleRemovePhoto}
+              />
+            </View>
+
+            <View style={styles.buttonsContainer}>
+              <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
+            </View>
+          </View>
+        </ScrollView>
       </View>
-    </TouchableWithoutFeedback>
+
+      <CustomModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        type={modalConfig.type}
+      />
+    </View>
   );
 }
 
@@ -422,17 +414,17 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     paddingHorizontal: 20,
     width: "100%",
-    maxHeight: "90%",
-    flex: 1,
+    height: "90%",
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
+    paddingBottom: 20,
   },
   formContainer: {
-    paddingBottom: 20,
+    flex: 1,
   },
   buddyContainer: {
     flexDirection: "row",

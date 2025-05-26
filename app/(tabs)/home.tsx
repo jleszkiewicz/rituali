@@ -19,7 +19,6 @@ import {
   fetchUserHabits,
   fetchCompletedChallenges,
 } from "@/src/service/apiService";
-import type { CompletedChallenge } from "@/src/service/apiService";
 import CalendarCarousel from "@/components/HomeScreen/CalendarCarousel";
 import { format } from "date-fns";
 import { Colors } from "@/constants/Colors";
@@ -42,6 +41,7 @@ import { selectViewedChallengeIds } from "@/src/store/viewedChallengesSlice";
 import DeleteHabitModal from "@/components/modals/DeleteHabitModal";
 import EditHabitModal from "@/components/modals/EditHabitModal";
 import { getActiveChallenges } from "@/src/service/apiService";
+import { ChallengeData } from "@/components/AddChallengeModal/types";
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
@@ -53,7 +53,7 @@ export default function HomeScreen() {
   const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [completedChallenges, setCompletedChallenges] = useState<
-    CompletedChallenge[]
+    ChallengeData[]
   >([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -182,49 +182,47 @@ export default function HomeScreen() {
             })}
           </View>
         )}
+        <ConditionalRenderer condition={activeChallenges.length > 0}>
+          <ThemedText style={styles.sectionTitle} bold>
+            {t("challenges")}
+          </ThemedText>
+          <ChallengesList
+            challenges={activeChallenges}
+            habits={habits}
+            selectedDate={format(selectedDate, dateFormat)}
+          />
+        </ConditionalRenderer>
 
         {activeHabits.length > 0 ? (
           <>
-            <ConditionalRenderer condition={activeChallenges.length > 0}>
+            <View style={styles.habitsHeader}>
               <ThemedText style={styles.sectionTitle} bold>
-                {t("challenges")}
+                {t("habits")}
               </ThemedText>
-              <ChallengesList
-                challenges={activeChallenges}
-                habits={habits}
-                selectedDate={format(selectedDate, dateFormat)}
-              />
-            </ConditionalRenderer>
-            <ConditionalRenderer condition={activeHabits.length > 0}>
-              <View style={styles.habitsHeader}>
-                <ThemedText style={styles.sectionTitle} bold>
-                  {t("habits")}
-                </ThemedText>
-                <TouchableOpacity
-                  onPress={() => setIsEditMode(!isEditMode)}
-                  style={styles.editButton}
-                >
-                  <Ionicons
-                    name={isEditMode ? "close" : "create-outline"}
-                    size={24}
-                    color={Colors.HotPink}
-                  />
-                  <ThemedText style={styles.editButtonText} bold>
-                    {isEditMode ? t("editing_done") : t("edit")}
-                  </ThemedText>
-                </TouchableOpacity>
-              </View>
-              {activeHabits.map((habit) => (
-                <HabitCard
-                  key={habit.id}
-                  habit={habit}
-                  selectedDate={format(selectedDate, dateFormat)}
-                  isEditMode={isEditMode}
-                  onEdit={handleEditHabit}
-                  onDelete={handleDeleteHabit}
+              <TouchableOpacity
+                onPress={() => setIsEditMode(!isEditMode)}
+                style={styles.editButton}
+              >
+                <Ionicons
+                  name={isEditMode ? "close" : "create-outline"}
+                  size={24}
+                  color={Colors.HotPink}
                 />
-              ))}
-            </ConditionalRenderer>
+                <ThemedText style={styles.editButtonText} bold>
+                  {isEditMode ? t("editing_done") : t("edit")}
+                </ThemedText>
+              </TouchableOpacity>
+            </View>
+            {activeHabits.map((habit) => (
+              <HabitCard
+                key={habit.id}
+                habit={habit}
+                selectedDate={format(selectedDate, dateFormat)}
+                isEditMode={isEditMode}
+                onEdit={handleEditHabit}
+                onDelete={handleDeleteHabit}
+              />
+            ))}
           </>
         ) : (
           <View style={styles.emptyHabitsContainer}>
@@ -285,6 +283,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 10,
   },
   editButton: {
     padding: 8,

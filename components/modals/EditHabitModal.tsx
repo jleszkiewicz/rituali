@@ -207,17 +207,19 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
   if (!isVisible) return null;
 
   return (
-    <Pressable style={styles.modalContainer} onPress={onClose}>
-      <Pressable
-        style={styles.modalContent}
-        onPress={(e) => e.stopPropagation()}
-      >
+    <View style={styles.modalContainer}>
+      <View style={styles.modalContent}>
         <ModalHeader
           title={t("edit_habit")}
           onClose={onClose}
           color={Colors.PrimaryGray}
         />
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
           <View style={styles.inputContainer}>
             <ThemedText style={styles.label}>{t("habit_name")}</ThemedText>
             <TextInput
@@ -310,8 +312,8 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
 
           <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
         </ScrollView>
-      </Pressable>
-    </Pressable>
+      </View>
+    </View>
   );
 };
 
@@ -332,9 +334,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 20,
-    paddingBottom: 40,
     width: "100%",
     maxHeight: "90%",
+  },
+  scrollView: {
+    maxHeight: "100%",
+  },
+  scrollContent: {
+    paddingBottom: 20,
   },
   inputContainer: {
     marginBottom: 15,

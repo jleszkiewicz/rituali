@@ -167,8 +167,8 @@ const AddHabitModal = ({
   if (!isVisible) return null;
 
   return (
-    <Pressable style={styles.container} onPress={handleCloseModal}>
-      <Pressable style={styles.content} onPress={(e) => e.stopPropagation()}>
+    <View style={styles.container}>
+      <View style={styles.content}>
         <ModalHeader
           title={t("add_habit")}
           onClose={handleCloseModal}
@@ -261,8 +261,8 @@ const AddHabitModal = ({
 
           <ModalButtons onCancel={handleCloseModal} onSubmit={handleSubmit} />
         </ScrollView>
-      </Pressable>
-    </Pressable>
+      </View>
+    </View>
   );
 };
 
@@ -281,7 +281,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 20,
+    paddingHorizontal: 20,
+    width: "100%",
     maxHeight: "90%",
   },
   scrollView: {

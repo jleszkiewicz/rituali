@@ -4,20 +4,12 @@ import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../Commons/ThemedText";
 import { useRouter } from "expo-router";
 import { t } from "../../src/service/translateService";
-import { useDispatch } from "react-redux";
 import { markChallengeAsViewed } from "@/src/service/apiService";
 import { Ionicons } from "@expo/vector-icons";
+import { ChallengeData } from "../AddChallengeModal/types";
 
 interface CompletedChallengeCardProps {
-  challenge: {
-    id: string;
-    name: string;
-    beforePhotoUri: string | null;
-    afterPhotoUri: string | null;
-    endDate: string;
-    startDate: string;
-    habits: string[];
-  };
+  challenge: ChallengeData;
 }
 
 export const CompletedChallengeCard: React.FC<CompletedChallengeCardProps> = ({
