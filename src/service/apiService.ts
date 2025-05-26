@@ -35,7 +35,6 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
   if (!userId) return [];
 
   try {
-    // Get all habits for the user
     const { data, error } = await supabase
       .from("habits")
       .select("*")
@@ -46,7 +45,6 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
       throw error;
     }
 
-    // Get all challenges where user is a participant
     const { data: invitations, error: invitationsError } = await supabase
       .from("challenge_invitations")
       .select("challenge_id")
@@ -59,7 +57,6 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
 
     const challengeIds = invitations?.map(inv => inv.challenge_id) || [];
 
-    // Get challenges with their habits
     const { data: challenges, error: challengesError } = await supabase
       .from("challenges")
       .select("habits")
@@ -69,10 +66,8 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
       throw challengesError;
     }
 
-    // Get all habit IDs from challenges
     const challengeHabitIds = challenges?.flatMap(challenge => challenge.habits || []) || [];
 
-    // Get habits from challenges
     const { data: challengeHabits, error: challengeHabitsError } = await supabase
       .from("habits")
       .select("*")
@@ -82,7 +77,6 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
       throw challengeHabitsError;
     }
 
-    // Combine regular habits and challenge habits
     const allHabits = [...(data || []), ...(challengeHabits || [])];
 
     const mappedHabits = allHabits.map(mapHabitFromDb);
@@ -154,6 +148,7 @@ export const getActiveChallenges = async (userId: string): Promise<ChallengeData
       .order('start_date', { ascending: true });
 
     if (error) {
+      console.error('Error fetching active challenges:', error);
       throw error;
     }
 
@@ -172,6 +167,7 @@ export const getActiveChallenges = async (userId: string): Promise<ChallengeData
       participants: challenge.participants || []
     }));
   } catch (error) {
+    console.error('Error in getActiveChallenges:', error);
     throw error;
   }
 };
@@ -240,11 +236,11 @@ export const addHabit = async (userId: string | null, habit: HabitData) => {
 
 interface ChallengeInput {
   name: string;
-  start_date: string;
-  end_date: string;
+  startDate: string;
+  endDate: string;
   habits: string[];
-  before_photo_uri?: string;
-  after_photo_uri?: string;
+  beforePhotoUri?: string;
+  afterPhotoUri?: string;
 }
 
 export const addChallenge = async (
@@ -252,8 +248,8 @@ export const addChallenge = async (
   challengeData: ChallengeInput
 ): Promise<Challenge> => {
   try {
-    const startDate = challengeData.start_date || new Date().toISOString();
-    const endDate = challengeData.end_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const startDate = challengeData.startDate || new Date().toISOString();
+    const endDate = challengeData.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
     const { data, error } = await supabase
       .from('challenges')
@@ -262,8 +258,8 @@ export const addChallenge = async (
         start_date: startDate,
         end_date: endDate,
         habits: challengeData.habits,
-        before_photo_uri: challengeData.before_photo_uri,
-        after_photo_uri: challengeData.after_photo_uri,
+        before_photo_uri: challengeData.beforePhotoUri,
+        after_photo_uri: challengeData.afterPhotoUri,
         participants: [userId],
       })
       .select()
@@ -291,6 +287,22 @@ export const sendChallengeInvitation = async (
   receiverId: string
 ): Promise<ChallengeInvitation> => {
   try {
+    const { data: senderData, error: senderError } = await supabase
+      .rpc('get_user_by_email', { user_email: senderId });
+
+    if (senderError || !senderData || !senderData.id) {
+      console.error('Supabase error in sendChallengeInvitation (sender):', senderError);
+      throw new Error('Sender not found');
+    }
+
+    const { data: receiverData, error: receiverError } = await supabase
+      .rpc('get_user_by_email', { user_email: receiverId });
+
+    if (receiverError || !receiverData || !receiverData.id) {
+      console.error('Supabase error in sendChallengeInvitation (receiver):', receiverError);
+      throw new Error('Receiver not found');
+    }
+
     const { data: challengeData, error: challengeError } = await supabase
       .from('challenges')
       .select('*')
@@ -306,19 +318,32 @@ export const sendChallengeInvitation = async (
       throw new Error('Challenge not found');
     }
 
+    const { data: existingInvitation, error: checkError } = await supabase
+      .from('challenge_invitations')
+      .select('*')
+      .eq('challenge_id', challengeId)
+      .eq('receiver_id', receiverData.id)
+      .eq('status', 'pending')
+      .single();
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.error('Supabase error in sendChallengeInvitation (check):', checkError);
+      throw checkError;
+    }
+
+    if (existingInvitation) {
+      throw new Error('Invitation already exists');
+    }
+
     const { data: invitationData, error: invitationError } = await supabase
       .from('challenge_invitations')
       .insert({
         challenge_id: challengeId,
-        sender_id: senderId,
-        receiver_id: receiverId,
+        sender_id: senderData.id,
+        receiver_id: receiverData.id,
         status: 'pending',
       })
-      .select(`
-        *,
-        challenge:challenges(*),
-        sender:profiles(id, username, avatar_url)
-      `)
+      .select()
       .single();
 
     if (invitationError) {
@@ -337,11 +362,11 @@ export const sendChallengeInvitation = async (
       receiver_id: invitationData.receiver_id,
       status: invitationData.status,
       created_at: invitationData.created_at,
-      challenge: mapChallengeFromDb(invitationData.challenge as DbChallenge),
+      challenge: mapChallengeFromDb(challengeData as DbChallenge),
       sender: {
-        id: invitationData.sender.id,
-        username: invitationData.sender.username,
-        avatar_url: invitationData.sender.avatar_url,
+        id: senderData.id,
+        username: senderData.email?.split('@')[0] || 'User',
+        avatar_url: '',
       },
     };
   } catch (error) {
@@ -374,11 +399,7 @@ export const respondToChallengeInvitation = async (
       .from('challenge_invitations')
       .update({ status })
       .eq('id', invitationId)
-      .select(`
-        *,
-        challenge:challenges(*),
-        sender:profiles(id, username, avatar_url)
-      `)
+      .select()
       .single();
 
     if (invitationError) {
@@ -390,17 +411,39 @@ export const respondToChallengeInvitation = async (
       throw new Error('Invitation not found');
     }
 
+    const { data: challengeData, error: challengeError } = await supabase
+      .from('challenges')
+      .select('*')
+      .eq('id', invitationData.challenge_id)
+      .single();
+
+    if (challengeError) {
+      console.error('Supabase error in respondToChallengeInvitation (challenge):', challengeError);
+      throw challengeError;
+    }
+
+    const { data: senderData, error: senderError } = await supabase
+      .from('auth.users')
+      .select('id, email')
+      .eq('id', invitationData.sender_id)
+      .single();
+
+    if (senderError) {
+      console.error('Supabase error in respondToChallengeInvitation (sender):', senderError);
+      throw senderError;
+    }
+
     if (status === 'accepted') {
-      const { error: challengeError } = await supabase
+      const { error: updateError } = await supabase
         .from('challenges')
         .update({
-          participants: [...invitationData.challenge.participants, invitationData.receiver_id]
+          participants: [...challengeData.participants, invitationData.receiver_id]
         })
         .eq('id', invitationData.challenge_id);
 
-      if (challengeError) {
-        console.error('Supabase error in respondToChallengeInvitation (challenge):', challengeError);
-        throw challengeError;
+      if (updateError) {
+        console.error('Supabase error in respondToChallengeInvitation (update):', updateError);
+        throw updateError;
       }
     }
 
@@ -411,11 +454,11 @@ export const respondToChallengeInvitation = async (
       receiver_id: invitationData.receiver_id,
       status: invitationData.status,
       created_at: invitationData.created_at,
-      challenge: mapChallengeFromDb(invitationData.challenge as DbChallenge),
+      challenge: mapChallengeFromDb(challengeData as DbChallenge),
       sender: {
-        id: invitationData.sender.id,
-        username: invitationData.sender.username,
-        avatar_url: invitationData.sender.avatar_url,
+        id: senderData.id,
+        username: senderData.email?.split('@')[0] || 'User',
+        avatar_url: '',
       },
     };
   } catch (error) {
@@ -465,7 +508,6 @@ export const fetchChallengeInvitations = async (userId: string): Promise<Challen
   }
 };
 
-// Alias for fetchChallengeInvitations to maintain backward compatibility
 export const getPendingChallengeInvitations = fetchChallengeInvitations;
 
 export const updateHabitCompletion = async (habitId: string, completionDates: string[]) => {
@@ -543,15 +585,31 @@ export const updateChallengeHabits = async (challengeId: string, habits: string[
   }
 };
 
-export const fetchRecommendedChallenges = async (): Promise<RecommendedChallengeData[]> => {
+export const fetchRecommendedChallenges = async (userId: string): Promise<RecommendedChallengeData[]> => {
   try {
-    const { data, error } = await supabase
+    const { data: recommendedData, error: recommendedError } = await supabase
       .from("recommended_challenges")
       .select("*");
 
-    if (error) throw error;
+    if (recommendedError) throw recommendedError;
 
-    return data.map((challenge) => ({
+    const { data: activeChallenges, error: activeError } = await supabase
+      .from('challenges')
+      .select('name')
+      .contains('participants', [userId])
+      .gt('end_date', new Date().toISOString());
+
+    if (activeError) throw activeError;
+
+    const activeChallengeNames = new Set(
+      (activeChallenges || []).map(challenge => challenge.name.toLowerCase())
+    );
+
+    const filteredChallenges = recommendedData.filter(
+      challenge => !activeChallengeNames.has(challenge.name.toLowerCase())
+    );
+
+    return filteredChallenges.map((challenge) => ({
       id: challenge.id,
       name: challenge.name,
       duration: challenge.duration.toString(),
@@ -566,39 +624,6 @@ export const fetchRecommendedChallenges = async (): Promise<RecommendedChallenge
     throw error;
   }
 };
-
-export interface CompletedChallenge {
-  id: string;
-  name: string;
-  beforePhotoUri: string | null;
-  afterPhotoUri: string | null;
-  endDate: string;
-  startDate: string;
-  habits: string[];
-  participants: string[];
-}
-
-interface CompletedChallengeDb {
-  id: string;
-  name: string;
-  before_photo_uri: string | null;
-  after_photo_uri: string | null;
-  end_date: string;
-  start_date: string;
-  habits: string[];
-  participants: string[];
-}
-
-const mapCompletedChallengeFromDb = (dbChallenge: CompletedChallengeDb): CompletedChallenge => ({
-  id: dbChallenge.id,
-  name: dbChallenge.name,
-  beforePhotoUri: dbChallenge.before_photo_uri,
-  afterPhotoUri: dbChallenge.after_photo_uri,
-  endDate: dbChallenge.end_date,
-  startDate: dbChallenge.start_date,
-  habits: dbChallenge.habits,
-  participants: dbChallenge.participants,
-});
 
 export const fetchCompletedChallenges = async (): Promise<Challenge[]> => {
   try {
@@ -841,7 +866,6 @@ export const uploadProfilePhoto = async (userId: string, photoUri: string): Prom
       throw signedUrlError || new Error("No signed URL returned");
     }
 
-    // Update avatar_url using database function
     const { error: updateError } = await supabase
       .rpc('update_user_avatar', { 
         user_id: userId, 
@@ -953,7 +977,6 @@ export const getFriends = async (userId: string): Promise<Friend[]> => {
 
     if (error) throw error;
 
-    // Map the data to Friend interface
     return (data || []).map(request => ({
       id: request.id,
       user_id: request.sender_id === userId ? request.sender_id : request.receiver_id,
@@ -966,7 +989,6 @@ export const getFriends = async (userId: string): Promise<Friend[]> => {
   }
 };
 
-// Alias for getFriends to maintain backward compatibility
 export const fetchFriends = getFriends;
 
 export const fetchPendingFriendRequests = async (userId: string) => {
@@ -1080,7 +1102,6 @@ export const subscribeToPokeNotifications = (userId: string, onPokeReceived: (se
       },
       (payload: { new: { sender_id: string } }) => {
         try {
-          // Fetch sender's name
           supabase
             .from('user_profiles')
             .select('name')

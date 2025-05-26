@@ -179,6 +179,7 @@ const AddHabitModal = ({
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          bounces={false}
         >
           <View style={styles.inputContainer}>
             <ThemedText style={styles.label} bold>
@@ -219,13 +220,16 @@ const AddHabitModal = ({
           )}
 
           <View style={styles.challengeContainer}>
-            <ThemedText style={styles.label}>
+            <ThemedText style={styles.label} bold>
               {t("part_of_challenge")}
             </ThemedText>
             <Switch
               value={isPartOfChallenge}
               onValueChange={handleTogglePartOfChallenge}
-              trackColor={{ false: Colors.LightGray, true: Colors.HotPink }}
+              trackColor={{
+                false: Colors.LightGray,
+                true: Colors.HotPink,
+              }}
               thumbColor={Colors.White}
             />
           </View>
@@ -251,13 +255,7 @@ const AddHabitModal = ({
                 onItemSelect={handleChallengeChange}
                 noItemsText={t("no_active_challenges")}
                 error={errors.challenges}
-                expandHeight
               />
-              {errors.challenges ? (
-                <ThemedText style={styles.errorText}>
-                  {errors.challenges}
-                </ThemedText>
-              ) : null}
             </View>
           )}
 
@@ -283,13 +281,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingHorizontal: 20,
-    width: "100%",
+    padding: 20,
     maxHeight: "90%",
-    flex: 1,
   },
   scrollView: {
-    flex: 1,
+    maxHeight: "100%",
   },
   scrollContent: {
     paddingBottom: 20,
@@ -305,8 +301,8 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: Colors.LightGray,
-    borderRadius: 10,
-    padding: 10,
+    borderRadius: 8,
+    padding: 12,
     fontSize: 16,
   },
   inputError: {
@@ -315,12 +311,12 @@ const styles = StyleSheet.create({
   errorText: {
     color: Colors.HotPink,
     fontSize: 14,
-    marginTop: 5,
+    marginTop: 4,
   },
   challengeContainer: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 20,
   },
   challengesList: {

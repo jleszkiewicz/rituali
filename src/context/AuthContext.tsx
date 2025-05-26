@@ -146,7 +146,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     name: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      console.log("Registering with name:", name);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -166,7 +165,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (data.user) {
-        console.log("Registration successful, user data:", data.user);
         setUserDataFromAuth(data.user);
         return { success: true };
       }

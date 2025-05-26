@@ -151,7 +151,6 @@ export default function AddChallengeModal({
       const newChallenge = await addChallenge(userId, challengeToSubmit);
 
       if (isWithBuddy && selectedBuddies.length > 0) {
-        // Send invitations to selected buddies
         await Promise.all(
           selectedBuddies.map((buddyId) =>
             sendChallengeInvitation(newChallenge.id, userId, buddyId)

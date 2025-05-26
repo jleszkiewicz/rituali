@@ -10,10 +10,12 @@ import { useRouter } from "expo-router";
 
 interface YourChallengeCardProps {
   challenge: ChallengeData;
+  onChallengeDeleted?: () => void;
 }
 
 export default function YourChallengeCard({
   challenge,
+  onChallengeDeleted,
 }: YourChallengeCardProps) {
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const router = useRouter();
@@ -40,6 +42,13 @@ export default function YourChallengeCard({
       });
     } else {
       setIsInfoModalVisible(true);
+    }
+  };
+
+  const handleChallengeDeleted = () => {
+    setIsInfoModalVisible(false);
+    if (onChallengeDeleted) {
+      onChallengeDeleted();
     }
   };
 
@@ -70,6 +79,7 @@ export default function YourChallengeCard({
         isVisible={isInfoModalVisible}
         onClose={() => setIsInfoModalVisible(false)}
         challenge={challenge}
+        onChallengeDeleted={handleChallengeDeleted}
       />
     </>
   );

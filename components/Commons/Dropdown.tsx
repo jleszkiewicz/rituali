@@ -19,7 +19,6 @@ interface DropdownProps {
   onItemSelect: (id: string) => void;
   noItemsText: string;
   error?: string;
-  expandHeight?: boolean;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -31,7 +30,6 @@ const Dropdown: React.FC<DropdownProps> = ({
   onItemSelect,
   noItemsText,
   error,
-  expandHeight,
 }) => {
   return (
     <View style={styles.container}>
@@ -154,8 +152,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.LightGray,
   },
   selectedItem: {
     backgroundColor: Colors.ButterYellow,

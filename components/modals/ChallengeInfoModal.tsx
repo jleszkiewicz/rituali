@@ -31,12 +31,14 @@ interface ChallengeInfoModalProps {
   isVisible: boolean;
   onClose: () => void;
   challenge: ChallengeData;
+  onChallengeDeleted?: () => void;
 }
 
 const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
   isVisible,
   onClose,
   challenge,
+  onChallengeDeleted,
 }) => {
   const today = new Date();
   const dispatch = useDispatch();
@@ -89,7 +91,6 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
       dispatch(setHabits(updatedHabits));
       dispatch(setChallenges(updatedChallenges));
 
-      // Close only the select habits modal
       setIsSelectHabitsModalVisible(false);
     } catch (error) {
       console.error("Error adding habits to challenge:", error);
@@ -102,7 +103,11 @@ const ChallengeInfoModal: React.FC<ChallengeInfoModalProps> = ({
       await deleteChallenge(challenge.id);
       const updatedChallenges = await fetchUserChallenges(userId);
       dispatch(setChallenges(updatedChallenges));
+      setIsDeleteConfirmationVisible(false);
       onClose();
+      if (onChallengeDeleted) {
+        onChallengeDeleted();
+      }
     } catch (error) {
       console.error("Error deleting challenge:", error);
     }

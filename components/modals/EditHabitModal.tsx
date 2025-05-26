@@ -242,6 +242,27 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
           />
 
           <View style={styles.inputContainer}>
+            <FrequencySelector
+              frequency={habitData.frequency}
+              onFrequencyChange={(frequency) =>
+                setHabitData((prev) => ({ ...prev, frequency }))
+              }
+            />
+
+            {habitData.frequency === "selected_days" && (
+              <>
+                <DaySelector
+                  selectedDays={habitData.selectedDays}
+                  onDayToggle={handleDaySelect}
+                />
+                {errors.selectedDays && (
+                  <ThemedText style={styles.errorText}>
+                    {errors.selectedDays}
+                  </ThemedText>
+                )}
+              </>
+            )}
+
             <TouchableOpacity
               style={styles.switchContainer}
               onPress={handleTogglePartOfChallenge}
@@ -278,8 +299,6 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
                 onItemSelect={handleChallengeChange}
                 noItemsText={t("no_active_challenges")}
                 error={errors.challenges}
-                expandHeight
-                additionalStyle={styles.dropdown}
               />
             )}
             {errors.challenges && (
@@ -288,27 +307,6 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
               </ThemedText>
             )}
           </View>
-
-          <FrequencySelector
-            frequency={habitData.frequency}
-            onFrequencyChange={(frequency) =>
-              setHabitData((prev) => ({ ...prev, frequency }))
-            }
-          />
-
-          {habitData.frequency === "selected_days" && (
-            <>
-              <DaySelector
-                selectedDays={habitData.selectedDays}
-                onDayToggle={handleDaySelect}
-              />
-              {errors.selectedDays && (
-                <ThemedText style={styles.errorText}>
-                  {errors.selectedDays}
-                </ThemedText>
-              )}
-            </>
-          )}
 
           <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
         </ScrollView>

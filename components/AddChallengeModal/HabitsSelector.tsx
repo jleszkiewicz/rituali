@@ -68,7 +68,6 @@ const HabitsSelector: React.FC<HabitsSelectorProps> = ({
         onItemSelect={onToggleHabit}
         noItemsText={t("no_active_habits")}
         error={error}
-        expandHeight
       />
     </View>
   );

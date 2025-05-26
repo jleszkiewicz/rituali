@@ -44,6 +44,7 @@ const CategoriesSelector = ({
           onCategoryChange(id as HabitCategory);
           setIsCategoryExpanded(false);
         }}
+        noItemsText={t("no_categories")}
       />
     </View>
   );
