@@ -39,12 +39,14 @@ interface AddChallengeModalProps {
   isVisible: boolean;
   onClose: () => void;
   onAddHabit?: () => void;
+  onSuccess?: (isWithBuddy: boolean) => void;
 }
 
 export default function AddChallengeModal({
   isVisible,
   onClose,
   onAddHabit,
+  onSuccess,
 }: AddChallengeModalProps) {
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
@@ -181,18 +183,15 @@ export default function AddChallengeModal({
       setIsWithBuddy(false);
       setSelectedBuddies([]);
 
-      showModal(
-        t("success"),
-        isWithBuddy
-          ? t("challenge_created_with_invitations")
-          : t("challenge_created"),
-        "success"
-      );
-
       onClose();
+      if (onSuccess) {
+        onSuccess(isWithBuddy);
+      }
     } catch (error) {
       console.error("Error adding challenge:", error);
-      showModal(t("error"), t("unknown_error"), "error");
+      if (onSuccess) {
+        onSuccess(false);
+      }
     }
   };
 

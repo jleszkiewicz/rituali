@@ -2,19 +2,40 @@ import React, { useState, useEffect } from "react";
 import { Colors } from "@/constants/Colors";
 import { Ionicons, Octicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { TouchableOpacity, StyleSheet, Platform } from "react-native";
+import { TouchableOpacity, StyleSheet, Platform, View } from "react-native";
 import AddOptionsModal from "@/components/modals/AddOptionsModal";
 import AddHabitModal from "@/components/modals/AddHabitModal";
 import AddChallengeModal from "@/components/modals/AddChallengeModal";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { AppScreens } from "@/src/routes/AppScreens";
+import CustomModal from "@/components/Commons/CustomModal";
+import { t } from "@/src/service/translateService";
+import { useColorScheme } from "react-native";
+import { useSelector } from "react-redux";
+import { selectUserId } from "@/src/store/userSlice";
+import { useRouter } from "expo-router";
 
 export default function TabsLayout() {
+  const colorScheme = useColorScheme();
+  const userId = useSelector(selectUserId);
+  const router = useRouter();
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
   const [isAddChallengeModalVisible, setIsAddChallengeModalVisible] =
     useState(false);
   const [isConnected, setIsConnected] = useState(true);
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
+  const [successModalConfig, setSuccessModalConfig] = useState<{
+    title: string;
+    message: string;
+    type: "success" | "error";
+    isWithBuddy?: boolean;
+  }>({
+    title: "",
+    message: "",
+    type: "success",
+    isWithBuddy: false,
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -66,8 +87,20 @@ export default function TabsLayout() {
     setIsAddChallengeModalVisible(true);
   };
 
+  const handleChallengeSuccess = (isWithBuddy: boolean) => {
+    setSuccessModalConfig({
+      title: t("success"),
+      message: isWithBuddy
+        ? t("challenge_created_with_invitations")
+        : t("challenge_created"),
+      type: "success",
+      isWithBuddy,
+    });
+    setSuccessModalVisible(true);
+  };
+
   return (
-    <>
+    <View style={styles.root}>
       <Tabs
         screenOptions={{
           tabBarIconStyle: {
@@ -166,12 +199,30 @@ export default function TabsLayout() {
       <AddChallengeModal
         isVisible={isAddChallengeModalVisible}
         onClose={() => setIsAddChallengeModalVisible(false)}
+        onSuccess={handleChallengeSuccess}
       />
-    </>
+
+      {successModalVisible && (
+        <View style={styles.modalContainer}>
+          <CustomModal
+            visible={successModalVisible}
+            onClose={() => setSuccessModalVisible(false)}
+            title={successModalConfig.title}
+            message={successModalConfig.message}
+            type={successModalConfig.type}
+            isWithBuddy={successModalConfig.isWithBuddy}
+          />
+        </View>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    position: "relative",
+  },
   button: {
     position: "absolute",
     top: -0,
@@ -188,5 +239,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.5,
     elevation: 5,
+  },
+  modalContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 9999,
   },
 });

@@ -287,21 +287,8 @@ export const sendChallengeInvitation = async (
   receiverId: string
 ): Promise<ChallengeInvitation> => {
   try {
-    const { data: senderData, error: senderError } = await supabase
-      .rpc('get_user_by_email', { user_email: senderId });
-
-    if (senderError || !senderData || !senderData.id) {
-      console.error('Supabase error in sendChallengeInvitation (sender):', senderError);
-      throw new Error('Sender not found');
-    }
-
-    const { data: receiverData, error: receiverError } = await supabase
-      .rpc('get_user_by_email', { user_email: receiverId });
-
-    if (receiverError || !receiverData || !receiverData.id) {
-      console.error('Supabase error in sendChallengeInvitation (receiver):', receiverError);
-      throw new Error('Receiver not found');
-    }
+    const senderData = { id: senderId };
+    const receiverData = { id: receiverId };
 
     const { data: challengeData, error: challengeError } = await supabase
       .from('challenges')
@@ -365,7 +352,7 @@ export const sendChallengeInvitation = async (
       challenge: mapChallengeFromDb(challengeData as DbChallenge),
       sender: {
         id: senderData.id,
-        username: senderData.email?.split('@')[0] || 'User',
+        username: 'User',
         avatar_url: '',
       },
     };
@@ -964,24 +951,30 @@ interface Friend {
   id: string;
   user_id: string;
   friend_id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  completion_percentage: number;
   created_at: string;
 }
 
 export const getFriends = async (userId: string): Promise<Friend[]> => {
   try {
     const { data, error } = await supabase
-      .from("friend_requests")
-      .select("*")
-      .eq("status", "accepted")
-      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+      .rpc('get_friends', { user_id: userId });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error in get_friends:", error);
+      throw error;
+    }
 
-    return (data || []).map(request => ({
-      id: request.id,
-      user_id: request.sender_id === userId ? request.sender_id : request.receiver_id,
-      friend_id: request.sender_id === userId ? request.receiver_id : request.sender_id,
-      created_at: request.created_at
+    return (data || []).map((friend: any) => ({
+      id: friend.id,
+      user_id: userId,
+      friend_id: friend.id,
+      display_name: friend.display_name === 'User' ? null : friend.display_name,
+      avatar_url: friend.avatar_url || null,
+      completion_percentage: friend.completion_percentage || 0,
+      created_at: new Date().toISOString()
     }));
   } catch (error) {
     console.error("Error getting friends:", error);
