@@ -26,7 +26,6 @@ const FriendsList: React.FC<FriendsListProps> = ({
   onFriendRemoved,
 }) => {
   const userId = useSelector(selectUserId);
-  const [isPoking, setIsPoking] = useState<string | null>(null);
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
   const [friendToRemove, setFriendToRemove] = useState<string | null>(null);
 
@@ -34,7 +33,6 @@ const FriendsList: React.FC<FriendsListProps> = ({
     if (!userId) return false;
 
     try {
-      setIsPoking(friendId);
       const canPoke = await canSendPoke(userId, friendId);
 
       if (!canPoke) {
@@ -46,8 +44,6 @@ const FriendsList: React.FC<FriendsListProps> = ({
     } catch (error) {
       console.error("Error sending poke:", error);
       return false;
-    } finally {
-      setIsPoking(null);
     }
   };
 
@@ -76,7 +72,7 @@ const FriendsList: React.FC<FriendsListProps> = ({
   }
 
   return (
-    <View>
+    <View style={styles.container}>
       <ThemedText style={styles.title} bold>
         {t("friends_list")}
       </ThemedText>
@@ -99,6 +95,9 @@ const FriendsList: React.FC<FriendsListProps> = ({
 };
 
 const styles = StyleSheet.create({
+  container: {
+    marginBottom: 20,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",

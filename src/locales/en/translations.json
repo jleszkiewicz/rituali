@@ -223,5 +223,6 @@
   "reject": "Reject",
   "pending_invitations": "Pending challenge invitations",
   "from": "From",
-  "habits_in_challenge": "Habits in challenge"
+  "habits_in_challenge": "Habits in challenge",
+  "shared_challenges": "Shared challenges"
 }
