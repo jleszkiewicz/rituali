@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     borderRadius: 16,
     padding: 24,
-    width: "80%",
+    width: "90%",
     alignItems: "center",
   },
   illustration: {
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   deleteButtonText: {
-    color: Colors.HotPink,
+    color: Colors.White,
   },
 });
 

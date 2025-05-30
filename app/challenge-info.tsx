@@ -6,7 +6,7 @@ import { t } from "@/src/service/translateService";
 import { ThemedText } from "@/components/Commons/ThemedText";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
-import { selectUserId } from "@/src/store/userSlice";
+import { selectUserId, selectDisplayName } from "@/src/store/userSlice";
 import { selectHabits } from "@/src/store/habitsSlice";
 import { setChallenges } from "@/src/store/challengesSlice";
 import { setHabits } from "@/src/store/habitsSlice";
@@ -16,13 +16,12 @@ import ConfirmationModal from "@/components/modals/DeleteAccountModal";
 import { HabitData } from "@/components/AddHabitModal/types";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
-import ParticipantsProgress from "@/components/SharedChallengeScreen/ParticipantsProgress";
-import ActionButtons from "@/components/SharedChallengeScreen/ActionButtons";
 import CompletionStats from "@/components/SharedChallengeScreen/CompletionStats";
+import PrimaryButton from "@/components/Commons/PrimaryButton";
+import { supabase } from "@/src/service/supabaseClient";
 import {
   fetchSharedChallenge,
   fetchChallengeParticipants,
-  leaveSharedChallenge,
   deleteSharedChallenge,
   updateChallengeHabits,
   fetchUserHabits,
@@ -31,31 +30,24 @@ import {
 } from "@/src/service/apiService";
 import Loading from "@/components/Commons/Loading";
 
-interface ParticipantProgress {
+interface ParticipantStats {
   id: string;
   display_name: string | null;
   avatar_url: string | null;
-  completion_percentage: number;
+  completionHistory: {
+    date: string;
+    completion_percentage: number;
+  }[];
 }
 
-interface CompletionDay {
-  date: string;
-  completion_percentage: number;
-}
-
-interface ParticipantStats extends ParticipantProgress {
-  completionHistory: CompletionDay[];
-}
-
-export default function SharedChallengeScreen() {
+export default function ChallengeInfoScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
+  const displayName = useSelector(selectDisplayName);
   const habits = useSelector(selectHabits);
   const [challenge, setChallenge] = useState<ChallengeData | null>(null);
-  const [participants, setParticipants] = useState<ParticipantProgress[]>([]);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [participantsStats, setParticipantsStats] = useState<
     ParticipantStats[]
   >([]);
@@ -71,56 +63,30 @@ export default function SharedChallengeScreen() {
     }
   }, [id]);
 
-  useEffect(() => {
-    setCurrentUserId(userId);
-  }, [userId]);
-
   const loadChallenge = async () => {
     try {
       const challengeData = await fetchSharedChallenge(id as string);
       setChallenge(challengeData);
 
-      if (challengeData) {
-        const participantsData = await fetchChallengeParticipants(
-          challengeData
-        );
-        setParticipants(participantsData);
-
-        const participantsWithHistory = await Promise.all(
-          participantsData.map(async (participant) => {
-            const history = await fetchChallengeCompletionHistory(
-              challengeData.id,
-              participant.id
-            );
-            return {
-              ...participant,
-              completionHistory: history,
-            };
-          })
+      if (challengeData && userId) {
+        const history = await fetchChallengeCompletionHistory(
+          challengeData.id,
+          userId
         );
 
-        setParticipantsStats(participantsWithHistory);
+        setParticipantsStats([
+          {
+            id: userId,
+            display_name: displayName,
+            avatar_url: null,
+            completionHistory: history,
+          },
+        ]);
       }
     } catch (error) {
       console.error("Error loading challenge:", error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleLeaveChallenge = async () => {
-    if (!userId || !challenge) return;
-    try {
-      const { updatedHabits, updatedChallenges } = await leaveSharedChallenge(
-        challenge.id,
-        userId
-      );
-
-      dispatch(setHabits(updatedHabits));
-      dispatch(setChallenges(updatedChallenges));
-      router.back();
-    } catch (error) {
-      console.error("Error leaving challenge:", error);
     }
   };
 
@@ -197,39 +163,33 @@ export default function SharedChallengeScreen() {
         onBack={() => router.push("/challenges")}
       />
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <View>
-          <HabitsSection
-            habits={challengeHabits}
-            challengeId={challenge.id}
-            headerColor={Colors.PrimaryGray}
-            onAddHabit={handleAddHabit}
-          />
+        <HabitsSection
+          habits={challengeHabits}
+          challengeId={challenge.id}
+          headerColor={Colors.PrimaryGray}
+          onAddHabit={handleAddHabit}
+        />
 
-          <ThemedText style={styles.sectionTitle} bold>
-            {t("participants_progress")}
+        <ThemedText style={styles.sectionTitle} bold>
+          {t("completion_stats")}
+        </ThemedText>
+
+        <CompletionStats
+          participants={participantsStats}
+          currentUserId={userId}
+          challengeStartDate={challenge.startDate}
+          challengeEndDate={challenge.endDate}
+          hideLegend={true}
+        />
+
+        <PrimaryButton
+          style={styles.deleteButton}
+          onPress={() => setIsDeleteConfirmationVisible(true)}
+        >
+          <ThemedText style={styles.deleteButtonText} bold>
+            {t("delete_challenge")}
           </ThemedText>
-          <ParticipantsProgress
-            participants={participants}
-            currentUserId={currentUserId}
-          />
-
-          <ThemedText style={styles.sectionTitle} bold>
-            {t("completion_stats")}
-          </ThemedText>
-
-          <CompletionStats
-            participants={participantsStats}
-            currentUserId={currentUserId}
-            challengeStartDate={challenge.startDate}
-            challengeEndDate={challenge.endDate}
-          />
-
-          <ActionButtons
-            onLeaveChallenge={handleLeaveChallenge}
-            onDeleteChallenge={() => setIsDeleteConfirmationVisible(true)}
-            isCreator={challenge.participants[0] === currentUserId}
-          />
-        </View>
+        </PrimaryButton>
       </ScrollView>
 
       <SelectHabitsModal
@@ -247,7 +207,7 @@ export default function SharedChallengeScreen() {
         onClose={() => setIsDeleteConfirmationVisible(false)}
         onConfirm={handleDelete}
         title={t("delete_challenge_confirmation_title")}
-        message={t("delete_challenge_confirmation_message_shared")}
+        message={t("delete_challenge_confirmation_message")}
       />
     </ScreenWrapper>
   );
@@ -261,5 +221,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: Colors.PrimaryGray,
     marginVertical: 10,
+  },
+  deleteButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    padding: 15,
+    marginVertical: 20,
+    backgroundColor: Colors.HotPink,
+  },
+  deleteButtonText: {
+    color: Colors.White,
+    fontSize: 16,
   },
 });

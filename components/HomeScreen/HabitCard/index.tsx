@@ -61,12 +61,7 @@ const HabitCard: React.FC<HabitCardProps> = ({
     }
   };
 
-  const streak = calculateStreak(
-    habit.frequency,
-    habit.startDate,
-    habit.completionDates,
-    habit.selectedDays
-  );
+  const streak = calculateStreak(habit.startDate, habit.completionDates);
 
   return (
     <View style={styles.card}>

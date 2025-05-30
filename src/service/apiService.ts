@@ -9,8 +9,6 @@ import { decode } from "base64-arraybuffer";
 const mapHabitFromDb = (dbHabit: any): HabitData => ({
   id: dbHabit.id,
   name: dbHabit.name,
-  frequency: dbHabit.frequency,
-  selectedDays: dbHabit.selected_days,
   completionDates: dbHabit.completion_dates,
   category: dbHabit.category,
   isPartOfChallenge: dbHabit.is_part_of_challenge,
@@ -21,8 +19,6 @@ const mapHabitFromDb = (dbHabit: any): HabitData => ({
 
 const mapHabitToDb = (habit: HabitData): any => ({
   name: habit.name,
-  frequency: habit.frequency,
-  selected_days: habit.selectedDays,
   completion_dates: habit.completionDates,
   category: habit.category,
   is_part_of_challenge: habit.isPartOfChallenge,
@@ -45,42 +41,7 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
       throw error;
     }
 
-    const { data: invitations, error: invitationsError } = await supabase
-      .from("challenge_invitations")
-      .select("challenge_id")
-      .eq("receiver_id", userId)
-      .eq("status", "accepted");
-
-    if (invitationsError) {
-      throw invitationsError;
-    }
-
-    const challengeIds = invitations?.map(inv => inv.challenge_id) || [];
-
-    const { data: challenges, error: challengesError } = await supabase
-      .from("challenges")
-      .select("habits")
-      .in("id", challengeIds);
-
-    if (challengesError) {
-      throw challengesError;
-    }
-
-    const challengeHabitIds = challenges?.flatMap(challenge => challenge.habits || []) || [];
-
-    const { data: challengeHabits, error: challengeHabitsError } = await supabase
-      .from("habits")
-      .select("*")
-      .in("id", challengeHabitIds);
-
-    if (challengeHabitsError) {
-      throw challengeHabitsError;
-    }
-
-    const allHabits = [...(data || []), ...(challengeHabits || [])];
-
-    const mappedHabits = allHabits.map(mapHabitFromDb);
-    return mappedHabits;
+    return (data || []).map(mapHabitFromDb);
   } catch (error) {
     console.error("Error fetching user habits:", error);
     throw error;
@@ -99,17 +60,6 @@ export interface RecommendedChallengeData {
   habits_it: string[];
 }
 
-export interface Challenge {
-  id: string;
-  name: string;
-  beforePhotoUri: string | null;
-  afterPhotoUri: string | null;
-  endDate: string;
-  startDate: string;
-  habits: string[];
-  participants: string[];
-}
-
 interface DbChallenge {
   id: string;
   name: string;
@@ -121,20 +71,27 @@ interface DbChallenge {
   participants: string[];
 }
 
-const mapChallengeFromDb = (dbChallenge: DbChallenge): ChallengeData => {
-  const mapped = {
-    id: dbChallenge.id,
-    name: dbChallenge.name,
-    beforePhotoUri: dbChallenge.before_photo_uri,
-    afterPhotoUri: dbChallenge.after_photo_uri,
-    endDate: dbChallenge.end_date,
-    startDate: dbChallenge.start_date,
-    habits: Array.isArray(dbChallenge.habits) ? dbChallenge.habits : [],
-    participants: Array.isArray(dbChallenge.participants) ? dbChallenge.participants : [],
-  };
+const mapChallengeFromDb = (dbChallenge: DbChallenge): ChallengeData => ({
+  id: dbChallenge.id,
+  name: dbChallenge.name,
+  beforePhotoUri: dbChallenge.before_photo_uri || undefined,
+  afterPhotoUri: dbChallenge.after_photo_uri || undefined,
+  startDate: dbChallenge.start_date,
+  endDate: dbChallenge.end_date,
+  habits: dbChallenge.habits || [],
+  participants: dbChallenge.participants || []
+});
 
-  return mapped;
-};
+const mapChallengeToDb = (challenge: ChallengeData): DbChallenge => ({
+  id: challenge.id,
+  name: challenge.name,
+  before_photo_uri: challenge.beforePhotoUri || null,
+  after_photo_uri: challenge.afterPhotoUri || null,
+  start_date: challenge.startDate,
+  end_date: challenge.endDate,
+  habits: challenge.habits,
+  participants: challenge.participants
+});
 
 export const getActiveChallenges = async (userId: string): Promise<ChallengeData[]> => {
   try {
@@ -148,7 +105,6 @@ export const getActiveChallenges = async (userId: string): Promise<ChallengeData
       .order('start_date', { ascending: true });
 
     if (error) {
-      console.error('Error fetching active challenges:', error);
       throw error;
     }
 
@@ -156,18 +112,35 @@ export const getActiveChallenges = async (userId: string): Promise<ChallengeData
       return [];
     }
 
-    return data.map(challenge => ({
-      id: challenge.id,
-      name: challenge.name,
-      beforePhotoUri: challenge.before_photo_uri,
-      afterPhotoUri: challenge.after_photo_uri,
-      endDate: challenge.end_date,
-      startDate: challenge.start_date,
-      habits: challenge.habits || [],
-      participants: challenge.participants || []
-    }));
+    return data.map(challenge => mapChallengeFromDb(challenge as DbChallenge));
   } catch (error) {
-    console.error('Error in getActiveChallenges:', error);
+    throw error;
+  }
+};
+
+export const getSharedActiveChallenges = async (userId: string): Promise<ChallengeData[]> => {
+  try {
+    const today = new Date().toISOString();
+    
+    const { data, error } = await supabase
+      .from('challenges')
+      .select('*')
+      .contains('participants', [userId])
+      .gt('end_date', today)
+      .order('start_date', { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      return [];
+    }
+
+    const sharedChallenges = data.filter(challenge => challenge.participants.length > 1);
+
+    return sharedChallenges.map(challenge => mapChallengeFromDb(challenge as DbChallenge));
+  } catch (error) {
     throw error;
   }
 };
@@ -211,13 +184,11 @@ export const addHabit = async (userId: string | null, habit: HabitData) => {
   const dbHabit = {
     user_id: userId,
     name: habit.name,
-    frequency: habit.frequency,
-    selected_days: habit.selectedDays,
     completion_dates: habit.completionDates,
     category: habit.category,
     is_part_of_challenge: habit.isPartOfChallenge,
-    start_date: format(new Date(), dateFormat),
-    end_date: null,
+    start_date: habit.startDate,
+    end_date: habit.endDate,
     status: habit.status,
   };
 
@@ -246,7 +217,7 @@ interface ChallengeInput {
 export const addChallenge = async (
   userId: string,
   challengeData: ChallengeInput
-): Promise<Challenge> => {
+): Promise<ChallengeData> => {
   try {
     const startDate = challengeData.startDate || new Date().toISOString();
     const endDate = challengeData.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -369,7 +340,7 @@ interface ChallengeInvitation {
   receiver_id: string;
   status: string;
   created_at: string;
-  challenge: Challenge;
+  challenge: ChallengeData;
   sender: {
     id: string;
     username: string;
@@ -410,27 +381,45 @@ export const respondToChallengeInvitation = async (
     }
 
     const { data: senderData, error: senderError } = await supabase
-      .from('auth.users')
-      .select('id, email')
-      .eq('id', invitationData.sender_id)
-      .single();
+      .rpc('get_user_by_id', { user_id: invitationData.sender_id });
 
     if (senderError) {
-      console.error('Supabase error in respondToChallengeInvitation (sender):', senderError);
-      throw senderError;
+      console.error('Error fetching sender data:', senderError);
     }
 
+    console.log('Sender data:', senderData);
+
     if (status === 'accepted') {
+      console.log('Accepting invitation. Current participants:', challengeData.participants);
+      console.log('Adding participant:', invitationData.receiver_id);
+
+      // Ensure we don't add duplicate participants
+      const updatedParticipants = [...new Set([...challengeData.participants, invitationData.receiver_id])];
+      console.log('Updated participants:', updatedParticipants);
+
       const { error: updateError } = await supabase
         .from('challenges')
         .update({
-          participants: [...challengeData.participants, invitationData.receiver_id]
+          participants: updatedParticipants
         })
         .eq('id', invitationData.challenge_id);
 
       if (updateError) {
         console.error('Supabase error in respondToChallengeInvitation (update):', updateError);
         throw updateError;
+      }
+
+      // Verify the update
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('challenges')
+        .select('participants')
+        .eq('id', invitationData.challenge_id)
+        .single();
+
+      if (verifyError) {
+        console.error('Error verifying challenge update:', verifyError);
+      } else {
+        console.log('Verified participants after update:', verifyData.participants);
       }
 
       const { data: challengeHabits, error: habitsError } = await supabase
@@ -447,8 +436,6 @@ export const respondToChallengeInvitation = async (
       const newHabits = challengeHabits.map(habit => ({
         user_id: invitationData.receiver_id,
         name: habit.name,
-        frequency: habit.frequency,
-        selected_days: habit.selected_days,
         completion_dates: [],
         category: habit.category,
         is_part_of_challenge: true,
@@ -476,9 +463,9 @@ export const respondToChallengeInvitation = async (
       created_at: invitationData.created_at,
       challenge: mapChallengeFromDb(challengeData as DbChallenge),
       sender: {
-        id: senderData.id,
-        username: senderData.email?.split('@')[0] || 'User',
-        avatar_url: '',
+        id: senderData?.id || invitationData.sender_id,
+        username: senderData?.display_name || senderData?.email?.split('@')[0] || 'User',
+        avatar_url: senderData?.avatar_url || ''
       },
     };
   } catch (error) {
@@ -489,6 +476,8 @@ export const respondToChallengeInvitation = async (
 
 export const fetchChallengeInvitations = async (userId: string): Promise<ChallengeInvitation[]> => {
   try {
+    console.log('Fetching invitations for user:', userId);
+    
     const { data, error } = await supabase
       .from('challenge_invitations')
       .select(`
@@ -500,28 +489,53 @@ export const fetchChallengeInvitations = async (userId: string): Promise<Challen
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Supabase error in fetchChallengeInvitations:', error);
+      console.error('Error fetching invitations:', error);
       throw error;
     }
 
     if (!data) {
+      console.log('No invitations found');
       return [];
     }
 
-    return data.map(invitation => ({
-      id: invitation.id,
-      challenge_id: invitation.challenge_id,
-      sender_id: invitation.sender_id,
-      receiver_id: invitation.receiver_id,
-      status: invitation.status,
-      created_at: invitation.created_at,
-      challenge: mapChallengeFromDb(invitation.challenge as DbChallenge),
-      sender: {
-        id: invitation.sender_id,
-        username: 'User',
-        avatar_url: ''
-      },
-    }));
+    console.log('Found invitations:', data);
+
+    const invitationsWithSenders = await Promise.all(
+      data.map(async (invitation) => {
+        console.log('Fetching sender data for invitation:', invitation.id, 'sender_id:', invitation.sender_id);
+        
+        // Get user data using get_user_by_id RPC
+        const { data: userData, error: userError } = await supabase
+          .rpc('get_user_by_id', { user_id: invitation.sender_id });
+
+        if (userError) {
+          console.error('Error fetching user data:', userError);
+        }
+
+        console.log('Sender data:', JSON.stringify(userData, null, 2));
+
+        // Get the first user from the array since get_user_by_id returns an array
+        const senderData = userData?.[0] || null;
+
+        return {
+          id: invitation.id,
+          challenge_id: invitation.challenge_id,
+          sender_id: invitation.sender_id,
+          receiver_id: invitation.receiver_id,
+          status: invitation.status,
+          created_at: invitation.created_at,
+          challenge: mapChallengeFromDb(invitation.challenge as DbChallenge),
+          sender: {
+            id: senderData?.id || invitation.sender_id,
+            username: senderData?.email?.split('@')[0] || 'User',
+            avatar_url: senderData?.avatar_url || ''
+          },
+        };
+      })
+    );
+
+    console.log('Final invitations with senders:', invitationsWithSenders);
+    return invitationsWithSenders;
   } catch (error) {
     console.error('Error in fetchChallengeInvitations:', error);
     throw error;
@@ -587,9 +601,25 @@ export const deleteChallenge = async (challengeId: string) => {
 
 export const updateChallengeHabits = async (challengeId: string, habits: string[]) => {
   try {
+    // First fetch the current challenge to get existing habits
+    const { data: challengeData, error: fetchError } = await supabase
+      .from("challenges")
+      .select("habits")
+      .eq("id", challengeId)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching challenge habits:", fetchError);
+      throw fetchError;
+    }
+
+    // Combine existing habits with new ones, removing duplicates
+    const updatedHabits = [...new Set([...(challengeData?.habits || []), ...habits])];
+
+    // Update the challenge with the combined habits
     const { data, error } = await supabase
       .from("challenges")
-      .update({ habits })
+      .update({ habits: updatedHabits })
       .eq("id", challengeId)
       .select();
 
@@ -685,7 +715,7 @@ export const skipAfterPhoto = async (challengeId: string) => {
   }
 };
 
-export const fetchChallengeById = async (challengeId: string): Promise<Challenge> => {
+export const fetchChallengeById = async (challengeId: string): Promise<ChallengeData> => {
   try {
     const { data, error } = await supabase
       .from('challenges')
@@ -1150,7 +1180,7 @@ export const subscribeToPokeNotifications = (userId: string, onPokeReceived: (se
   };
 };
 
-export const markChallengeAsViewed = async (challengeId: string): Promise<Challenge> => {
+export const markChallengeAsViewed = async (challengeId: string): Promise<ChallengeData> => {
   try {
     if (!challengeId) {
       throw new Error('Challenge ID is required');
@@ -1183,7 +1213,7 @@ export const markChallengeAsViewed = async (challengeId: string): Promise<Challe
 export const addRecommendedChallenge = async (
   userId: string,
   challengeData: RecommendedChallengeData
-): Promise<Challenge> => {
+): Promise<ChallengeData> => {
   try {
     const startDate = new Date();
     const endDate = new Date();
@@ -1233,22 +1263,22 @@ export const fetchUserChallenges = async (userId: string): Promise<ChallengeData
       return [];
     }
 
-    return data.map(challenge => ({
-      id: challenge.id,
-      name: challenge.name,
-      beforePhotoUri: challenge.before_photo_uri || undefined,
-      afterPhotoUri: challenge.after_photo_uri || undefined,
-      endDate: challenge.end_date,
-      startDate: challenge.start_date,
-      habits: challenge.habits || [],
-      participants: challenge.participants || []
-    }));
+    // Split challenges into single-user and shared
+    const singleUserChallenges = data
+      .filter(challenge => challenge.participants.length === 1)
+      .map(challenge => mapChallengeFromDb(challenge as DbChallenge));
+
+    const sharedChallenges = data
+      .filter(challenge => challenge.participants.length > 1)
+      .map(challenge => mapChallengeFromDb(challenge as DbChallenge));
+
+    return [...singleUserChallenges, ...sharedChallenges];
   } catch (error) {
     throw error;
   }
 };
 
-export const fetchSharedChallenge = async (challengeId: string) => {
+export const fetchSharedChallenge = async (challengeId: string): Promise<ChallengeData> => {
   const { data, error } = await supabase
     .from("challenges")
     .select("*")
@@ -1279,23 +1309,20 @@ export const fetchChallengeParticipants = async (challengeData: ChallengeData) =
 
   return Promise.all(
     allParticipants.map(async (participant) => {
-      const habits = await fetchUserHabits(participant.id);
-      
-      // Filtrujemy tylko nawyki, które są częścią wyzwania i są aktywne
-      const challengeHabits = habits.filter(
-        (habit) =>
-          challengeData.habits.includes(habit.id) &&
-          habit.status === "active"
-      );
+      const { data: habits } = await supabase
+        .from("habits")
+        .select("completion_dates")
+        .in("id", challengeData.habits)
+        .eq("user_id", participant.id)
+        .eq("status", "active");
 
-      // Sprawdzamy, które nawyki zostały ukończone dzisiaj
+      const challengeHabits = habits || [];
       const completedToday = challengeHabits.filter(habit => 
-        habit.completionDates.includes(todayStr)
+        habit.completion_dates.includes(todayStr)
       ).length;
 
-      // Obliczamy procent ukończenia na podstawie dzisiejszych ukończeń
-      const completionPercentage = challengeHabits.length > 0
-        ? Math.round((completedToday / challengeHabits.length) * 100)
+      const completionPercentage = challengeData.habits.length > 0
+        ? Math.round((completedToday / challengeData.habits.length) * 100)
         : 0;
 
       return {
@@ -1354,7 +1381,8 @@ export const fetchChallengeCompletionHistory = async (challengeId: string, userI
       .from("habits")
       .select("completion_dates")
       .in("id", challenge.habits)
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .eq("status", "active");
 
     if (!habits) return [];
 

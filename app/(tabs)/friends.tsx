@@ -12,6 +12,7 @@ import FriendRequestForm from "@/components/FriendsScreen/FriendRequestForm";
 import PendingFriendRequests from "@/components/FriendsScreen/PendingFriendRequests";
 import FriendsList from "@/components/FriendsScreen/FriendsList";
 import ConditionalRenderer from "@/components/Commons/ConditionalRenderer";
+import Loading from "@/components/Commons/Loading";
 
 interface Friend {
   id: string;
@@ -67,12 +68,9 @@ const FriendsScreen = () => {
 
   if (isLoading) {
     return (
-      <ScreenWrapper showOfflineScreen={false}>
-        <ScreenHeader title={t("friends")} />
-        <View style={styles.loadingContainer}>
-          <ThemedText>{t("loading")}</ThemedText>
-        </View>
-      </ScreenWrapper>
+      <View style={styles.container}>
+        <Loading />
+      </View>
     );
   }
 

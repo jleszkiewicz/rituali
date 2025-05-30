@@ -6,10 +6,9 @@ import {
   View,
   Switch,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
-import DaySelector from "../AddHabitModal/DaySelector";
-import FrequencySelector from "../AddHabitModal/FrequencySelector";
 import { HabitData } from "../AddHabitModal/types";
 import { addHabit, updateChallengeHabits } from "@/src/service/apiService";
 import { useSelector, useDispatch } from "react-redux";
@@ -31,13 +30,13 @@ import Dropdown from "../Commons/Dropdown";
 interface AddHabitModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onAddChallenge?: () => void;
+  onSuccess?: (isPartOfChallenge: boolean) => void;
 }
 
 const AddHabitModal = ({
   isVisible,
   onClose,
-  onAddChallenge,
+  onSuccess,
 }: AddHabitModalProps) => {
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
@@ -50,20 +49,17 @@ const AddHabitModal = ({
   const [errors, setErrors] = useState<{
     name: string;
     challenges: string;
-    selectedDays: string;
   }>({
     name: "",
     challenges: "",
-    selectedDays: "",
   });
+
   const habitDataInitialState: HabitData = {
     id: "",
     name: "",
     category: "other",
-    frequency: "daily",
     startDate: format(new Date(), dateFormat),
     endDate: null,
-    selectedDays: [],
     completionDates: [],
     isPartOfChallenge: false,
     status: "active",
@@ -77,7 +73,6 @@ const AddHabitModal = ({
     setErrors({
       name: "",
       challenges: "",
-      selectedDays: "",
     });
     onClose();
   };
@@ -98,11 +93,12 @@ const AddHabitModal = ({
     setErrors((prev) => ({ ...prev, challenges: "" }));
   };
 
-  const validateForm = () => {
+  const handleSubmit = async () => {
+    if (!userId) return;
+
     const newErrors = {
       name: "",
       challenges: "",
-      selectedDays: "",
     };
 
     if (!habitData.name.trim()) {
@@ -110,58 +106,43 @@ const AddHabitModal = ({
     }
 
     if (isPartOfChallenge && selectedChallengeIds.length === 0) {
-      newErrors.challenges = t("select_at_least_one_challenge");
+      newErrors.challenges = t("select_challenge_required");
     }
 
-    setErrors(newErrors);
-    return !newErrors.name && !newErrors.challenges && !newErrors.selectedDays;
-  };
-
-  const handleSubmit = async () => {
-    if (!validateForm() || !userId) return;
+    if (newErrors.name || newErrors.challenges) {
+      setErrors(newErrors);
+      return;
+    }
 
     try {
-      const habitToSubmit = {
+      const newHabit = await addHabit(userId, {
         ...habitData,
         isPartOfChallenge: isPartOfChallenge,
-      };
-
-      const newHabits = await addHabit(userId, habitToSubmit);
-      const newHabit = newHabits[0];
+      });
 
       if (isPartOfChallenge && selectedChallengeIds.length > 0) {
-        for (const challengeId of selectedChallengeIds) {
-          const challenge = challenges.find((c) => c.id === challengeId);
-          if (challenge) {
-            await updateChallengeHabits(challengeId, [
-              ...challenge.habits,
-              newHabit.id,
-            ]);
-          }
-        }
+        await Promise.all(
+          selectedChallengeIds.map((challengeId) =>
+            updateChallengeHabits(challengeId, [newHabit[0].id])
+          )
+        );
       }
 
-      const [freshChallenges, freshHabits] = await Promise.all([
-        fetchUserChallenges(userId),
+      const [updatedHabits, updatedChallenges] = await Promise.all([
         fetchUserHabits(userId),
+        fetchUserChallenges(userId),
       ]);
 
-      dispatch(setChallenges(freshChallenges));
-      dispatch(setHabits(freshHabits));
+      dispatch(setHabits(updatedHabits));
+      dispatch(setChallenges(updatedChallenges));
 
       handleCloseModal();
+      if (onSuccess) {
+        onSuccess(isPartOfChallenge);
+      }
     } catch (error) {
-      console.error("Error saving habit:", error);
+      console.error("Error adding habit:", error);
     }
-  };
-
-  const handleDaySelect = (day: string) => {
-    setHabitData((prev) => ({
-      ...prev,
-      selectedDays: prev.selectedDays.includes(day)
-        ? prev.selectedDays.filter((d) => d !== day)
-        : [...prev.selectedDays, day],
-    }));
   };
 
   if (!isVisible) return null;
@@ -205,53 +186,50 @@ const AddHabitModal = ({
             initialCategory={habitData.category}
           />
 
-          <FrequencySelector
-            onFrequencyChange={(frequency) => {
-              setHabitData({ ...habitData, frequency });
-            }}
-            frequency={habitData.frequency}
-          />
-
-          {habitData.frequency === "weekly" && (
-            <DaySelector
-              selectedDays={habitData.selectedDays}
-              onDayToggle={handleDaySelect}
-            />
-          )}
-
-          <View style={styles.challengeContainer}>
-            <ThemedText style={styles.label} bold>
+          <TouchableOpacity
+            style={styles.switchContainer}
+            onPress={handleTogglePartOfChallenge}
+          >
+            <ThemedText style={styles.switchText} bold>
               {t("part_of_challenge")}
             </ThemedText>
             <Switch
               value={isPartOfChallenge}
               onValueChange={handleTogglePartOfChallenge}
-              trackColor={{
-                false: Colors.LightGray,
-                true: Colors.HotPink,
-              }}
+              trackColor={{ false: Colors.LightGray, true: Colors.HotPink }}
               thumbColor={Colors.White}
+              ios_backgroundColor={Colors.LightGray}
             />
-          </View>
+          </TouchableOpacity>
 
           {isPartOfChallenge && (
-            <View style={styles.challengesList}>
+            <View style={styles.challengesContainer}>
+              <ThemedText style={styles.label} bold>
+                {t("select_challenge")}
+              </ThemedText>
               <Dropdown
                 isExpanded={isChallengesExpanded}
                 onToggle={() => setIsChallengesExpanded(!isChallengesExpanded)}
                 selectedText={
                   selectedChallengeIds.length > 0
-                    ? `${t("challenges_selected")}: ${
+                    ? `${t("selected_challenges")}: ${
                         selectedChallengeIds.length
                       }`
                     : ""
                 }
-                placeholder={t("select_challenges")}
-                items={challenges.map((challenge) => ({
-                  id: challenge.id,
-                  label: challenge.name,
-                  isSelected: selectedChallengeIds.includes(challenge.id),
-                }))}
+                placeholder={t("select_challenge")}
+                items={challenges
+                  .filter((challenge) => {
+                    const today = new Date();
+                    const startDate = new Date(challenge.startDate);
+                    const endDate = new Date(challenge.endDate);
+                    return today >= startDate && today <= endDate;
+                  })
+                  .map((challenge) => ({
+                    id: challenge.id,
+                    label: challenge.name,
+                    isSelected: selectedChallengeIds.includes(challenge.id),
+                  }))}
                 onItemSelect={handleChallengeChange}
                 noItemsText={t("no_active_challenges")}
                 error={errors.challenges}
@@ -314,14 +292,41 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
   },
-  challengeContainer: {
+  switchContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
   },
-  challengesList: {
+  switchText: {
+    fontSize: 16,
+  },
+  challengesContainer: {
     marginBottom: 20,
+  },
+  challengeItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+  },
+  challengeCheckbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: Colors.HotPink,
+    borderRadius: 4,
+    marginRight: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  checkboxInner: {
+    width: 12,
+    height: 12,
+    backgroundColor: Colors.HotPink,
+    borderRadius: 2,
+  },
+  challengeName: {
+    fontSize: 16,
   },
 });
 

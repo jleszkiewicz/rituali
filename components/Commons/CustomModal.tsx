@@ -11,6 +11,7 @@ interface CustomModalProps {
   message: string;
   type: "success" | "error";
   isWithBuddy?: boolean;
+  isPartOfChallenge?: boolean;
 }
 
 const CustomModal: React.FC<CustomModalProps> = ({
@@ -20,14 +21,19 @@ const CustomModal: React.FC<CustomModalProps> = ({
   message,
   type,
   isWithBuddy,
+  isPartOfChallenge,
 }) => {
   const getImageSource = () => {
     if (type === "error") {
       return require("@/assets/ilustrations/warning.png");
     }
-    return isWithBuddy
-      ? require("@/assets/ilustrations/onboarding2.png")
-      : require("@/assets/ilustrations/success.png");
+    if (isWithBuddy) {
+      return require("@/assets/ilustrations/onboarding2.png");
+    }
+    if (isPartOfChallenge) {
+      return require("@/assets/ilustrations/onboarding2.png");
+    }
+    return require("@/assets/ilustrations/success.png");
   };
 
   return (

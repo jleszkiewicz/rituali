@@ -42,6 +42,8 @@ const HabitsSection: React.FC<HabitsSectionProps> = ({
       <ScrollView
         style={styles.habitsList}
         showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
+        contentContainerStyle={styles.habitsListContent}
       >
         {habits.length === 0 ? (
           <EmptyHabitsList
@@ -88,21 +90,11 @@ const styles = StyleSheet.create({
     color: Colors.ButterYellow,
     fontSize: 16,
   },
-  emptyContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-    backgroundColor: Colors.White,
-    borderRadius: 10,
-  },
-  emptyText: {
-    marginTop: 10,
-    color: Colors.LightGray,
-    fontSize: 16,
-    textAlign: "center",
-  },
   habitsList: {
-    maxHeight: 240,
+    maxHeight: 250,
+  },
+  habitsListContent: {
+    paddingBottom: 10,
   },
 });
 

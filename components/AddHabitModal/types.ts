@@ -8,10 +8,8 @@ export interface HabitData {
   id: string;
   name: string;
   category: HabitCategory;
-  frequency: Frequency;
   startDate: string;
   endDate: string | null;
-  selectedDays: string[];
   completionDates: string[];
   isPartOfChallenge: boolean;
   status: HabitStatus;

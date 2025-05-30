@@ -204,6 +204,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     marginTop: 8,
+    margin: 2,
   },
   menuContent: {
     padding: 12,

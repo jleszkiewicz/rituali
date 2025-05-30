@@ -231,5 +231,9 @@
   "you": "You",
   "completion_stats": "Completion stats",
   "average_completion": "Average completion",
-  "perfect_days": "Perfect days"
+  "perfect_days": "Perfect days",
+  "habit_added_to_challenge": "Habit added to challenge",
+  "habit_added_successfully": "Habit added successfully",
+  "no_habits_in_challenge": "No habits in challenge",
+  "no_habits_in_challenge_summary": "No habits in challenge, so no stats can be displayed."
 }

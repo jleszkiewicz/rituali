@@ -3,8 +3,8 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  Image,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "@/components/Commons/ThemedText";
@@ -35,6 +35,7 @@ interface CompletionStatsProps {
   currentUserId: string | null;
   challengeStartDate: string;
   challengeEndDate: string;
+  hideLegend?: boolean;
 }
 
 export default function CompletionStats({
@@ -42,6 +43,7 @@ export default function CompletionStats({
   currentUserId,
   challengeStartDate,
   challengeEndDate,
+  hideLegend,
 }: CompletionStatsProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -134,7 +136,7 @@ export default function CompletionStats({
   return (
     <View style={styles.section}>
       <View style={styles.statsContainer}>
-        {participantsWithStats.map((participant, index) => {
+        {participantsWithStats.map((participant) => {
           const { averageCompletion, perfectDays } = participant.stats;
 
           return (
@@ -142,12 +144,13 @@ export default function CompletionStats({
               <View style={styles.participantHeader}>
                 <View style={styles.nameContainer}>
                   <ThemedText style={styles.participantName}>
-                    {participant.display_name || "User"}
+                    {participant.display_name?.replace(" ", "\n") || "User"}
                   </ThemedText>
-                  {index === 0 && (
+                  {!hideLegend && (
                     <Image
                       source={require("@/assets/ilustrations/trophy.png")}
                       style={styles.trophyIcon}
+                      resizeMode="contain"
                     />
                   )}
                 </View>
@@ -254,25 +257,36 @@ export default function CompletionStats({
           })}
         </View>
       </View>
-
-      <View style={styles.legendContainer}>
-        {participantsWithStats.map((participant, index) => (
-          <View key={participant.id} style={styles.legendItem}>
+      {!hideLegend && (
+        <View style={styles.legendContainer}>
+          <View style={styles.legendItem}>
             <View
-              style={[
-                styles.legendColor,
-                {
-                  backgroundColor: getParticipantColor(participant.id, index),
-                },
-              ]}
+              style={[styles.legendDot, { backgroundColor: Colors.LightPink }]}
             />
-            <ThemedText style={styles.legendText}>
-              {participant.display_name || "User"}
-              {participant.id === currentUserId && ` (${t("you")})`}
-            </ThemedText>
+            <ThemedText style={styles.legendText}>{t("you")}</ThemedText>
           </View>
-        ))}
-      </View>
+          {participantsWithStats
+            .filter((p) => p.id !== currentUserId)
+            .map((participant, index) => (
+              <View key={participant.id} style={styles.legendItem}>
+                <View
+                  style={[
+                    styles.legendDot,
+                    {
+                      backgroundColor: getParticipantColor(
+                        participant.id,
+                        index
+                      ),
+                    },
+                  ]}
+                />
+                <ThemedText style={styles.legendText}>
+                  {participant.display_name || "User"}
+                </ThemedText>
+              </View>
+            ))}
+        </View>
+      )}
     </View>
   );
 }
@@ -306,13 +320,12 @@ const styles = StyleSheet.create({
   nameContainer: {
     flexDirection: "row",
     alignItems: "center",
+    marginRight: 6,
     flex: 1,
-    marginRight: 16,
   },
   participantName: {
     fontSize: 16,
     color: Colors.White,
-    width: "110%",
   },
   youLabel: {
     color: Colors.ButterYellow,
@@ -321,8 +334,7 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: "row",
-    gap: 16,
-    flexShrink: 0,
+    gap: 8,
   },
   statItem: {
     alignItems: "flex-end",
@@ -381,39 +393,6 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
   },
-  legendContainer: {
-    marginTop: 20,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-    paddingBottom: 10,
-  },
-  legendItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  legendColor: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 8,
-  },
-  legendText: {
-    fontSize: 14,
-    color: Colors.White,
-  },
-  trophyIcon: {
-    width: 28,
-    height: 28,
-    marginRight: 8,
-  },
-  noDataText: {
-    color: Colors.White,
-    textAlign: "center",
-    marginTop: 20,
-    fontSize: 16,
-  },
   monthNavigation: {
     flexDirection: "row",
     alignItems: "center",
@@ -425,5 +404,40 @@ const styles = StyleSheet.create({
   },
   navButtonDisabled: {
     opacity: 0.3,
+  },
+  noDataText: {
+    color: Colors.White,
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 16,
+  },
+  legendContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 15,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255, 255, 255, 0.1)",
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  legendDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  legendText: {
+    fontSize: 12,
+    color: Colors.White,
+    opacity: 0.8,
+  },
+  trophyIcon: {
+    width: 20,
+    height: 20,
+    marginLeft: 8,
   },
 });

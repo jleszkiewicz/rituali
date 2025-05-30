@@ -297,9 +297,6 @@ const styles = StyleSheet.create({
     color: Colors.White,
     fontWeight: "bold",
   },
-  deleteButtonText: {
-    color: Colors.HotPink,
-  },
   profileHeaderContainer: {
     alignItems: "center",
     marginTop: 24,

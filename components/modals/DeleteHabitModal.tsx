@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   deleteButtonText: {
-    color: Colors.HotPink,
+    color: Colors.White,
   },
 });
 

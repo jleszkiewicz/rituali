@@ -30,11 +30,13 @@ export default function TabsLayout() {
     message: string;
     type: "success" | "error";
     isWithBuddy?: boolean;
+    isPartOfChallenge?: boolean;
   }>({
     title: "",
     message: "",
     type: "success",
     isWithBuddy: false,
+    isPartOfChallenge: false,
   });
 
   useEffect(() => {
@@ -95,6 +97,18 @@ export default function TabsLayout() {
         : t("challenge_created"),
       type: "success",
       isWithBuddy,
+    });
+    setSuccessModalVisible(true);
+  };
+
+  const handleHabitSuccess = (isPartOfChallenge: boolean) => {
+    setSuccessModalConfig({
+      title: t("success"),
+      message: isPartOfChallenge
+        ? t("habit_added_to_challenge")
+        : t("habit_added_successfully"),
+      type: "success",
+      isPartOfChallenge,
     });
     setSuccessModalVisible(true);
   };
@@ -194,6 +208,7 @@ export default function TabsLayout() {
       <AddHabitModal
         isVisible={isAddHabitModalVisible}
         onClose={() => setIsAddHabitModalVisible(false)}
+        onSuccess={handleHabitSuccess}
       />
 
       <AddChallengeModal
@@ -211,6 +226,7 @@ export default function TabsLayout() {
             message={successModalConfig.message}
             type={successModalConfig.type}
             isWithBuddy={successModalConfig.isWithBuddy}
+            isPartOfChallenge={successModalConfig.isPartOfChallenge}
           />
         </View>
       )}

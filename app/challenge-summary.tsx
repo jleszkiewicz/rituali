@@ -15,6 +15,7 @@ import { ChallengeStats } from "@/components/ChallengeSummary/ChallengeStats";
 import { ChallengeHabits } from "@/components/ChallengeSummary/ChallengeHabits";
 import { t } from "@/src/service/translateService";
 import { HabitData } from "@/components/AddHabitModal/types";
+import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@/src/store";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
@@ -26,7 +27,6 @@ import {
   deletePhoto,
   uploadBeforePhoto,
 } from "@/src/service/apiService";
-import type { Challenge } from "@/src/service/apiService";
 import Loading from "@/components/Commons/Loading";
 import { Ionicons } from "@expo/vector-icons";
 import DeletePhotoModal from "@/components/modals/DeletePhotoModal";
@@ -34,6 +34,7 @@ import * as ImagePicker from "expo-image-picker";
 import PhotoPicker from "@/components/Commons/PhotoPicker";
 import Carousel from "react-native-reanimated-carousel";
 import PageIndicator from "@/components/Commons/PageIndicator";
+import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const PAGE_WIDTH = SCREEN_WIDTH - 40;
@@ -49,7 +50,7 @@ interface PhotoItem {
 export default function ChallengeSummaryScreen() {
   const { challengeId } = useLocalSearchParams();
   const router = useRouter();
-  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [challenge, setChallenge] = useState<ChallengeData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeletePhotoModalVisible, setIsDeletePhotoModalVisible] =
     useState(false);
@@ -157,7 +158,7 @@ export default function ChallengeSummaryScreen() {
   }
 
   const challengeHabits = habits.filter((habit) => {
-    return challenge?.habits?.includes(habit.id);
+    return challenge?.habits?.includes(habit.id) && habit.status === "active";
   });
 
   const startDate = new Date(challenge?.startDate || "");
@@ -212,89 +213,103 @@ export default function ChallengeSummaryScreen() {
 
         <ChallengeDates startDate={startDate} endDate={endDate} />
 
-        <ChallengeStats
-          totalDays={totalDays}
-          totalCompletions={totalCompletions}
-          completionRate={completionRate}
-        />
+        {challengeHabits.length > 0 ? (
+          <>
+            <ChallengeStats
+              totalDays={totalDays}
+              totalCompletions={totalCompletions}
+              completionRate={completionRate}
+            />
 
-        <ChallengeHabits
-          habits={challengeHabits}
-          startDate={startDate}
-          endDate={endDate}
-          totalDays={totalDays}
-        />
+            <ChallengeHabits
+              habits={challengeHabits}
+              startDate={startDate}
+              endDate={endDate}
+              totalDays={totalDays}
+            />
 
-        <View style={styles.photosContainer}>
-          <View style={{ width: PAGE_WIDTH, alignSelf: "center" }}>
-            <Carousel
-              loop={false}
-              width={PAGE_WIDTH}
-              height={360}
-              data={photoItems}
-              onSnapToItem={setCurrentPhotoIndex}
-              renderItem={({ item }) => (
-                <View style={styles.photoSection}>
-                  <View style={styles.photoHeader}>
-                    <ThemedText style={styles.photoTitle}>
-                      {t(
-                        item.type === "before" ? "before_photo" : "after_photo"
-                      )}
-                    </ThemedText>
-                    {item.photoUri && (
-                      <TouchableOpacity
-                        onPress={() => handleDeletePhoto(item.type)}
-                        style={styles.deleteButton}
-                      >
-                        <Ionicons
-                          name="trash-outline"
-                          size={24}
-                          color={Colors.HotPink}
-                        />
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                  <View style={styles.photoWrapper}>
-                    {item.photoUri ? (
-                      item.uri ? (
-                        <Image
-                          source={{ uri: item.uri }}
-                          style={styles.photo}
-                          resizeMode="cover"
-                          onError={(error) => {
-                            console.error(
-                              "Error loading photo:",
-                              error.nativeEvent
-                            );
-                          }}
-                        />
-                      ) : (
-                        <View style={styles.loadingContainer}>
-                          <ThemedText style={styles.loadingText}>
-                            {t("loading_photo")}
-                          </ThemedText>
-                        </View>
-                      )
-                    ) : (
-                      <PhotoPicker
-                        onPress={() => handlePickImage(item.type)}
-                        height={300}
-                        style={styles.photo}
-                      />
-                    )}
-                  </View>
-                </View>
-              )}
+            <View style={styles.photosContainer}>
+              <View style={{ width: PAGE_WIDTH, alignSelf: "center" }}>
+                <Carousel
+                  loop={false}
+                  width={PAGE_WIDTH}
+                  height={360}
+                  data={photoItems}
+                  onSnapToItem={setCurrentPhotoIndex}
+                  renderItem={({ item }) => (
+                    <View style={styles.photoSection}>
+                      <View style={styles.photoHeader}>
+                        <ThemedText style={styles.photoTitle}>
+                          {t(
+                            item.type === "before"
+                              ? "before_photo"
+                              : "after_photo"
+                          )}
+                        </ThemedText>
+                        {item.photoUri && (
+                          <TouchableOpacity
+                            onPress={() => handleDeletePhoto(item.type)}
+                            style={styles.deleteButton}
+                          >
+                            <Ionicons
+                              name="trash-outline"
+                              size={24}
+                              color={Colors.HotPink}
+                            />
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                      <View style={styles.photoWrapper}>
+                        {item.photoUri ? (
+                          item.uri ? (
+                            <Image
+                              source={{ uri: item.uri }}
+                              style={styles.photo}
+                              resizeMode="cover"
+                              onError={(error) => {
+                                console.error(
+                                  "Error loading photo:",
+                                  error.nativeEvent
+                                );
+                              }}
+                            />
+                          ) : (
+                            <View style={styles.loadingContainer}>
+                              <Loading />
+                            </View>
+                          )
+                        ) : (
+                          <PhotoPicker
+                            onPress={() => handlePickImage(item.type)}
+                            height={300}
+                            style={styles.photo}
+                          />
+                        )}
+                      </View>
+                    </View>
+                  )}
+                />
+              </View>
+              <PageIndicator
+                count={2}
+                currentIndex={currentPhotoIndex}
+                isVisible={true}
+                activeColor={Colors.HotPink}
+                inactiveColor={Colors.LightGray}
+              />
+            </View>
+          </>
+        ) : (
+          <View style={styles.emptyHabitsContainer}>
+            <EmptyHabitsList
+              imageWidth={250}
+              textColor={Colors.PrimaryGray}
+              title={t("no_habits_in_challenge")}
+              description={t("no_habits_in_challenge_summary")}
             />
           </View>
-          <PageIndicator
-            count={2}
-            currentIndex={currentPhotoIndex}
-            isVisible={true}
-            activeColor={Colors.HotPink}
-            inactiveColor={Colors.LightGray}
-          />
-        </View>
+        )}
+
         <DeletePhotoModal
           isVisible={isDeletePhotoModalVisible}
           onClose={() => {
@@ -395,5 +410,11 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     color: Colors.PrimaryGray,
+  },
+  emptyHabitsContainer: {
+    marginVertical: 20,
+    backgroundColor: Colors.White,
+    borderRadius: 12,
+    padding: 16,
   },
 });

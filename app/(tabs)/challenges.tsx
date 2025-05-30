@@ -73,7 +73,7 @@ const ChallengesScreen = () => {
       setFriends(friendsData);
       setIsDataLoaded(true);
     } catch (error) {
-      console.error("Error loading data:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -87,11 +87,13 @@ const ChallengesScreen = () => {
     loadData();
   }, [loadData]);
 
-  const sharedChallenges = activeChallenges.filter(
-    (challenge) =>
-      challenge.participants.length > 1 &&
-      challenge.participants.includes(userId || "")
-  );
+  const sharedChallenges = activeChallenges.filter((challenge) => {
+    return challenge.participants.length > 1;
+  });
+
+  const singleUserChallenges = activeChallenges.filter((challenge) => {
+    return challenge.participants.length === 1;
+  });
 
   const renderContent = () => {
     if (isLoading || !isDataLoaded) {
@@ -125,7 +127,6 @@ const ChallengesScreen = () => {
                     <View style={{ width: PAGE_WIDTH - ITEM_MARGIN }}>
                       <SharedChallengeCard
                         challenge={item}
-                        onChallengeDeleted={handleChallengeDeleted}
                         friendName={friend?.display_name || "Friend"}
                         friendAvatarUrl={friend?.avatar_url || null}
                         additionalParticipants={additionalParticipants}
@@ -142,7 +143,7 @@ const ChallengesScreen = () => {
             </View>
           </ConditionalRenderer>
 
-          <ConditionalRenderer condition={activeChallenges.length > 0}>
+          <ConditionalRenderer condition={singleUserChallenges.length > 0}>
             <View style={styles.section}>
               <ThemedText style={styles.sectionTitle} bold>
                 {t("your_open_challenges")}
@@ -151,7 +152,7 @@ const ChallengesScreen = () => {
                 loop={false}
                 width={PAGE_WIDTH}
                 height={85}
-                data={activeChallenges}
+                data={singleUserChallenges}
                 onSnapToItem={setActiveSlide}
                 style={{ paddingHorizontal: ITEM_MARGIN }}
                 renderItem={({ item }) => (
@@ -164,8 +165,8 @@ const ChallengesScreen = () => {
                 )}
               />
               <PageIndicator
-                isVisible={activeChallenges.length > 1}
-                count={activeChallenges.length}
+                isVisible={singleUserChallenges.length > 1}
+                count={singleUserChallenges.length}
                 currentIndex={activeSlide}
               />
             </View>

@@ -16,6 +16,7 @@ import {
   handleFriendRequest,
 } from "@/src/service/apiService";
 import ConditionalRender from "../Commons/ConditionalRenderer";
+import Loading from "../Commons/Loading";
 
 interface User {
   id: string;
@@ -113,7 +114,7 @@ const PendingFriendRequests = ({
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <ThemedText>{t("loading")}</ThemedText>
+        <Loading />
       </View>
     );
   }

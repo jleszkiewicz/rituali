@@ -39,20 +39,9 @@ export const ChallengeHabits = ({
           return completionDate >= startDate && completionDate <= endDate;
         }).length;
 
-        const habitCompletionRate =
-          habit.frequency === "daily"
-            ? Math.round((habitCompletions / totalDays) * 100)
-            : habit.frequency === "weekly"
-            ? Math.round(
-                (habitCompletions /
-                  ((totalDays / 7) * habit.selectedDays.length)) *
-                  100
-              )
-            : Math.round(
-                (habitCompletions /
-                  ((totalDays / 30) * habit.selectedDays.length)) *
-                  100
-              );
+        const habitCompletionRate = Math.round(
+          (habitCompletions / totalDays) * 100
+        );
 
         return (
           <View key={habit.id} style={styles.habitItem}>

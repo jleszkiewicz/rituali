@@ -10,8 +10,6 @@ import {
   ScrollView,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
-import DaySelector from "../AddHabitModal/DaySelector";
-import FrequencySelector from "../AddHabitModal/FrequencySelector";
 import { HabitData } from "../AddHabitModal/types";
 import { updateHabit, updateChallengeHabits } from "@/src/service/apiService";
 import { useSelector, useDispatch } from "react-redux";
@@ -48,21 +46,17 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
   const [errors, setErrors] = useState<{
     name: string;
     challenges: string;
-    selectedDays: string;
   }>({
     name: "",
     challenges: "",
-    selectedDays: "",
   });
 
   const defaultHabitData: HabitData = {
     id: "",
     name: "",
     category: "other",
-    frequency: "daily",
     startDate: format(new Date(), dateFormat),
     endDate: null,
-    selectedDays: [],
     completionDates: [],
     isPartOfChallenge: false,
     status: "active",
@@ -101,7 +95,6 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
     setErrors({
       name: "",
       challenges: "",
-      selectedDays: "",
     });
     onClose();
   };
@@ -122,11 +115,12 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
     setErrors((prev) => ({ ...prev, challenges: "" }));
   };
 
-  const validateForm = () => {
+  const handleSubmit = async () => {
+    if (!userId || !habit) return;
+
     const newErrors = {
       name: "",
       challenges: "",
-      selectedDays: "",
     };
 
     if (!habitData.name.trim()) {
@@ -134,60 +128,35 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
     }
 
     if (isPartOfChallenge && selectedChallengeIds.length === 0) {
-      newErrors.challenges = t("select_at_least_one_challenge");
+      newErrors.challenges = t("select_challenge_required");
     }
 
-    setErrors(newErrors);
-    return !newErrors.name && !newErrors.challenges && !newErrors.selectedDays;
-  };
-
-  const handleSubmit = async () => {
-    if (!validateForm() || !userId || !habitData.id) {
-      console.error("Cannot submit: missing required data", {
-        userId,
-        habitId: habitData.id,
-      });
+    if (newErrors.name || newErrors.challenges) {
+      setErrors(newErrors);
       return;
     }
 
     try {
-      const habitToSubmit = {
+      await updateHabit(habit.id, {
         ...habitData,
         isPartOfChallenge: isPartOfChallenge,
-      };
+      });
 
-      await updateHabit(habitData.id, habitToSubmit);
-
-      const currentChallenges = challenges.filter((challenge) =>
-        challenge.habits.includes(habitData.id)
-      );
-
-      for (const challenge of currentChallenges) {
-        if (!selectedChallengeIds.includes(challenge.id)) {
-          const updatedHabits = challenge.habits.filter(
-            (id) => id !== habitData.id
-          );
-          await updateChallengeHabits(challenge.id, updatedHabits);
-        }
+      if (isPartOfChallenge && selectedChallengeIds.length > 0) {
+        await Promise.all(
+          selectedChallengeIds.map((challengeId) =>
+            updateChallengeHabits(challengeId, [habit.id])
+          )
+        );
       }
 
-      for (const challengeId of selectedChallengeIds) {
-        const challenge = challenges.find((c) => c.id === challengeId);
-        if (challenge && !challenge.habits.includes(habitData.id)) {
-          await updateChallengeHabits(challengeId, [
-            ...challenge.habits,
-            habitData.id,
-          ]);
-        }
-      }
-
-      const [freshChallenges, freshHabits] = await Promise.all([
-        fetchUserChallenges(userId),
+      const [updatedHabits, updatedChallenges] = await Promise.all([
         fetchUserHabits(userId),
+        fetchUserChallenges(userId),
       ]);
 
-      dispatch(setChallenges(freshChallenges));
-      dispatch(setHabits(freshHabits));
+      dispatch(setHabits(updatedHabits));
+      dispatch(setChallenges(updatedChallenges));
 
       handleCloseModal();
     } catch (error) {
@@ -195,25 +164,17 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
     }
   };
 
-  const handleDaySelect = (day: string) => {
-    setHabitData((prev) => ({
-      ...prev,
-      selectedDays: prev.selectedDays.includes(day)
-        ? prev.selectedDays.filter((d) => d !== day)
-        : [...prev.selectedDays, day],
-    }));
-  };
-
   if (!isVisible) return null;
 
   return (
-    <View style={styles.modalContainer}>
-      <View style={styles.modalContent}>
+    <View style={styles.container}>
+      <View style={styles.content}>
         <ModalHeader
           title={t("edit_habit")}
-          onClose={onClose}
+          onClose={handleCloseModal}
           color={Colors.PrimaryGray}
         />
+
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -221,7 +182,9 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
           bounces={false}
         >
           <View style={styles.inputContainer}>
-            <ThemedText style={styles.label}>{t("habit_name")}</ThemedText>
+            <ThemedText style={styles.label} bold>
+              {t("habit_name")}
+            </ThemedText>
             <TextInput
               style={[styles.input, errors.name ? styles.inputError : null]}
               value={habitData.name}
@@ -229,7 +192,6 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
                 setHabitData({ ...habitData, name: text });
                 setErrors({ ...errors, name: "" });
               }}
-              placeholder={t("habit_name")}
             />
             {errors.name ? (
               <ThemedText style={styles.errorText}>{errors.name}</ThemedText>
@@ -243,129 +205,104 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
             initialCategory={habitData.category}
           />
 
-          <View style={styles.inputContainer}>
-            <FrequencySelector
-              frequency={habitData.frequency}
-              onFrequencyChange={(frequency) =>
-                setHabitData((prev) => ({ ...prev, frequency }))
-              }
+          <TouchableOpacity
+            style={styles.switchContainer}
+            onPress={handleTogglePartOfChallenge}
+          >
+            <ThemedText style={styles.switchText} bold>
+              {t("part_of_challenge")}
+            </ThemedText>
+            <Switch
+              value={isPartOfChallenge}
+              onValueChange={handleTogglePartOfChallenge}
+              trackColor={{ false: Colors.LightGray, true: Colors.HotPink }}
+              thumbColor={Colors.White}
+              ios_backgroundColor={Colors.LightGray}
             />
+          </TouchableOpacity>
 
-            {habitData.frequency === "selected_days" && (
-              <>
-                <DaySelector
-                  selectedDays={habitData.selectedDays}
-                  onDayToggle={handleDaySelect}
-                />
-                {errors.selectedDays && (
-                  <ThemedText style={styles.errorText}>
-                    {errors.selectedDays}
-                  </ThemedText>
-                )}
-              </>
-            )}
-
-            <TouchableOpacity
-              style={styles.switchContainer}
-              onPress={handleTogglePartOfChallenge}
-            >
-              <ThemedText style={styles.switchText} bold>
-                {t("part_of_challenge")}
+          {isPartOfChallenge && (
+            <View style={styles.challengesContainer}>
+              <ThemedText style={styles.label} bold>
+                {t("select_challenge")}
               </ThemedText>
-              <Switch
-                value={isPartOfChallenge}
-                onValueChange={handleTogglePartOfChallenge}
-                trackColor={{ false: Colors.LightGray, true: Colors.HotPink }}
-                thumbColor={Colors.White}
-                ios_backgroundColor={Colors.LightGray}
-              />
-            </TouchableOpacity>
-
-            {isPartOfChallenge && (
               <Dropdown
                 isExpanded={isChallengesExpanded}
                 onToggle={() => setIsChallengesExpanded(!isChallengesExpanded)}
-                selectedText={
-                  selectedChallengeIds.length > 0
-                    ? `${t("challenges_selected")}: ${
-                        selectedChallengeIds.length
-                      }`
-                    : ""
-                }
-                placeholder={t("select_challenges")}
-                items={challenges.map((challenge) => ({
-                  id: challenge.id,
-                  label: challenge.name,
-                  isSelected: selectedChallengeIds.includes(challenge.id),
-                }))}
-                onItemSelect={handleChallengeChange}
-                noItemsText={t("no_active_challenges")}
+                title={t("select_challenge")}
                 error={errors.challenges}
-              />
-            )}
-            {errors.challenges && (
-              <ThemedText style={styles.errorText}>
-                {errors.challenges}
-              </ThemedText>
-            )}
-          </View>
-
-          <ModalButtons onCancel={onClose} onSubmit={handleSubmit} />
+              >
+                {challenges
+                  .filter((challenge) => challenge.status === "active")
+                  .map((challenge) => (
+                    <TouchableOpacity
+                      key={challenge.id}
+                      style={styles.challengeItem}
+                      onPress={() => handleChallengeChange(challenge.id)}
+                    >
+                      <View style={styles.challengeCheckbox}>
+                        {selectedChallengeIds.includes(challenge.id) && (
+                          <View style={styles.checkboxInner} />
+                        )}
+                      </View>
+                      <ThemedText style={styles.challengeName}>
+                        {challenge.name}
+                      </ThemedText>
+                    </TouchableOpacity>
+                  ))}
+              </Dropdown>
+            </View>
+          )}
         </ScrollView>
+
+        <ModalButtons
+          onCancel={handleCloseModal}
+          onSubmit={handleSubmit}
+          submitText={t("submit")}
+        />
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  container: {
+    flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end",
-    zIndex: 1000,
-    marginHorizontal: -20,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  modalContent: {
+  content: {
     backgroundColor: Colors.White,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 20,
-    width: "100%",
-    maxHeight: "90%",
+    borderRadius: 20,
+    width: "90%",
+    maxHeight: "80%",
   },
   scrollView: {
-    maxHeight: "100%",
+    maxHeight: "80%",
   },
   scrollContent: {
-    paddingBottom: 20,
+    padding: 20,
   },
   inputContainer: {
-    marginBottom: 15,
-    position: "relative",
-    zIndex: 1,
+    marginBottom: 20,
   },
   label: {
     fontSize: 16,
-    marginBottom: 5,
-    fontWeight: "bold",
+    marginBottom: 10,
   },
   input: {
     borderWidth: 1,
     borderColor: Colors.LightGray,
-    borderRadius: 5,
+    borderRadius: 10,
     padding: 10,
     fontSize: 16,
-    fontFamily: "Poppins-Regular",
   },
   inputError: {
-    borderColor: Colors.PrimaryRed,
+    borderColor: Colors.HotPink,
   },
   errorText: {
-    color: Colors.PrimaryRed,
+    color: Colors.HotPink,
     fontSize: 12,
     marginTop: 5,
   },
@@ -373,25 +310,37 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 20,
   },
   switchText: {
     fontSize: 16,
   },
-  dropdown: {
-    zIndex: 3,
-    position: "absolute",
-    width: "100%",
-    top: 50,
-    backgroundColor: Colors.White,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+  challengesContainer: {
+    marginBottom: 20,
+  },
+  challengeItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+  },
+  challengeCheckbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: Colors.HotPink,
+    borderRadius: 4,
+    marginRight: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  checkboxInner: {
+    width: 12,
+    height: 12,
+    backgroundColor: Colors.HotPink,
+    borderRadius: 2,
+  },
+  challengeName: {
+    fontSize: 16,
   },
 });
 

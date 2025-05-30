@@ -18,6 +18,7 @@ import {
 import ConditionalRender from "../Commons/ConditionalRenderer";
 import { differenceInDays } from "date-fns";
 import { Ionicons } from "@expo/vector-icons";
+import Loading from "../Commons/Loading";
 
 interface PendingChallengeInvitationsProps {
   onInvitationHandled: () => void;
@@ -91,7 +92,7 @@ const PendingChallengeInvitations = ({
               {item.challenge.name}
             </ThemedText>
             <ThemedText style={styles.senderName}>
-              {t("from")}: {item.sender.display_name}
+              {t("from")}: {item.sender.username}
             </ThemedText>
             <ThemedText style={styles.duration}>
               {getDuration(item.challenge.startDate, item.challenge.endDate)}
@@ -142,7 +143,7 @@ const PendingChallengeInvitations = ({
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <ThemedText>{t("loading")}</ThemedText>
+        <Loading />
       </View>
     );
   }
