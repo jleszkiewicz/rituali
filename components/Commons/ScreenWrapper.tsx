@@ -63,7 +63,7 @@ export default ScreenWrapper;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.ButterYellow,
+    backgroundColor: Colors.White,
     flex: 1,
   },
   content: {

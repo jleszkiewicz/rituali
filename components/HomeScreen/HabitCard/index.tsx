@@ -94,9 +94,9 @@ const HabitCard: React.FC<HabitCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.PrimaryGray,
+    backgroundColor: Colors.LightPink,
     borderRadius: 10,
-    padding: 10,
+    padding: 12,
     marginBottom: 10,
   },
   content: {

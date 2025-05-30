@@ -1,9 +1,22 @@
-import React from "react";
-import { View, StyleSheet, ScrollView, Image } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "@/components/Commons/ThemedText";
 import { t } from "@/src/service/translateService";
-import { format, eachDayOfInterval, parseISO } from "date-fns";
+import {
+  format,
+  eachDayOfInterval,
+  parseISO,
+  addMonths,
+  subMonths,
+} from "date-fns";
+import { Ionicons } from "@expo/vector-icons";
 
 interface CompletionDay {
   date: string;
@@ -30,6 +43,8 @@ export default function CompletionStats({
   challengeStartDate,
   challengeEndDate,
 }: CompletionStatsProps) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
   const calculateStats = (history: CompletionDay[]) => {
     const averageCompletion =
       history.length > 0
@@ -73,18 +88,32 @@ export default function CompletionStats({
     return acc;
   }, {} as Record<string, Date[]>);
 
+  const monthKeys = Object.keys(daysByMonth).sort();
+  const currentMonthKey = format(currentMonth, "yyyy-MM");
+  const currentMonthDays = daysByMonth[currentMonthKey] || [];
+
+  const handlePrevMonth = () => {
+    const prevMonth = subMonths(currentMonth, 1);
+    const prevMonthKey = format(prevMonth, "yyyy-MM");
+    if (monthKeys.includes(prevMonthKey)) {
+      setCurrentMonth(prevMonth);
+    }
+  };
+
+  const handleNextMonth = () => {
+    const nextMonth = addMonths(currentMonth, 1);
+    const nextMonthKey = format(nextMonth, "yyyy-MM");
+    if (monthKeys.includes(nextMonthKey)) {
+      setCurrentMonth(nextMonth);
+    }
+  };
+
   const getParticipantColor = (participantId: string, index: number) => {
     if (participantId === currentUserId) {
-      return Colors.ButterYellow;
+      return Colors.LightPink;
     }
 
-    const colors = [
-      Colors.HotPink,
-      "#FF6B8B", // Lighter pink
-      "#FF8FA3", // Even lighter pink
-      "#FFB3C1", // Very light pink
-      "#FFD6E0", // Pale pink
-    ];
+    const colors = [Colors.Yellow, Colors.PrimaryRed, Colors.LightBlue];
 
     return colors[index % colors.length];
   };
@@ -147,54 +176,83 @@ export default function CompletionStats({
         })}
       </View>
 
-      <View>
-        {Object.entries(daysByMonth).map(([monthKey, monthDays]) => (
-          <View key={monthKey} style={styles.calendarContainer}>
-            <ThemedText style={styles.monthTitle}>
-              {format(monthDays[0], "MMMM yyyy")}
-            </ThemedText>
-            <View style={styles.calendarGrid}>
-              {monthDays.map((day) => {
-                const dayData = participantsWithStats.map((participant) => {
-                  const completion = participant.completionHistory.find(
-                    (d) => d.date === format(day, "yyyy-MM-dd")
-                  );
-                  return {
-                    id: participant.id,
-                    completion: completion?.completion_percentage || 0,
-                  };
-                });
+      <View style={styles.calendarContainer}>
+        <View style={styles.monthNavigation}>
+          <TouchableOpacity
+            onPress={handlePrevMonth}
+            style={[
+              styles.navButton,
+              !monthKeys.includes(
+                format(subMonths(currentMonth, 1), "yyyy-MM")
+              ) && styles.navButtonDisabled,
+            ]}
+            disabled={
+              !monthKeys.includes(format(subMonths(currentMonth, 1), "yyyy-MM"))
+            }
+          >
+            <Ionicons name="chevron-back" size={24} color={Colors.HotPink} />
+          </TouchableOpacity>
 
-                return (
-                  <View key={day.toString()} style={styles.calendarDay}>
-                    <ThemedText style={styles.dayNumber}>
-                      {format(day, "d")}
-                    </ThemedText>
-                    <View style={styles.dotsContainer}>
-                      {dayData.map((data) => (
-                        <View
-                          key={data.id}
-                          style={[
-                            styles.completionDot,
-                            {
-                              backgroundColor: getParticipantColor(
-                                data.id,
-                                participantsWithStats.findIndex(
-                                  (p) => p.id === data.id
-                                )
-                              ),
-                              opacity: data.completion / 100,
-                            },
-                          ]}
-                        />
-                      ))}
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        ))}
+          <ThemedText style={styles.monthTitle} bold>
+            {format(currentMonth, "MMMM yyyy")}
+          </ThemedText>
+
+          <TouchableOpacity
+            onPress={handleNextMonth}
+            style={[
+              styles.navButton,
+              !monthKeys.includes(
+                format(addMonths(currentMonth, 1), "yyyy-MM")
+              ) && styles.navButtonDisabled,
+            ]}
+            disabled={
+              !monthKeys.includes(format(addMonths(currentMonth, 1), "yyyy-MM"))
+            }
+          >
+            <Ionicons name="chevron-forward" size={24} color={Colors.HotPink} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.calendarGrid}>
+          {currentMonthDays.map((day) => {
+            const dayData = participantsWithStats.map((participant) => {
+              const completion = participant.completionHistory.find(
+                (d) => d.date === format(day, "yyyy-MM-dd")
+              );
+              return {
+                id: participant.id,
+                completion: completion?.completion_percentage || 0,
+              };
+            });
+
+            return (
+              <View key={day.toString()} style={styles.calendarDay}>
+                <ThemedText style={styles.dayNumber} bold>
+                  {format(day, "d")}
+                </ThemedText>
+                <View style={styles.dotsContainer}>
+                  {dayData.map((data) => (
+                    <View
+                      key={data.id}
+                      style={[
+                        styles.completionDot,
+                        {
+                          backgroundColor: getParticipantColor(
+                            data.id,
+                            participantsWithStats.findIndex(
+                              (p) => p.id === data.id
+                            )
+                          ),
+                          opacity: data.completion / 100,
+                        },
+                      ]}
+                    />
+                  ))}
+                </View>
+              </View>
+            );
+          })}
+        </View>
       </View>
 
       <View style={styles.legendContainer}>
@@ -286,13 +344,13 @@ const styles = StyleSheet.create({
   },
   calendarContainer: {
     marginTop: 10,
-    backgroundColor: Colors.DarkGray,
+    backgroundColor: Colors.ButterYellow,
     borderRadius: 10,
     padding: 15,
   },
   monthTitle: {
     fontSize: 18,
-    color: Colors.White,
+    color: Colors.HotPink,
     textAlign: "center",
     marginBottom: 15,
     textTransform: "capitalize",
@@ -311,7 +369,7 @@ const styles = StyleSheet.create({
   },
   dayNumber: {
     fontSize: 12,
-    color: Colors.White,
+    color: Colors.PrimaryGray,
     marginBottom: 4,
   },
   dotsContainer: {
@@ -355,5 +413,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
     fontSize: 16,
+  },
+  monthNavigation: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+  navButton: {
+    padding: 8,
+  },
+  navButtonDisabled: {
+    opacity: 0.3,
   },
 });

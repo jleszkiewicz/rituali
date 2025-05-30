@@ -24,7 +24,7 @@ export const CompletedChallengeCard: React.FC<CompletedChallengeCardProps> = ({
     }
 
     try {
-      const result = await markChallengeAsViewed(challenge.id);
+      await markChallengeAsViewed(challenge.id);
 
       router.push({
         pathname: "/challenge-summary",
@@ -69,6 +69,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     flexDirection: "row",
     alignItems: "center",
+    borderWidth: 2,
+    borderColor: Colors.ButterYellow,
     shadowColor: Colors.PrimaryGray,
     shadowOffset: {
       width: 0,

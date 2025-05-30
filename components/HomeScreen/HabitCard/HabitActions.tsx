@@ -12,7 +12,7 @@ const HabitActions: React.FC<HabitActionsProps> = ({ onEdit, onDelete }) => {
   return (
     <View style={styles.actions}>
       <TouchableOpacity onPress={onEdit} style={styles.actionButton}>
-        <Ionicons name="create-outline" size={24} color={Colors.White} />
+        <Ionicons name="create-outline" size={24} color={Colors.PrimaryGray} />
       </TouchableOpacity>
       <TouchableOpacity onPress={onDelete} style={styles.actionButton}>
         <Ionicons name="trash-outline" size={24} color={Colors.HotPink} />

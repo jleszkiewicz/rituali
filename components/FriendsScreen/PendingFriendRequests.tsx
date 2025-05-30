@@ -147,15 +147,11 @@ const styles = StyleSheet.create({
     color: Colors.PrimaryGray,
   },
   requestItem: {
-    backgroundColor: Colors.White,
     padding: 12,
     borderRadius: 12,
     marginBottom: 12,
-    shadowColor: Colors.Black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: Colors.HotPink,
   },
   userInfo: {
     flexDirection: "row",

@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     gap: 10,
-    backgroundColor: Colors.PrimaryGray,
+    backgroundColor: Colors.ButterYellow,
     padding: 16,
     borderRadius: 10,
   },
@@ -145,12 +145,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     textAlign: "center",
-    color: Colors.White,
+    color: Colors.PrimaryGray,
   },
   description: {
     fontSize: 14,
     textAlign: "center",
-    color: Colors.White,
+    color: Colors.PrimaryGray,
   },
 });
 

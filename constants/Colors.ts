@@ -20,6 +20,6 @@ export const Colors = {
     LightBrown: "#F0D0B0",
     Brown: "#A52A2A",
     DarkGray: "#74767a",
-    ButterYellow: "#fff5d4",
+    ButterYellow: "#fcefb4",
     ButterPink: "#f29bcb",
 };

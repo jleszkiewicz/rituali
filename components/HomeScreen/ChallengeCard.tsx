@@ -116,7 +116,7 @@ export default function ChallengeCard({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.PrimaryGray,
+    backgroundColor: Colors.ButterYellow,
     borderRadius: 10,
     padding: 15,
     marginRight: 10,
@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
       height: 2,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowRadius: 2,
+    elevation: 2,
   },
   statusIconContainer: {
     position: "absolute",
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     textAlign: "left",
-    color: Colors.White,
+    color: Colors.PrimaryGray,
     marginBottom: 16,
   },
   progressContainer: {
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 6,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: Colors.LightPink,
     borderRadius: 3,
     overflow: "hidden",
   },
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 12,
-    color: Colors.White,
+    color: Colors.PrimaryGray,
     textAlign: "center",
     marginTop: 5,
   },
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
   noHabitsText: {
     fontSize: 14,
-    color: Colors.ButterYellow,
+    color: Colors.PrimaryGray,
     lineHeight: 22,
     textAlign: "center",
   },
@@ -185,18 +185,18 @@ const styles = StyleSheet.create({
   },
   timeProgressBar: {
     height: 6,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: Colors.White,
     borderRadius: 3,
     overflow: "hidden",
   },
   timeProgressFill: {
     height: "100%",
-    backgroundColor: Colors.ButterYellow,
+    backgroundColor: Colors.PrimaryGray,
     borderRadius: 3,
   },
   timeProgressText: {
     fontSize: 12,
-    color: Colors.White,
+    color: Colors.PrimaryGray,
     textAlign: "center",
     marginTop: 5,
   },

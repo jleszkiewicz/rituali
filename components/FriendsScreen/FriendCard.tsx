@@ -163,13 +163,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   container: {
-    backgroundColor: Colors.White,
+    backgroundColor: Colors.LightPink,
     borderRadius: 12,
     shadowColor: Colors.Black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 2,
+    elevation: 2,
   },
   mainContent: {
     flexDirection: "row",

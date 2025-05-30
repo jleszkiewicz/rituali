@@ -30,7 +30,9 @@ export default function ParticipantsProgress({
                 {participant.display_name || "User"}
               </ThemedText>
               {participant.id === currentUserId && (
-                <ThemedText style={styles.youLabel}>{t("you")}</ThemedText>
+                <ThemedText style={styles.youLabel} bold>
+                  {t("you")}
+                </ThemedText>
               )}
               <Image
                 source={
@@ -42,7 +44,7 @@ export default function ParticipantsProgress({
                 resizeMode="contain"
               />
             </View>
-            <ThemedText style={styles.progressText}>
+            <ThemedText style={styles.progressText} bold>
               {participant.completion_percentage}%
             </ThemedText>
           </View>
@@ -63,7 +65,7 @@ export default function ParticipantsProgress({
 const styles = StyleSheet.create({
   section: {
     marginBottom: 20,
-    backgroundColor: Colors.PrimaryGray,
+    backgroundColor: Colors.ButterYellow,
     padding: 20,
     borderRadius: 10,
   },
@@ -82,27 +84,27 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   participantName: {
-    color: Colors.White,
+    color: Colors.PrimaryGray,
     fontSize: 16,
   },
   youLabel: {
-    color: Colors.ButterYellow,
-    fontSize: 12,
+    color: Colors.HotPink,
+    fontSize: 13,
     fontStyle: "italic",
   },
   progressText: {
-    color: Colors.White,
+    color: Colors.PrimaryGray,
     fontSize: 14,
   },
   progressBar: {
     height: 8,
-    backgroundColor: Colors.DarkGray,
+    backgroundColor: Colors.LightGray,
     borderRadius: 4,
     overflow: "hidden",
   },
   progressFill: {
     height: "100%",
-    backgroundColor: Colors.ButterYellow,
+    backgroundColor: Colors.HotPink,
     borderRadius: 4,
   },
   icon: {

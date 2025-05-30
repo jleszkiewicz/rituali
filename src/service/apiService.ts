@@ -432,6 +432,39 @@ export const respondToChallengeInvitation = async (
         console.error('Supabase error in respondToChallengeInvitation (update):', updateError);
         throw updateError;
       }
+
+      const { data: challengeHabits, error: habitsError } = await supabase
+        .from('habits')
+        .select('*')
+        .in('id', challengeData.habits)
+        .eq('user_id', invitationData.sender_id);
+
+      if (habitsError) {
+        console.error('Supabase error in respondToChallengeInvitation (habits):', habitsError);
+        throw habitsError;
+      }
+
+      const newHabits = challengeHabits.map(habit => ({
+        user_id: invitationData.receiver_id,
+        name: habit.name,
+        frequency: habit.frequency,
+        selected_days: habit.selected_days,
+        completion_dates: [],
+        category: habit.category,
+        is_part_of_challenge: true,
+        start_date: format(new Date(), dateFormat),
+        end_date: null,
+        status: 'active'
+      }));
+
+      const { error: insertError } = await supabase
+        .from('habits')
+        .insert(newHabits);
+
+      if (insertError) {
+        console.error('Supabase error in respondToChallengeInvitation (insert habits):', insertError);
+        throw insertError;
+      }
     }
 
     return {
@@ -1247,24 +1280,23 @@ export const fetchChallengeParticipants = async (challengeData: ChallengeData) =
   return Promise.all(
     allParticipants.map(async (participant) => {
       const habits = await fetchUserHabits(participant.id);
+      
+      // Filtrujemy tylko nawyki, które są częścią wyzwania i są aktywne
       const challengeHabits = habits.filter(
         (habit) =>
           challengeData.habits.includes(habit.id) &&
           habit.status === "active"
       );
 
-      // W przypadku wyzwań, wszystkie nawyki są codzienne
-      const todayHabits = challengeHabits;
-
-      // Liczymy ile nawyków zostało ukończonych dzisiaj
-      const completedToday = todayHabits.filter(habit => 
+      // Sprawdzamy, które nawyki zostały ukończone dzisiaj
+      const completedToday = challengeHabits.filter(habit => 
         habit.completionDates.includes(todayStr)
       ).length;
 
-      const completionPercentage =
-        todayHabits.length > 0
-          ? Math.round((completedToday / todayHabits.length) * 100)
-          : 0;
+      // Obliczamy procent ukończenia na podstawie dzisiejszych ukończeń
+      const completionPercentage = challengeHabits.length > 0
+        ? Math.round((completedToday / challengeHabits.length) * 100)
+        : 0;
 
       return {
         id: participant.id,

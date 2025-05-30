@@ -44,14 +44,12 @@ const PrimaryButton = ({
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: Colors.ButterYellow,
+    backgroundColor: Colors.HotPink,
     padding: 10,
     borderRadius: 10,
-    borderWidth: 2,
-    borderColor: Colors.HotPink,
   },
   title: {
-    color: Colors.HotPink,
+    color: Colors.White,
     textAlign: "center",
   },
   disabled: {

@@ -33,14 +33,14 @@ const CalendarElement: React.FC<CalendarElementProps> = ({
 
   const getCircleColor = () => {
     if (isSelected) return Colors.HotPink;
-    if (isToday && !isSelected) return Colors.White;
-    return Colors.PrimaryGray;
+    if (isToday && !isSelected) return Colors.LightPink;
+    return Colors.White;
   };
 
   const getDayTextColor = () => {
-    if (isSelected) return Colors.ButterYellow;
+    if (isSelected) return Colors.White;
     if (isToday && !isSelected) return Colors.PrimaryGray;
-    return Colors.White;
+    return Colors.PrimaryGray;
   };
 
   return (
@@ -78,6 +78,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 5,
     marginBottom: 5,
+    borderWidth: 1,
+    borderColor: Colors.LightPink,
   },
   dayText: {
     fontSize: 16,

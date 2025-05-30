@@ -110,7 +110,7 @@ const RecommendedChallengeCard = ({
         <ThemedText style={styles.buttonText} bold>
           {t("start")}
         </ThemedText>
-        <Ionicons name="chevron-forward" size={24} color={Colors.HotPink} />
+        <Ionicons name="chevron-forward" size={24} color={Colors.White} />
       </PrimaryButton>
     </View>
   );
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   },
   duration: {
     fontSize: 26,
-    color: Colors.HotPink,
+    color: Colors.ButterYellow,
     lineHeight: 30,
   },
   rulesContainer: {
@@ -151,14 +151,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: Colors.ButterYellow,
+    backgroundColor: Colors.HotPink,
     borderRadius: 10,
     padding: 10,
     alignSelf: "flex-end",
   },
   buttonText: {
     fontSize: 16,
-    color: Colors.HotPink,
+    color: Colors.White,
   },
   headerContainer: {
     flexDirection: "row",
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
   durationDays: {
     fontSize: 16,
-    color: Colors.HotPink,
+    color: Colors.ButterYellow,
   },
   durationContainer: {
     justifyContent: "flex-start",

@@ -70,7 +70,11 @@ export default function YourChallengeCard({
           </View>
 
           <View style={styles.rightSection}>
-            <Ionicons name="chevron-forward" size={24} color={Colors.White} />
+            <Ionicons
+              name="chevron-forward"
+              size={24}
+              color={Colors.PrimaryGray}
+            />
           </View>
         </View>
       </TouchableOpacity>
@@ -87,7 +91,7 @@ export default function YourChallengeCard({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.PrimaryGray,
+    backgroundColor: Colors.ButterYellow,
     borderRadius: 10,
     padding: 10,
     marginEnd: 10,
@@ -97,8 +101,8 @@ const styles = StyleSheet.create({
       height: 2,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowRadius: 2,
+    elevation: 2,
   },
   content: {
     flexDirection: "row",
@@ -115,11 +119,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 17,
-    color: Colors.White,
+    color: Colors.PrimaryGray,
   },
   duration: {
     fontSize: 14,
-    color: Colors.White,
+    color: Colors.PrimaryGray,
     opacity: 0.8,
     marginTop: 4,
   },

@@ -60,7 +60,9 @@ const ChallengeHabitCard: React.FC<ChallengeHabitCardProps> = ({
     <View style={styles.container}>
       <View style={styles.habitInfo}>
         <HabitIcon category={habit.category} />
-        <ThemedText style={styles.habitName}>{habit.name}</ThemedText>
+        <ThemedText style={styles.habitName} bold>
+          {habit.name}
+        </ThemedText>
       </View>
 
       <TouchableOpacity
@@ -86,7 +88,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: Colors.White,
+    backgroundColor: Colors.LightPink,
     borderRadius: 10,
     padding: 15,
     marginBottom: 10,

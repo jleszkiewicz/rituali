@@ -28,8 +28,12 @@ const HabitsSection: React.FC<HabitsSectionProps> = ({
           {t("habits")}
         </ThemedText>
         <TouchableOpacity style={styles.addButton} onPress={onAddHabit}>
-          <Ionicons name="add-circle-outline" size={24} color={headerColor} />
-          <ThemedText style={[styles.addButtonText, { color: headerColor }]}>
+          <Ionicons
+            name="add-circle-outline"
+            size={24}
+            color={Colors.HotPink}
+          />
+          <ThemedText style={[styles.addButtonText, { color: Colors.HotPink }]}>
             {t("add_habit")}
           </ThemedText>
         </TouchableOpacity>

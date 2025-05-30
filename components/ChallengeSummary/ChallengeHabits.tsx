@@ -30,7 +30,9 @@ export const ChallengeHabits = ({
 
   return (
     <View style={styles.container}>
-      <ThemedText style={styles.title}>{t("habits")}</ThemedText>
+      <ThemedText style={styles.title} bold>
+        {t("habits")}
+      </ThemedText>
       {habits.map((habit) => {
         const habitCompletions = habit.completionDates.filter((date) => {
           const completionDate = new Date(date);
@@ -70,24 +72,17 @@ export const ChallengeHabits = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.White,
+    backgroundColor: Colors.LightPink,
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
-    shadowColor: Colors.PrimaryGray,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   title: {
     fontSize: 18,
     fontWeight: "600",
     color: Colors.PrimaryGray,
     marginBottom: 16,
+    textTransform: "capitalize",
   },
   habitItem: {
     flexDirection: "row",
@@ -95,7 +90,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.LightGray,
+    borderBottomColor: Colors.HotPink,
   },
   habitName: {
     fontSize: 16,

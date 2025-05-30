@@ -23,7 +23,9 @@ export const ChallengeDates = ({ startDate, endDate }: ChallengeDatesProps) => {
           style={styles.dateIcon}
         />
         <View>
-          <ThemedText style={styles.dateLabel}>{t("start_date")}</ThemedText>
+          <ThemedText style={styles.dateLabel} bold>
+            {t("start_date")}
+          </ThemedText>
           <ThemedText style={styles.dateValue}>
             {format(startDate, dateFormat)}
           </ThemedText>
@@ -38,7 +40,9 @@ export const ChallengeDates = ({ startDate, endDate }: ChallengeDatesProps) => {
           style={styles.dateIcon}
         />
         <View>
-          <ThemedText style={styles.dateLabel}>{t("end_date")}</ThemedText>
+          <ThemedText style={styles.dateLabel} bold>
+            {t("end_date")}
+          </ThemedText>
           <ThemedText style={styles.dateValue}>
             {format(endDate, dateFormat)}
           </ThemedText>
@@ -52,15 +56,10 @@ const styles = StyleSheet.create({
   datesContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.White,
+    backgroundColor: Colors.ButterYellow,
     borderRadius: 12,
     padding: 15,
     marginBottom: 20,
-    shadowColor: Colors.Black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   dateItem: {
     flex: 1,
@@ -71,7 +70,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   dateLabel: {
-    fontSize: 12,
+    fontSize: 14,
     color: Colors.PrimaryGray,
     opacity: 0.7,
     marginBottom: 2,

@@ -41,7 +41,7 @@ const HabitIcon: React.FC<HabitIconProps> = ({ category }) => {
 
 const styles = StyleSheet.create({
   iconContainer: {
-    backgroundColor: Colors.LightPink,
+    backgroundColor: Colors.White,
     width: 46,
     height: 46,
     borderRadius: 12,

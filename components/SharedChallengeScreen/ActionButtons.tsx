@@ -38,7 +38,7 @@ export default function ActionButtons({
 const styles = StyleSheet.create({
   buttonsContainer: {
     gap: 10,
-    marginTop: 20,
+    marginVertical: 20,
   },
   leaveButton: {
     flexDirection: "row",

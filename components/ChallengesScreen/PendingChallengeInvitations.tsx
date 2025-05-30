@@ -180,6 +180,8 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     marginBottom: 12,
+    borderWidth: 2,
+    borderColor: Colors.ButterYellow,
     shadowColor: Colors.Black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
