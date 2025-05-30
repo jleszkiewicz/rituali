@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     borderRadius: 16,
     padding: 24,
-    width: "90%",
+    width: "80%",
     alignItems: "center",
   },
   illustration: {

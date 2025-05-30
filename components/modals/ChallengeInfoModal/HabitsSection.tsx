@@ -11,27 +11,27 @@ import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
 interface HabitsSectionProps {
   habits: HabitData[];
   challengeId: string;
+  headerColor?: string;
   onAddHabit: () => void;
 }
 
 const HabitsSection: React.FC<HabitsSectionProps> = ({
   habits,
   challengeId,
+  headerColor = Colors.White,
   onAddHabit,
 }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <ThemedText style={styles.title} bold>
+        <ThemedText style={[styles.title, { color: headerColor }]} bold>
           {t("habits")}
         </ThemedText>
         <TouchableOpacity style={styles.addButton} onPress={onAddHabit}>
-          <Ionicons
-            name="add-circle-outline"
-            size={24}
-            color={Colors.ButterYellow}
-          />
-          <ThemedText style={styles.addButtonText}>{t("add_habit")}</ThemedText>
+          <Ionicons name="add-circle-outline" size={24} color={headerColor} />
+          <ThemedText style={[styles.addButtonText, { color: headerColor }]}>
+            {t("add_habit")}
+          </ThemedText>
         </TouchableOpacity>
       </View>
 

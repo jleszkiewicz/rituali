@@ -210,5 +210,12 @@
   "pending_invitations": "Oczekujące zaproszenia do wyzwania",
   "from": "Od",
   "habits_in_challenge": "Nawyki w wyzwaniu",
-  "shared_challenges": "Wspólne wyzwania"
+  "shared_challenges": "Wspólne wyzwania",
+  "participants_progress": "Dzisiejszy postęp uczestników",
+  "delete_challenge_confirmation_message_shared": "Czy na pewno chcesz usunąć to wyzwanie? Zostanie ono usunięte dla wszystkich uczestników.",
+  "leave_challenge": "Opuść wyzwanie",
+  "you": "Ty",
+  "completion_stats": "Statystyki",
+  "average_completion": "Średni ukończenie nawyków",
+  "perfect_days": "Dni doskonałe"
 }

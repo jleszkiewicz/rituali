@@ -121,7 +121,7 @@ interface DbChallenge {
   participants: string[];
 }
 
-const mapChallengeFromDb = (dbChallenge: DbChallenge): Challenge => {
+const mapChallengeFromDb = (dbChallenge: DbChallenge): ChallengeData => {
   const mapped = {
     id: dbChallenge.id,
     name: dbChallenge.name,
@@ -1211,6 +1211,150 @@ export const fetchUserChallenges = async (userId: string): Promise<ChallengeData
       participants: challenge.participants || []
     }));
   } catch (error) {
+    throw error;
+  }
+};
+
+export const fetchSharedChallenge = async (challengeId: string) => {
+  const { data, error } = await supabase
+    .from("challenges")
+    .select("*")
+    .eq("id", challengeId)
+    .single();
+
+  if (error) throw error;
+  return mapChallengeFromDb(data as DbChallenge);
+};
+
+export const fetchChallengeParticipants = async (challengeData: ChallengeData) => {
+  const friends = await getFriends(challengeData.participants[0]);
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) return [];
+
+  const allParticipants = [
+    {
+      id: user.id,
+      display_name: user.user_metadata?.full_name || "You",
+      avatar_url: user.user_metadata?.avatar_url,
+    },
+    ...friends,
+  ];
+
+  const today = new Date();
+  const todayStr = format(today, dateFormat);
+
+  return Promise.all(
+    allParticipants.map(async (participant) => {
+      const habits = await fetchUserHabits(participant.id);
+      const challengeHabits = habits.filter(
+        (habit) =>
+          challengeData.habits.includes(habit.id) &&
+          habit.status === "active"
+      );
+
+      // W przypadku wyzwań, wszystkie nawyki są codzienne
+      const todayHabits = challengeHabits;
+
+      // Liczymy ile nawyków zostało ukończonych dzisiaj
+      const completedToday = todayHabits.filter(habit => 
+        habit.completionDates.includes(todayStr)
+      ).length;
+
+      const completionPercentage =
+        todayHabits.length > 0
+          ? Math.round((completedToday / todayHabits.length) * 100)
+          : 0;
+
+      return {
+        id: participant.id,
+        display_name: participant.display_name,
+        avatar_url: participant.avatar_url,
+        completion_percentage: completionPercentage,
+      };
+    })
+  );
+};
+
+export const leaveSharedChallenge = async (challengeId: string, userId: string) => {
+  const { data: challenge } = await supabase
+    .from("challenges")
+    .select("participants")
+    .eq("id", challengeId)
+    .single();
+
+  if (!challenge) throw new Error("Challenge not found");
+
+  const updatedParticipants = challenge.participants.filter(
+    (id: string) => id !== userId
+  );
+
+  await updateChallengeHabits(challengeId, updatedParticipants);
+
+  const [updatedHabits, updatedChallenges] = await Promise.all([
+    fetchUserHabits(userId),
+    fetchUserChallenges(userId),
+  ]);
+
+  return { updatedHabits, updatedChallenges };
+};
+
+export const deleteSharedChallenge = async (challengeId: string) => {
+  const { error } = await supabase
+    .from("challenges")
+    .delete()
+    .eq("id", challengeId);
+
+  if (error) throw error;
+};
+
+export const fetchChallengeCompletionHistory = async (challengeId: string, userId: string) => {
+  try {
+    const { data: challenge } = await supabase
+      .from("challenges")
+      .select("start_date, end_date, habits")
+      .eq("id", challengeId)
+      .single();
+
+    if (!challenge) throw new Error("Challenge not found");
+
+    const { data: habits } = await supabase
+      .from("habits")
+      .select("completion_dates")
+      .in("id", challenge.habits)
+      .eq("user_id", userId);
+
+    if (!habits) return [];
+
+    const startDate = new Date(challenge.start_date);
+    const endDate = new Date(challenge.end_date);
+    const today = new Date();
+
+    const completionHistory = [];
+    let currentDate = new Date(startDate);
+
+    while (currentDate <= today && currentDate <= endDate) {
+      const dateStr = format(currentDate, dateFormat);
+      const completedHabits = habits.filter(habit => 
+        habit.completion_dates.includes(dateStr)
+      ).length;
+      
+      const totalHabits = challenge.habits.length;
+      const completionPercentage = totalHabits > 0 
+        ? Math.round((completedHabits / totalHabits) * 100)
+        : 0;
+
+      completionHistory.push({
+        date: dateStr,
+        completion_percentage: completionPercentage,
+      });
+
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return completionHistory;
+  } catch (error) {
+    console.error("Error fetching challenge completion history:", error);
     throw error;
   }
 };

@@ -1,16 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
-import ChallengeInfoModal from "../modals/ChallengeInfoModal";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 interface SharedChallengeCardProps {
   challenge: ChallengeData;
-  onChallengeDeleted?: () => void;
   friendName: string;
   friendAvatarUrl: string | null;
   additionalParticipants?: number;
@@ -18,12 +16,10 @@ interface SharedChallengeCardProps {
 
 export default function SharedChallengeCard({
   challenge,
-  onChallengeDeleted,
   friendName,
   friendAvatarUrl,
   additionalParticipants = 0,
 }: SharedChallengeCardProps) {
-  const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const router = useRouter();
 
   const startDate = new Date(challenge.startDate + "T00:00:00");
@@ -41,76 +37,56 @@ export default function SharedChallengeCard({
   const isCompleted = endDate < today;
 
   const handlePress = () => {
-    if (isCompleted) {
-      router.push({
-        pathname: "/challenge-summary",
-        params: { challengeId: challenge.id },
-      });
-    } else {
-      setIsInfoModalVisible(true);
-    }
-  };
-
-  const handleChallengeDeleted = () => {
-    setIsInfoModalVisible(false);
-    if (onChallengeDeleted) {
-      onChallengeDeleted();
-    }
+    router.push({
+      pathname: "/shared-challenge",
+      params: { id: challenge.id },
+    });
   };
 
   return (
-    <>
-      <TouchableOpacity style={styles.container} onPress={handlePress}>
-        <View style={styles.content}>
-          <Image
-            source={require("@/assets/ilustrations/medal.png")}
-            style={styles.medal}
-          />
-          <View style={styles.leftSection}>
-            <ThemedText style={styles.title} bold>
-              {challenge.name}
-            </ThemedText>
-            <ThemedText style={styles.duration}>
-              {totalDays} {totalDays === 1 ? t("days_one") : t("days")}
-            </ThemedText>
-          </View>
-
-          <View style={styles.rightSection}>
-            <View style={styles.friendInfo}>
-              <View style={styles.avatarsContainer}>
-                <Image
-                  source={
-                    friendAvatarUrl
-                      ? { uri: friendAvatarUrl }
-                      : require("@/assets/ilustrations/profile.png")
-                  }
-                  style={styles.avatar}
-                />
-                {additionalParticipants > 0 && (
-                  <View style={styles.additionalAvatar}>
-                    <ThemedText style={styles.additionalCount} bold>
-                      +{additionalParticipants}
-                    </ThemedText>
-                  </View>
-                )}
-              </View>
-              <ThemedText style={styles.friendName} numberOfLines={1}>
-                {friendName}
-                {additionalParticipants > 0 && ` +${additionalParticipants}`}
-              </ThemedText>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color={Colors.White} />
-          </View>
+    <TouchableOpacity style={styles.container} onPress={handlePress}>
+      <View style={styles.content}>
+        <Image
+          source={require("@/assets/ilustrations/medal.png")}
+          style={styles.medal}
+        />
+        <View style={styles.leftSection}>
+          <ThemedText style={styles.title} bold>
+            {challenge.name}
+          </ThemedText>
+          <ThemedText style={styles.duration}>
+            {totalDays} {totalDays === 1 ? t("days_one") : t("days")}
+          </ThemedText>
         </View>
-      </TouchableOpacity>
 
-      <ChallengeInfoModal
-        isVisible={isInfoModalVisible}
-        onClose={() => setIsInfoModalVisible(false)}
-        challenge={challenge}
-        onChallengeDeleted={handleChallengeDeleted}
-      />
-    </>
+        <View style={styles.rightSection}>
+          <View style={styles.friendInfo}>
+            <View style={styles.avatarsContainer}>
+              <Image
+                source={
+                  friendAvatarUrl
+                    ? { uri: friendAvatarUrl }
+                    : require("@/assets/ilustrations/profile.png")
+                }
+                style={styles.avatar}
+              />
+              {additionalParticipants > 0 && (
+                <View style={styles.additionalAvatar}>
+                  <ThemedText style={styles.additionalCount} bold>
+                    +{additionalParticipants}
+                  </ThemedText>
+                </View>
+              )}
+            </View>
+            <ThemedText style={styles.friendName} numberOfLines={1}>
+              {friendName}
+              {additionalParticipants > 0 && ` +${additionalParticipants}`}
+            </ThemedText>
+          </View>
+          <Ionicons name="chevron-forward" size={24} color={Colors.White} />
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 }
 

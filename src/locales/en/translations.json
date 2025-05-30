@@ -224,5 +224,12 @@
   "pending_invitations": "Pending challenge invitations",
   "from": "From",
   "habits_in_challenge": "Habits in challenge",
-  "shared_challenges": "Shared challenges"
+  "shared_challenges": "Shared challenges",
+  "participants_progress": "Today's participants progress",
+  "delete_challenge_confirmation_message_shared": "Are you sure you want to delete this challenge? It will be deleted for all participants.",
+  "leave_challenge": "Leave challenge",
+  "you": "You",
+  "completion_stats": "Completion stats",
+  "average_completion": "Average completion",
+  "perfect_days": "Perfect days"
 }
