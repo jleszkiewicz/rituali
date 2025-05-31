@@ -198,5 +198,9 @@
   "habit_added_to_challenge": "Nawyk został dodany do wyzwania",
   "habit_added_successfully": "Nawyk został dodany pomyślnie", 
   "no_habits_in_challenge": "Nie ma żadnych nawyków w tym wyzwaniu",
-  "no_habits_in_challenge_summary": "Nie ma żadnych nawyków w tym wyzwaniu, więc nie można wyświetlić statystyk."
+  "no_habits_in_challenge_summary": "Nie ma żadnych nawyków w tym wyzwaniu, więc nie można wyświetlić statystyk.",
+  "shared_challenge_summary": "Podsumowanie wspólnego wyzwania",
+  "completion_calendar": "Kalendarz ukończeń",
+  "your_before_photo": "Twój zdjęcie przed",
+  "your_after_photo": "Twój zdjęcie po"
 }

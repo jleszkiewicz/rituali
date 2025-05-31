@@ -6,17 +6,28 @@ import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useSelector } from "react-redux";
+import { selectUserId } from "@/src/store/userSlice";
+
+interface Participant {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+}
 
 interface YourChallengeCardProps {
   challenge: ChallengeData;
   onChallengeDeleted?: () => void;
+  participants?: Participant[];
 }
 
 export default function YourChallengeCard({
   challenge,
   onChallengeDeleted,
+  participants = [],
 }: YourChallengeCardProps) {
   const router = useRouter();
+  const userId = useSelector(selectUserId);
 
   const startDate = new Date(challenge.startDate + "T00:00:00");
   const endDate = new Date(challenge.endDate + "T00:00:00");
@@ -31,13 +42,21 @@ export default function YourChallengeCard({
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const isCompleted = endDate < today;
+  const isSharedChallenge = challenge.participants.length > 1;
 
   const handlePress = () => {
     if (isCompleted) {
-      router.push({
-        pathname: "/challenge-summary",
-        params: { challengeId: challenge.id },
-      });
+      if (isSharedChallenge) {
+        router.push({
+          pathname: "/shared-challenge-summary",
+          params: { challengeId: challenge.id },
+        });
+      } else {
+        router.push({
+          pathname: "/challenge-summary",
+          params: { challengeId: challenge.id },
+        });
+      }
     } else {
       router.push({
         pathname: "/challenge-info",
@@ -45,6 +64,9 @@ export default function YourChallengeCard({
       });
     }
   };
+
+  const otherParticipants = participants.filter((p) => p.id !== userId);
+  const firstOtherParticipant = otherParticipants[0];
 
   return (
     <TouchableOpacity style={styles.container} onPress={handlePress}>
@@ -63,6 +85,27 @@ export default function YourChallengeCard({
         </View>
 
         <View style={styles.rightSection}>
+          {isSharedChallenge && otherParticipants.length > 0 && (
+            <View style={styles.participantsContainer}>
+              <View style={styles.avatarsContainer}>
+                <Image
+                  source={
+                    firstOtherParticipant.avatar_url
+                      ? { uri: firstOtherParticipant.avatar_url }
+                      : require("@/assets/ilustrations/profile.png")
+                  }
+                  style={styles.avatar}
+                />
+                {otherParticipants.length > 1 && (
+                  <View style={styles.additionalAvatar}>
+                    <ThemedText style={styles.additionalCount} bold>
+                      +{otherParticipants.length - 1}
+                    </ThemedText>
+                  </View>
+                )}
+              </View>
+            </View>
+          )}
           <Ionicons
             name="chevron-forward"
             size={24}
@@ -116,5 +159,32 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     marginEnd: 5,
+  },
+  participantsContainer: {
+    marginRight: 8,
+  },
+  avatarsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
+  additionalAvatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: Colors.White,
+    borderWidth: 2,
+    borderColor: Colors.PrimaryGray,
+    marginLeft: -10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  additionalCount: {
+    fontSize: 12,
+    color: Colors.PrimaryGray,
   },
 });

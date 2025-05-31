@@ -27,6 +27,8 @@ import {
   getSignedUrl,
   deletePhoto,
   uploadBeforePhoto,
+  fetchChallengeParticipants,
+  fetchChallengeCompletionHistory,
 } from "@/src/service/apiService";
 import Loading from "@/components/Commons/Loading";
 import { Ionicons } from "@expo/vector-icons";
@@ -36,6 +38,8 @@ import PhotoPicker from "@/components/Commons/PhotoPicker";
 import Carousel from "react-native-reanimated-carousel";
 import PageIndicator from "@/components/Commons/PageIndicator";
 import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
+import { SharedChallengeHabits } from "@/components/ChallengeSummary/SharedChallengeHabits";
+import { SharedChallengeStats } from "@/components/ChallengeSummary/SharedChallengeStats";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const PAGE_WIDTH = SCREEN_WIDTH - 40;
@@ -48,10 +52,21 @@ interface PhotoItem {
   photoUri: string | null;
 }
 
-export default function ChallengeSummaryScreen() {
+interface Participant {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  completionHistory: {
+    date: string;
+    completion_percentage: number;
+  }[];
+}
+
+export default function SharedChallengeSummaryScreen() {
   const { challengeId } = useLocalSearchParams();
   const router = useRouter();
   const [challenge, setChallenge] = useState<ChallengeData | null>(null);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeletePhotoModalVisible, setIsDeletePhotoModalVisible] =
     useState(false);
@@ -79,6 +94,21 @@ export default function ChallengeSummaryScreen() {
       try {
         const data = await fetchChallengeById(challengeId as string);
         setChallenge(data);
+
+        const participantsData = await fetchChallengeParticipants(data);
+        const participantsWithHistory = await Promise.all(
+          participantsData.map(async (participant) => {
+            const history = await fetchChallengeCompletionHistory(
+              challengeId as string,
+              participant.id
+            );
+            return {
+              ...participant,
+              completionHistory: history,
+            };
+          })
+        );
+        setParticipants(participantsWithHistory);
       } catch (error) {
         console.error("Error loading challenge:", error);
       } finally {
@@ -169,23 +199,6 @@ export default function ChallengeSummaryScreen() {
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
     ) + 1;
 
-  const totalCompletions = challengeHabits.reduce(
-    (total: number, habit: HabitData) => {
-      return (
-        total +
-        (habit.completionDates?.filter((date: string) => {
-          const completionDate = new Date(date);
-          return completionDate >= startDate && completionDate <= endDate;
-        }).length || 0)
-      );
-    },
-    0
-  );
-
-  const completionRate = Math.round(
-    (totalCompletions / (totalDays * challengeHabits.length)) * 100
-  );
-
   const photoItems: PhotoItem[] = [
     {
       type: "before",
@@ -202,7 +215,7 @@ export default function ChallengeSummaryScreen() {
   return (
     <ScreenWrapper>
       <ScreenHeader
-        title={t("challenge_summary")}
+        title={t("shared_challenge_summary")}
         onBack={() => router.push("/challenges")}
       />
       <ScrollView
@@ -216,30 +229,43 @@ export default function ChallengeSummaryScreen() {
 
         {challengeHabits.length > 0 ? (
           <>
-            <ChallengeStats
+            <SharedChallengeStats
               totalDays={totalDays}
-              totalCompletions={totalCompletions}
-              completionRate={completionRate}
-            />
-
-            <ThemedText style={styles.sectionTitle} bold>
-              {t("completion_calendar")}
-            </ThemedText>
-            <ChallengeCompletionCalendar
-              startDate={startDate}
-              endDate={endDate}
-              challengeId={challengeId as string}
-              showLegend={false}
+              participants={participants.map((participant) => ({
+                id: participant.id,
+                display_name: participant.display_name,
+                totalCompletions: participant.completionHistory.reduce(
+                  (total, day) =>
+                    total + (day.completion_percentage > 0 ? 1 : 0),
+                  0
+                ),
+                completionRate: Math.round(
+                  participant.completionHistory.reduce(
+                    (total, day) => total + day.completion_percentage,
+                    0
+                  ) / participant.completionHistory.length || 0
+                ),
+              }))}
             />
 
             <ThemedText style={styles.sectionTitle} bold>
               {t("habits")}
             </ThemedText>
-            <ChallengeHabits
+            <SharedChallengeHabits
               habits={challengeHabits}
+              totalDays={totalDays}
+              participants={participants}
+            />
+
+            <ThemedText style={styles.sectionTitle} bold>
+              {t("completion_calendar")}
+            </ThemedText>
+
+            <ChallengeCompletionCalendar
               startDate={startDate}
               endDate={endDate}
-              totalDays={totalDays}
+              challengeId={challengeId as string}
+              showLegend={true}
             />
 
             <View style={styles.photosContainer}>
@@ -256,8 +282,8 @@ export default function ChallengeSummaryScreen() {
                         <ThemedText style={styles.photoTitle}>
                           {t(
                             item.type === "before"
-                              ? "before_photo"
-                              : "after_photo"
+                              ? "your_before_photo"
+                              : "your_after_photo"
                           )}
                         </ThemedText>
                         {item.photoUri && (
@@ -357,28 +383,15 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
+    fontWeight: "600",
     color: Colors.PrimaryGray,
-    textTransform: "capitalize",
     marginBottom: 12,
+    textTransform: "capitalize",
   },
   description: {
     fontSize: 14,
     color: Colors.PrimaryGray,
     marginBottom: 16,
-  },
-  afterPhotoSection: {
-    backgroundColor: Colors.White,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
-    shadowColor: Colors.PrimaryGray,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   photosContainer: {
     marginBottom: 24,

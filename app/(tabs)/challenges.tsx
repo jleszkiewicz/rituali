@@ -155,14 +155,29 @@ const ChallengesScreen = () => {
                 data={singleUserChallenges}
                 onSnapToItem={setActiveSlide}
                 style={{ paddingHorizontal: ITEM_MARGIN }}
-                renderItem={({ item }) => (
-                  <View style={{ width: PAGE_WIDTH - ITEM_MARGIN }}>
-                    <YourChallengeCard
-                      challenge={item}
-                      onChallengeDeleted={handleChallengeDeleted}
-                    />
-                  </View>
-                )}
+                renderItem={({ item }) => {
+                  const participants = item.participants.map(
+                    (participantId) => {
+                      const friend = friends.find(
+                        (f) => f.id === participantId
+                      );
+                      return {
+                        id: participantId,
+                        display_name: friend?.display_name || null,
+                        avatar_url: friend?.avatar_url || null,
+                      };
+                    }
+                  );
+                  return (
+                    <View style={{ width: PAGE_WIDTH - ITEM_MARGIN }}>
+                      <YourChallengeCard
+                        challenge={item}
+                        onChallengeDeleted={handleChallengeDeleted}
+                        participants={participants}
+                      />
+                    </View>
+                  );
+                }}
               />
               <PageIndicator
                 isVisible={singleUserChallenges.length > 1}
@@ -184,14 +199,29 @@ const ChallengesScreen = () => {
                 data={completedChallenges}
                 onSnapToItem={setCompletedCurrentPage}
                 style={{ paddingHorizontal: ITEM_MARGIN }}
-                renderItem={({ item }) => (
-                  <View style={{ width: PAGE_WIDTH - ITEM_MARGIN }}>
-                    <YourChallengeCard
-                      challenge={item}
-                      onChallengeDeleted={loadData}
-                    />
-                  </View>
-                )}
+                renderItem={({ item }) => {
+                  const participants = item.participants.map(
+                    (participantId) => {
+                      const friend = friends.find(
+                        (f) => f.id === participantId
+                      );
+                      return {
+                        id: participantId,
+                        display_name: friend?.display_name || null,
+                        avatar_url: friend?.avatar_url || null,
+                      };
+                    }
+                  );
+                  return (
+                    <View style={{ width: PAGE_WIDTH - ITEM_MARGIN }}>
+                      <YourChallengeCard
+                        challenge={item}
+                        onChallengeDeleted={loadData}
+                        participants={participants}
+                      />
+                    </View>
+                  );
+                }}
               />
               <PageIndicator
                 isVisible={completedChallenges.length > 1}
