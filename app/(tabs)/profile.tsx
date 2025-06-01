@@ -34,6 +34,13 @@ import {
 import { Linking } from "react-native";
 import PrimaryButton from "@/components/Commons/PrimaryButton";
 import ProfileOption from "@/components/ProfileScreen/ProfileOption";
+import {
+  requestNotificationPermissions,
+  scheduleUncompletedHabitsCheck,
+  cancelAllNotifications,
+  subscribeToFriendRequestNotifications,
+  subscribeToChallengeInvitationNotifications,
+} from "@/src/service/notificationsService";
 
 const ProfileScreen = () => {
   const { logout, deleteAccount, updateDisplayName } = useAuth();
@@ -57,6 +64,26 @@ const ProfileScreen = () => {
       const url = await fetchProfilePhotoUrl(userId);
       setAvatarUrl(url);
     })();
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      // Sprawdź status uprawnień do powiadomień
+      Notifications.getPermissionsAsync().then(({ status }) => {
+        setNotificationsEnabled(status === "granted");
+      });
+
+      // Subskrybuj się do powiadomień o zaproszeniach
+      const unsubscribeFriendRequests =
+        subscribeToFriendRequestNotifications(userId);
+      const unsubscribeChallengeInvitations =
+        subscribeToChallengeInvitationNotifications(userId);
+
+      return () => {
+        unsubscribeFriendRequests();
+        unsubscribeChallengeInvitations();
+      };
+    }
   }, [userId]);
 
   const handlePickAvatar = async () => {
@@ -106,17 +133,21 @@ const ProfileScreen = () => {
   const toggleNotifications = async () => {
     try {
       if (!notificationsEnabled) {
-        const { status } = await Notifications.requestPermissionsAsync();
-        if (status === "granted") {
+        const granted = await requestNotificationPermissions();
+        if (granted) {
           setNotificationsEnabled(true);
+          // Zaplanuj powiadomienia o nieukończonych nawykach
+          await scheduleUncompletedHabitsCheck();
         } else {
           Alert.alert(t("error"), t("notifications_permission_denied"));
         }
       } else {
+        await cancelAllNotifications();
         setNotificationsEnabled(false);
       }
     } catch (error) {
       console.error(error);
+      Alert.alert(t("error"), t("notifications_error"));
     }
   };
 

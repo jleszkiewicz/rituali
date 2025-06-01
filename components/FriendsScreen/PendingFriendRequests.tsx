@@ -16,7 +16,6 @@ import {
   handleFriendRequest,
 } from "@/src/service/apiService";
 import ConditionalRender from "../Commons/ConditionalRenderer";
-import Loading from "../Commons/Loading";
 
 interface User {
   id: string;
@@ -42,20 +41,16 @@ const PendingFriendRequests = ({
   onRequestHandled,
 }: PendingFriendRequestsProps) => {
   const [requests, setRequests] = React.useState<PendingRequest[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
   const userId = useSelector(selectUserId);
 
   const fetchRequests = async () => {
     if (!userId) return;
 
     try {
-      setIsLoading(true);
       const requestsData = await fetchPendingFriendRequests(userId);
       setRequests(requestsData);
     } catch (error) {
       console.error("Error fetching pending requests:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -110,14 +105,6 @@ const PendingFriendRequests = ({
       </View>
     </View>
   );
-
-  if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <Loading />
-      </View>
-    );
-  }
 
   if (requests.length === 0) return null;
 

@@ -18,7 +18,6 @@ import {
 import ConditionalRender from "../Commons/ConditionalRenderer";
 import { differenceInDays } from "date-fns";
 import { Ionicons } from "@expo/vector-icons";
-import Loading from "../Commons/Loading";
 
 interface PendingChallengeInvitationsProps {
   onInvitationHandled: () => void;
@@ -28,7 +27,6 @@ const PendingChallengeInvitations = ({
   onInvitationHandled,
 }: PendingChallengeInvitationsProps) => {
   const [invitations, setInvitations] = React.useState<any[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
   const [expandedId, setExpandedId] = React.useState<string | null>(null);
   const userId = useSelector(selectUserId);
 
@@ -36,13 +34,10 @@ const PendingChallengeInvitations = ({
     if (!userId) return;
 
     try {
-      setIsLoading(true);
       const invitationsData = await getPendingChallengeInvitations(userId);
       setInvitations(invitationsData);
     } catch (error) {
       console.error("Error fetching pending invitations:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -139,14 +134,6 @@ const PendingChallengeInvitations = ({
       </View>
     );
   };
-
-  if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <Loading />
-      </View>
-    );
-  }
 
   if (invitations.length === 0) return null;
 

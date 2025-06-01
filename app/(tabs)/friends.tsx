@@ -6,7 +6,10 @@ import ScreenHeader from "@/components/Commons/ScreenHeader";
 import { t } from "@/src/service/translateService";
 import { useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
-import { fetchFriends } from "@/src/service/apiService";
+import {
+  fetchFriends,
+  fetchPendingFriendRequests,
+} from "@/src/service/apiService";
 import { subscribeToPokeNotifications } from "@/src/service/notificationsService";
 import FriendRequestForm from "@/components/FriendsScreen/FriendRequestForm";
 import PendingFriendRequests from "@/components/FriendsScreen/PendingFriendRequests";
@@ -31,7 +34,10 @@ const FriendsScreen = () => {
     if (!userId) return;
     try {
       setIsLoading(true);
-      const friendsData = await fetchFriends(userId);
+      const [friendsData, pendingRequests] = await Promise.all([
+        fetchFriends(userId),
+        fetchPendingFriendRequests(userId),
+      ]);
       setFriends(friendsData);
     } catch (error) {
       console.error("Error fetching friends:", error);

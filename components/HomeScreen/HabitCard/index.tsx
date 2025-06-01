@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { useDispatch, useSelector } from "react-redux";
 import { selectHabits, setHabits } from "@/src/store/habitsSlice";
+import { selectUserId } from "@/src/store/userSlice";
 import { updateHabitCompletion } from "@/src/service/apiService";
+import { checkUncompletedHabits } from "@/src/service/notificationsService";
 import { isAfter, isToday, parseISO } from "date-fns";
 import { calculateStreak } from "@/src/utils/streakUtils";
 import HabitTitle from "./HabitTitle";
@@ -29,7 +31,14 @@ const HabitCard: React.FC<HabitCardProps> = ({
 }) => {
   const dispatch = useDispatch();
   const habits = useSelector(selectHabits);
+  const userId = useSelector(selectUserId);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (userId) {
+      checkUncompletedHabits(userId);
+    }
+  }, [userId, habit.completionDates]);
 
   const isFutureDate = isAfter(parseISO(selectedDate), new Date());
   const isTodayDate = isToday(parseISO(selectedDate));

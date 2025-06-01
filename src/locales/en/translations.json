@@ -239,5 +239,13 @@
   "shared_challenge_summary": "Shared challenge summary",
   "completion_calendar": "Completion calendar",
   "your_before_photo": "Your before photo",
-  "your_after_photo": "Your after photo"
+  "your_after_photo": "Your after photo",
+  "uncompleted_habits_notification_title": "Uncompleted habits",
+  "uncompleted_habits_notification_body": "You have uncompleted habits for today!",
+  "friend_request_notification_title": "New friend request",
+  "friend_request_notification_body": "{{name}} sent you a friend request",
+  "challenge_invitation_notification_title": "New challenge invitation",
+  "challenge_invitation_notification_body": "{{name}} invited you to a challenge {{challengeName}}",
+  "challenge_completed_notification_title": "Challenge completed!",
+  "challenge_completed_notification_body": "Congratulations! You've completed the {{challengeName}} challenge"
 }

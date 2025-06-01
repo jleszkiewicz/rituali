@@ -26,8 +26,9 @@ export const CompletedChallengeCard: React.FC<CompletedChallengeCardProps> = ({
     try {
       await markChallengeAsViewed(challenge.id);
 
+      const isShared = challenge.participants.length > 1;
       router.push({
-        pathname: "/challenge-summary",
+        pathname: isShared ? "/shared-challenge-summary" : "/challenge-summary",
         params: { challengeId: challenge.id },
       });
     } catch (error) {

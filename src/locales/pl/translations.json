@@ -202,5 +202,13 @@
   "shared_challenge_summary": "Podsumowanie wspólnego wyzwania",
   "completion_calendar": "Kalendarz ukończeń",
   "your_before_photo": "Twój zdjęcie przed",
-  "your_after_photo": "Twój zdjęcie po"
+  "your_after_photo": "Twój zdjęcie po",
+  "uncompleted_habits_notification_title": "Nieukończone nawyki",
+  "uncompleted_habits_notification_body": "Masz jeszcze nieukończone nawyki na dzisiaj!",
+  "friend_request_notification_title": "Nowe zaproszenie do znajomych",
+  "friend_request_notification_body": "{{name}} wysłał Ci zaproszenie do znajomych",
+  "challenge_invitation_notification_title": "Nowe zaproszenie do wyzwania",
+  "challenge_invitation_notification_body": "{{name}} zaprasza Cię do wyzwania {{challengeName}}",
+  "challenge_completed_notification_title": "Wyzwanie zakończone!",
+  "challenge_completed_notification_body": "Gratulacje! Ukończyłeś wyzwanie {{challengeName}}"
 }
