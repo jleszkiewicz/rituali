@@ -1,17 +1,23 @@
 {
   "expo": {
-    "name": "rituali",
+    "name": "Rituali",
     "slug": "rituali",
     "version": "1.0.0",
     "owner": "asiullllla",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/icon-ios.png",
     "scheme": "exp+rituali",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/icon-android.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.rituali.app",
+      "icon": "./assets/images/icon-ios.png",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to let you share photos.",
         "UIBackgroundModes": ["remote-notification"]
@@ -19,8 +25,9 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/icon-android.png",
+        "backgroundColor": "#ffffff",
+        "foregroundImageScale": 1.2
       },
       "package": "com.rituali.app",
       "permissions": [
@@ -40,7 +47,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/icon-android.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
@@ -51,9 +58,8 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
-          "color": "#ffffff",
-          "sounds": ["./assets/notification-sound.wav"]
+          "icon": "./assets/images/icon-android.png",
+          "color": "#ffffff"
         }
       ]
     ],
