@@ -223,16 +223,6 @@ const ProfileScreen = () => {
         </View>
         <View style={styles.optionsContainer}>
           <ProfileOption
-            icon={"download-outline" as keyof typeof Ionicons.glyphMap}
-            label={t("downloads")}
-            onPress={() => {}}
-          />
-          <ProfileOption
-            icon={"card-outline" as keyof typeof Ionicons.glyphMap}
-            label={t("subscription")}
-            onPress={() => {}}
-          />
-          <ProfileOption
             icon={"mail-outline" as keyof typeof Ionicons.glyphMap}
             label={t("contact_us")}
             onPress={() => Linking.openURL("mailto:rituali@contact")}
@@ -256,6 +246,11 @@ const ProfileScreen = () => {
               thumbColor={Colors.White}
             />
           </View>
+          <ProfileOption
+            icon={"card-outline" as keyof typeof Ionicons.glyphMap}
+            label={t("subscription")}
+            onPress={() => {}}
+          />
           <ProfileOption
             icon={"trash" as keyof typeof Ionicons.glyphMap}
             label={t("delete_account")}
