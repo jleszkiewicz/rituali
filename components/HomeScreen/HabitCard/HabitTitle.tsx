@@ -1,5 +1,11 @@
-import React from "react";
-import { View, StyleSheet, Animated } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  Animated,
+  TextLayoutEventData,
+  NativeSyntheticEvent,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "@/components/Commons/ThemedText";
 
@@ -10,12 +16,29 @@ interface HabitTitleProps {
   strikeThroughAnim: Animated.Value;
 }
 
+interface TextLine {
+  y: number;
+  width: number;
+}
+
 const HabitTitle: React.FC<HabitTitleProps> = ({
   name,
   streak,
   isToday,
   strikeThroughAnim,
 }) => {
+  const [textLines, setTextLines] = useState<TextLine[]>([]);
+
+  const onTextLayout = (event: NativeSyntheticEvent<TextLayoutEventData>) => {
+    const { lines } = event.nativeEvent;
+    setTextLines(
+      lines.map((line) => ({
+        y: line.y + line.height / 2,
+        width: line.width,
+      }))
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.nameContainer}>
@@ -29,24 +52,30 @@ const HabitTitle: React.FC<HabitTitleProps> = ({
               }),
             },
           ]}
+          onTextLayout={onTextLayout}
         >
           {name}
         </Animated.Text>
-        <Animated.View
-          style={[
-            styles.strikeThrough,
-            {
-              transform: [
-                {
-                  scaleX: strikeThroughAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 1],
-                  }),
-                },
-              ],
-            },
-          ]}
-        />
+        {textLines.map((line, index) => (
+          <Animated.View
+            key={index}
+            style={[
+              styles.strikeThrough,
+              {
+                transform: [
+                  {
+                    scaleX: strikeThroughAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 1],
+                    }),
+                  },
+                ],
+                top: line.y,
+                width: line.width,
+              },
+            ]}
+          />
+        ))}
       </View>
       {isToday && streak > 0 && (
         <ThemedText style={styles.streak} bold>{`${streak} 🔥`}</ThemedText>
@@ -69,6 +98,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.PrimaryGray,
     fontFamily: "Poppins-Bold",
+    lineHeight: 24,
   },
   streak: {
     fontSize: 14,
@@ -77,8 +107,6 @@ const styles = StyleSheet.create({
   strikeThrough: {
     position: "absolute",
     left: 0,
-    right: 0,
-    top: "50%",
     height: 2,
     backgroundColor: Colors.PrimaryGray,
     transformOrigin: "left",
