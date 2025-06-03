@@ -176,6 +176,23 @@ export default function HomeScreen() {
               <ThemedText style={styles.sectionTitle} bold>
                 {t("habits")}
               </ThemedText>
+              <View style={styles.completionRateContainer}>
+                <ThemedText style={styles.completionRateLabel}>
+                  {t("today_completion_rate")}:
+                </ThemedText>
+                <ThemedText style={styles.completionRate}>
+                  {Math.round(
+                    (activeHabits.filter((habit) =>
+                      habit.completionDates.includes(
+                        format(selectedDate, dateFormat)
+                      )
+                    ).length /
+                      activeHabits.length) *
+                      100
+                  )}
+                  %
+                </ThemedText>
+              </View>
             </View>
             {activeHabits.map((habit) => (
               <HabitCard
@@ -250,5 +267,19 @@ const styles = StyleSheet.create({
     marginTop: 80,
     justifyContent: "center",
     alignItems: "center",
+  },
+  completionRateContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: 10,
+  },
+  completionRate: {
+    fontSize: 16,
+    color: Colors.PrimaryGray,
+  },
+  completionRateLabel: {
+    fontSize: 14,
+    color: Colors.PrimaryGray,
   },
 });

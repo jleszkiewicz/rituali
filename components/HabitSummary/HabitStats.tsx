@@ -14,9 +14,10 @@ interface HabitStatsProps {
 const HabitStats: React.FC<HabitStatsProps> = ({ habit }) => {
   const startDate = new Date(habit.startDate);
   const today = new Date();
-  const totalDays =
-    Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) +
-    1;
+  const totalDays = Math.max(
+    1,
+    Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+  );
 
   const totalCompletions = habit.completionDates.length;
   const completionRate = Math.round((totalCompletions / totalDays) * 100);

@@ -15,7 +15,7 @@ export const calculateStreak = (
     sortedDates.some(completedDate => isSameDay(completedDate, date));
 
   let streak = 0;
-  let checkDate = subDays(today, 1);
+  let checkDate = wasCompleted(today) ? today : subDays(today, 1);
 
   while (isAfter(checkDate, parsedStartDate) || isSameDay(checkDate, parsedStartDate)) {
     if (wasCompleted(checkDate)) {

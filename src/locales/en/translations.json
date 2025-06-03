@@ -257,5 +257,6 @@
   "start_challenge": "Start challenge",
   "start_challenge_description": "Are you sure you want to start this challenge? You can do it later.",
   "challenge_added": "Challenge added",
-  "challenge_added_description": "Challenge added to your challenges, you can see it in the \"Your challenges\" section."
+  "challenge_added_description": "Challenge added to your challenges, you can see it in the \"Your challenges\" section",
+  "today_completion_rate": "Completed"
 }
