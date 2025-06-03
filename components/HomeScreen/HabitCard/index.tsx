@@ -1,44 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { useDispatch, useSelector } from "react-redux";
 import { selectHabits, setHabits } from "@/src/store/habitsSlice";
 import { selectUserId } from "@/src/store/userSlice";
 import { updateHabitCompletion } from "@/src/service/apiService";
-import { checkUncompletedHabits } from "@/src/service/notificationsService";
 import { isAfter, isToday, parseISO } from "date-fns";
 import { calculateStreak } from "@/src/utils/streakUtils";
 import HabitTitle from "./HabitTitle";
-import HabitActions from "./HabitActions";
 import HabitCheckbox from "./HabitCheckbox";
 import HabitIcon from "./HabitIcon";
+import { useRouter } from "expo-router";
 
 interface HabitCardProps {
   habit: HabitData;
   selectedDate: string;
-  isEditMode: boolean;
-  onEdit: (habit: HabitData) => void;
-  onDelete: (habitId: string) => void;
 }
 
-const HabitCard: React.FC<HabitCardProps> = ({
-  habit,
-  selectedDate,
-  isEditMode,
-  onEdit,
-  onDelete,
-}) => {
+const HabitCard: React.FC<HabitCardProps> = ({ habit, selectedDate }) => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const habits = useSelector(selectHabits);
   const userId = useSelector(selectUserId);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (userId) {
-      checkUncompletedHabits(userId);
-    }
-  }, [userId, habit.completionDates]);
 
   const isFutureDate = isAfter(parseISO(selectedDate), new Date());
   const isTodayDate = isToday(parseISO(selectedDate));
@@ -70,29 +55,30 @@ const HabitCard: React.FC<HabitCardProps> = ({
     }
   };
 
+  const handlePress = () => {
+    router.push({
+      pathname: "/habit-summary",
+      params: { habitId: habit.id },
+    });
+  };
+
   const streak = calculateStreak(habit.startDate, habit.completionDates);
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={styles.content}>
         <View style={styles.leftContent}>
           <HabitIcon category={habit.category} />
           <HabitTitle name={habit.name} streak={streak} isToday={isTodayDate} />
         </View>
-        {isEditMode ? (
-          <HabitActions
-            onEdit={() => onEdit(habit)}
-            onDelete={() => onDelete(habit.id)}
-          />
-        ) : (
-          <HabitCheckbox
-            isCompleted={isCompleted}
-            isDisabled={isLoading || isFutureDate}
-            onPress={toggleCompletion}
-          />
-        )}
+
+        <HabitCheckbox
+          isCompleted={isCompleted}
+          isDisabled={isLoading || isFutureDate}
+          onPress={toggleCompletion}
+        />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

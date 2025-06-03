@@ -210,5 +210,9 @@
   "challenge_invitation_notification_title": "Nowe zaproszenie do wyzwania",
   "challenge_invitation_notification_body": "{{name}} zaprasza Cię do wyzwania {{challengeName}}",
   "challenge_completed_notification_title": "Wyzwanie zakończone!",
-  "challenge_completed_notification_body": "Gratulacje! Ukończyłeś wyzwanie {{challengeName}}"
+  "challenge_completed_notification_body": "Gratulacje! Ukończyłeś wyzwanie {{challengeName}}",
+  "selected_challenges": "Wybrane wyzwania",
+  "current_streak": "Aktualny streak",
+  "started_on": "Rozpoczęte",
+  "habit_summary": "Podsumowanie nawyku"
 }

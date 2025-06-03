@@ -247,5 +247,9 @@
   "challenge_invitation_notification_title": "New challenge invitation",
   "challenge_invitation_notification_body": "{{name}} invited you to a challenge {{challengeName}}",
   "challenge_completed_notification_title": "Challenge completed!",
-  "challenge_completed_notification_body": "Congratulations! You've completed the {{challengeName}} challenge"
+  "challenge_completed_notification_body": "Congratulations! You've completed the {{challengeName}} challenge",
+  "selected_challenges": "Selected challenges",
+  "current_streak": "Current streak",
+  "started_on": "Started on",
+  "habit_summary": "Habit summary"
 }

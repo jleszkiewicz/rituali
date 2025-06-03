@@ -136,8 +136,10 @@ const ProfileScreen = () => {
         const granted = await requestNotificationPermissions();
         if (granted) {
           setNotificationsEnabled(true);
-          // Zaplanuj powiadomienia o nieukończonych nawykach
-          await scheduleUncompletedHabitsCheck();
+          // Zaplanuj powiadomienia o nieukończonych nawykach tylko raz
+          if (userId) {
+            await scheduleUncompletedHabitsCheck(userId);
+          }
         } else {
           Alert.alert(t("error"), t("notifications_permission_denied"));
         }

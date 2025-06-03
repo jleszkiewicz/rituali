@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  StyleSheet,
-  ScrollView,
-  View,
-  TouchableOpacity,
-  RefreshControl,
-} from "react-native";
+import { StyleSheet, ScrollView, View, RefreshControl } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import {
@@ -34,12 +28,9 @@ import ConditionalRenderer from "@/components/Commons/ConditionalRenderer";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
 import { ThemedText } from "@/components/Commons/ThemedText";
 import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
-import { Ionicons } from "@expo/vector-icons";
 import HabitCard from "@/components/HomeScreen/HabitCard";
 import { CompletedChallengeCard } from "@/components/HomeScreen/CompletedChallengeCard";
 import { selectViewedChallengeIds } from "@/src/store/viewedChallengesSlice";
-import DeleteHabitModal from "@/components/modals/DeleteHabitModal";
-import EditHabitModal from "@/components/modals/EditHabitModal";
 import { getActiveChallenges } from "@/src/service/apiService";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 
@@ -51,14 +42,10 @@ export default function HomeScreen() {
   const isLoading = useSelector(selectHabitsLoading);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isAddHabitModalVisible, setIsAddHabitModalVisible] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [completedChallenges, setCompletedChallenges] = useState<
     ChallengeData[]
   >([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [selectedHabit, setSelectedHabit] = useState<HabitData | null>(null);
 
   const viewedChallengeIds = useSelector(selectViewedChallengeIds);
 
@@ -138,16 +125,6 @@ export default function HomeScreen() {
     })
     .sort((a: HabitData, b: HabitData) => a.name.localeCompare(b.name));
 
-  const handleEditHabit = (habit: HabitData) => {
-    setSelectedHabit(habit);
-    setIsEditModalVisible(true);
-  };
-
-  const handleDeleteHabit = (habitId: string) => {
-    setSelectedHabit(habits.find((h) => h.id === habitId) || null);
-    setIsDeleteModalVisible(true);
-  };
-
   if (isLoading) {
     return (
       <ScreenWrapper>
@@ -199,28 +176,12 @@ export default function HomeScreen() {
               <ThemedText style={styles.sectionTitle} bold>
                 {t("habits")}
               </ThemedText>
-              <TouchableOpacity
-                onPress={() => setIsEditMode(!isEditMode)}
-                style={styles.editButton}
-              >
-                <Ionicons
-                  name={isEditMode ? "close" : "create-outline"}
-                  size={24}
-                  color={Colors.HotPink}
-                />
-                <ThemedText style={styles.editButtonText} bold>
-                  {isEditMode ? t("editing_done") : t("edit")}
-                </ThemedText>
-              </TouchableOpacity>
             </View>
             {activeHabits.map((habit) => (
               <HabitCard
                 key={habit.id}
                 habit={habit}
                 selectedDate={format(selectedDate, dateFormat)}
-                isEditMode={isEditMode}
-                onEdit={handleEditHabit}
-                onDelete={handleDeleteHabit}
               />
             ))}
           </>
@@ -240,27 +201,6 @@ export default function HomeScreen() {
         isVisible={isAddHabitModalVisible}
         onClose={() => setIsAddHabitModalVisible(false)}
       />
-
-      {selectedHabit && (
-        <>
-          <DeleteHabitModal
-            isVisible={isDeleteModalVisible}
-            onClose={() => {
-              setIsDeleteModalVisible(false);
-              setSelectedHabit(null);
-            }}
-            habitId={selectedHabit.id}
-          />
-          <EditHabitModal
-            isVisible={isEditModalVisible}
-            onClose={() => {
-              setIsEditModalVisible(false);
-              setSelectedHabit(null);
-            }}
-            habit={selectedHabit}
-          />
-        </>
-      )}
     </ScreenWrapper>
   );
 }

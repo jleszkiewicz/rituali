@@ -1343,3 +1343,25 @@ export const fetchChallengeCompletionHistory = async (challengeId: string, userI
     throw error;
   }
 };
+
+export const fetchHabitById = async (habitId: string): Promise<HabitData> => {
+  try {
+    const { data, error } = await supabase
+      .from("habits")
+      .select("*")
+      .eq("id", habitId)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      throw new Error("Habit not found");
+    }
+
+    return mapHabitFromDb(data);
+  } catch (error) {
+    throw error;
+  }
+};

@@ -21,12 +21,14 @@ import PrimaryButton from "../Commons/PrimaryButton";
 interface DeleteHabitModalProps {
   isVisible: boolean;
   onClose: () => void;
+  onDeleteSuccess?: () => void;
   habitId: string;
 }
 
 const DeleteHabitModal = ({
   isVisible,
   onClose,
+  onDeleteSuccess,
   habitId,
 }: DeleteHabitModalProps) => {
   const dispatch = useDispatch();
@@ -67,6 +69,9 @@ const DeleteHabitModal = ({
       dispatch(setChallenges(freshChallenges));
 
       onClose();
+      if (onDeleteSuccess) {
+        onDeleteSuccess();
+      }
     } catch (error) {
       console.error("Error deleting habit:", error);
     }
@@ -122,7 +127,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     zIndex: 9999,
     flex: 1,
-    marginHorizontal: -20,
   },
   modalContent: {
     backgroundColor: Colors.White,

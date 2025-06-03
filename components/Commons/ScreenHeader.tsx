@@ -6,9 +6,10 @@ import { Ionicons } from "@expo/vector-icons";
 interface ScreenHeaderProps {
   title: string;
   onBack?: () => void;
+  rightActions?: React.ReactNode;
 }
 
-const ScreenHeader = ({ title, onBack }: ScreenHeaderProps) => {
+const ScreenHeader = ({ title, onBack, rightActions }: ScreenHeaderProps) => {
   return (
     <View style={styles.container}>
       {onBack && (
@@ -19,6 +20,7 @@ const ScreenHeader = ({ title, onBack }: ScreenHeaderProps) => {
       <ThemedText bold style={styles.header}>
         {title}
       </ThemedText>
+      {rightActions && <View style={styles.rightActions}>{rightActions}</View>}
     </View>
   );
 };
@@ -39,6 +41,12 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     fontSize: 18,
     color: Colors.PrimaryGray,
+  },
+  rightActions: {
+    position: "absolute",
+    right: 0,
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
 

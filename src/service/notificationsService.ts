@@ -50,18 +50,7 @@ export const cancelAllNotifications = async () => {
 // Funkcja do planowania sprawdzania nieukończonych nawyków
 export const scheduleUncompletedHabitsCheck = async (userId: string) => {
   try {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: t('uncompleted_habits_notification_title'),
-        body: t('uncompleted_habits_notification_body'),
-        data: { type: 'uncompleted_habits' },
-      },
-      trigger: {
-        type: 'timeInterval',
-        seconds: 24 * 60 * 60, // 24 hours
-        repeats: true,
-      },
-    });
+    await Notifications.cancelAllScheduledNotificationsAsync();
   } catch (error) {
     console.error('Error scheduling uncompleted habits check:', error);
   }
@@ -85,18 +74,7 @@ export const checkUncompletedHabits = async (userId: string) => {
     });
 
     if (uncompletedHabits && uncompletedHabits.length > 0) {
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: t('uncompleted_habits_notification_title'),
-          body: t('uncompleted_habits_notification_body'),
-          data: { type: 'uncompleted_habits' },
-        },
-        trigger: {
-          type: 'timeInterval',
-          seconds: 24 * 60 * 60, // 24 hours
-          repeats: true,
-        },
-      });
+      await Notifications.cancelAllScheduledNotificationsAsync();
     }
   } catch (error) {
     console.error('Error checking uncompleted habits:', error);

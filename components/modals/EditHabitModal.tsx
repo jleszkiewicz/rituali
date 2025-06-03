@@ -229,37 +229,35 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
               <Dropdown
                 isExpanded={isChallengesExpanded}
                 onToggle={() => setIsChallengesExpanded(!isChallengesExpanded)}
-                title={t("select_challenge")}
+                selectedText={
+                  selectedChallengeIds.length > 0
+                    ? `${t("selected_challenges")}: ${
+                        selectedChallengeIds.length
+                      }`
+                    : ""
+                }
+                placeholder={t("select_challenge")}
+                items={challenges
+                  .filter((challenge) => {
+                    const today = new Date();
+                    const startDate = new Date(challenge.startDate);
+                    const endDate = new Date(challenge.endDate);
+                    return today >= startDate && today <= endDate;
+                  })
+                  .map((challenge) => ({
+                    id: challenge.id,
+                    label: challenge.name,
+                    isSelected: selectedChallengeIds.includes(challenge.id),
+                  }))}
+                onItemSelect={handleChallengeChange}
+                noItemsText={t("no_active_challenges")}
                 error={errors.challenges}
-              >
-                {challenges
-                  .filter((challenge) => challenge.status === "active")
-                  .map((challenge) => (
-                    <TouchableOpacity
-                      key={challenge.id}
-                      style={styles.challengeItem}
-                      onPress={() => handleChallengeChange(challenge.id)}
-                    >
-                      <View style={styles.challengeCheckbox}>
-                        {selectedChallengeIds.includes(challenge.id) && (
-                          <View style={styles.checkboxInner} />
-                        )}
-                      </View>
-                      <ThemedText style={styles.challengeName}>
-                        {challenge.name}
-                      </ThemedText>
-                    </TouchableOpacity>
-                  ))}
-              </Dropdown>
+              />
             </View>
           )}
-        </ScrollView>
 
-        <ModalButtons
-          onCancel={handleCloseModal}
-          onSubmit={handleSubmit}
-          submitText={t("submit")}
-        />
+          <ModalButtons onCancel={handleCloseModal} onSubmit={handleSubmit} />
+        </ScrollView>
       </View>
     </View>
   );
@@ -267,35 +265,42 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "flex-end",
+    zIndex: 1000,
   },
   content: {
     backgroundColor: Colors.White,
-    borderRadius: 20,
-    width: "90%",
-    maxHeight: "80%",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    width: "100%",
+    maxHeight: "90%",
   },
   scrollView: {
-    maxHeight: "80%",
+    maxHeight: "100%",
   },
   scrollContent: {
-    padding: 20,
+    paddingBottom: 20,
   },
   inputContainer: {
     marginBottom: 20,
   },
   label: {
     fontSize: 16,
-    marginBottom: 10,
+    marginBottom: 8,
+    color: Colors.PrimaryGray,
   },
   input: {
     borderWidth: 1,
     borderColor: Colors.LightGray,
-    borderRadius: 10,
-    padding: 10,
+    borderRadius: 8,
+    padding: 12,
     fontSize: 16,
   },
   inputError: {
@@ -303,8 +308,8 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: Colors.HotPink,
-    fontSize: 12,
-    marginTop: 5,
+    fontSize: 14,
+    marginTop: 4,
   },
   switchContainer: {
     flexDirection: "row",
