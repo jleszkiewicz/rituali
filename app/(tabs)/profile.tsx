@@ -102,7 +102,7 @@ const ProfileScreen = () => {
       dispatch(clearUserData());
       router.replace("/(auth)/login");
     } catch (error) {
-      console.error("Error signing out:", error);
+      // Handle error silently
     }
   };
 
@@ -112,7 +112,7 @@ const ProfileScreen = () => {
       dispatch(clearUserData());
       router.replace("/(auth)/login");
     } catch (error) {
-      console.error(error);
+      // Handle error silently
     }
   };
 
@@ -136,7 +136,6 @@ const ProfileScreen = () => {
         const granted = await requestNotificationPermissions();
         if (granted) {
           setNotificationsEnabled(true);
-          // Zaplanuj powiadomienia o nieukończonych nawykach tylko raz
           if (userId) {
             await scheduleUncompletedHabitsCheck(userId);
           }
@@ -148,8 +147,7 @@ const ProfileScreen = () => {
         setNotificationsEnabled(false);
       }
     } catch (error) {
-      console.error(error);
-      Alert.alert(t("error"), t("notifications_error"));
+      // Handle error silently
     }
   };
 

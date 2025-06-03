@@ -157,7 +157,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) {
-        console.error("Registration error:", error);
         if (error.message.includes("already registered")) {
           return { success: false, error: "Email already registered" };
         }
@@ -171,7 +170,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       return { success: false, error: "Registration failed" };
     } catch (error) {
-      console.error("Registration exception:", error);
       return { success: false, error: "Registration failed" };
     }
   };
@@ -210,7 +208,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) {
-        console.error("Error updating display name:", error);
         return { success: false, error: error.message };
       }
 
@@ -221,7 +218,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       return { success: false, error: "Failed to update display name" };
     } catch (error) {
-      console.error("Error updating display name:", error);
       return { success: false, error: "Failed to update display name" };
     }
   };

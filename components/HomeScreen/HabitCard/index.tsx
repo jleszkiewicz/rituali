@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, TouchableOpacity, Animated } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,6 +24,7 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, selectedDate }) => {
   const habits = useSelector(selectHabits);
   const userId = useSelector(selectUserId);
   const [isLoading, setIsLoading] = useState(false);
+  const [strikeThroughAnim] = useState(new Animated.Value(0));
 
   const isFutureDate = isAfter(parseISO(selectedDate), new Date());
   const isTodayDate = isToday(parseISO(selectedDate));
@@ -31,6 +32,14 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, selectedDate }) => {
     if (!date) return false;
     return date === selectedDate;
   });
+
+  useEffect(() => {
+    Animated.timing(strikeThroughAnim, {
+      toValue: isCompleted ? 1 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [isCompleted]);
 
   const toggleCompletion = async () => {
     if (isLoading || isFutureDate) return;
@@ -49,7 +58,7 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, selectedDate }) => {
       dispatch(setHabits(updatedHabits));
       await updateHabitCompletion(habit.id, updatedCompletionDates);
     } catch (error) {
-      console.error("Error updating habit completion:", error);
+      // Handle error silently
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +78,14 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, selectedDate }) => {
       <View style={styles.content}>
         <View style={styles.leftContent}>
           <HabitIcon category={habit.category} />
-          <HabitTitle name={habit.name} streak={streak} isToday={isTodayDate} />
+          <View style={styles.titleContainer}>
+            <HabitTitle
+              name={habit.name}
+              streak={streak}
+              isToday={isTodayDate}
+              strikeThroughAnim={strikeThroughAnim}
+            />
+          </View>
         </View>
 
         <HabitCheckbox
@@ -98,6 +114,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
+  },
+  titleContainer: {
+    flex: 1,
+    marginLeft: 10,
   },
 });
 
