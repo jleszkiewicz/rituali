@@ -56,6 +56,7 @@ export interface RecommendedChallengeData {
   habits_fr: string[];
   habits_de: string[];
   habits_it: string[];
+  participants_count: number;
 }
 
 interface DbChallenge {
@@ -619,7 +620,8 @@ export const fetchRecommendedChallenges = async (userId: string): Promise<Recomm
       habits_es: challenge.habits_es || [],
       habits_fr: challenge.habits_fr || [],
       habits_de: challenge.habits_de || [],
-      habits_it: challenge.habits_it || []
+      habits_it: challenge.habits_it || [],
+      participants_count: challenge.participants_count || 0
     }));
   } catch (error) {
     throw error;
@@ -1144,31 +1146,34 @@ export const addRecommendedChallenge = async (
   challengeData: RecommendedChallengeData
 ): Promise<ChallengeData> => {
   try {
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + Number(challengeData.duration || 30));
-
-    const { data, error } = await supabase
+    // Start a transaction
+    const { data: challenge, error: challengeError } = await supabase
       .from('challenges')
       .insert({
         name: challengeData.name,
-        start_date: startDate.toISOString(),
-        end_date: endDate.toISOString(),
-        habits: challengeData.habits_en || [],
+        start_date: new Date().toISOString(),
+        end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        habits: challengeData.habits_en,
         participants: [userId],
       })
       .select()
       .single();
 
-    if (error) {
-      throw error;
+    if (challengeError) {
+      throw challengeError;
     }
 
-    if (!data) {
-      throw new Error('No data returned after insert');
+    // Increment participants count in recommended_challenges
+    const { error: updateError } = await supabase
+      .from('recommended_challenges')
+      .update({ participants_count: challengeData.participants_count + 1 })
+      .eq('id', challengeData.id);
+
+    if (updateError) {
+      throw updateError;
     }
 
-    return mapChallengeFromDb(data as DbChallenge);
+    return mapChallengeFromDb(challenge as DbChallenge);
   } catch (error) {
     throw error;
   }

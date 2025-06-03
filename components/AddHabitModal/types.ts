@@ -25,4 +25,5 @@ export interface RecommendedChallengeData {
   habits_fr: string[];
   habits_de: string[];
   habits_it: string[];
+  participants_count: number;
 }

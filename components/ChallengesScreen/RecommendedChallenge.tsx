@@ -106,12 +106,20 @@ const RecommendedChallengeCard = ({
           >{`• ${habit}`}</ThemedText>
         ))}
       </View>
-      <PrimaryButton style={styles.buttonContainer} onPress={handleStart}>
-        <ThemedText style={styles.buttonText} bold>
-          {t("start")}
-        </ThemedText>
-        <Ionicons name="chevron-forward" size={24} color={Colors.White} />
-      </PrimaryButton>
+      <View style={styles.bottomContainer}>
+        <View style={styles.participantsChip}>
+          <Ionicons name="people" size={16} color={Colors.White} />
+          <ThemedText style={styles.participantsText}>
+            {challenge.participants_count}
+          </ThemedText>
+        </View>
+        <PrimaryButton style={styles.buttonContainer} onPress={handleStart}>
+          <ThemedText style={styles.buttonText} bold>
+            {t("start")}
+          </ThemedText>
+          <Ionicons name="chevron-forward" size={24} color={Colors.White} />
+        </PrimaryButton>
+      </View>
     </View>
   );
 };
@@ -145,8 +153,29 @@ const styles = StyleSheet.create({
     color: Colors.White,
     marginBottom: 5,
   },
-  buttonContainer: {
+  bottomContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginTop: 10,
+    marginHorizontal: -20,
+  },
+  participantsChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.HotPink,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 6,
+    gap: 4,
+  },
+  participantsText: {
+    fontSize: 14,
+    color: Colors.White,
+    fontWeight: "bold",
+  },
+  buttonContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -154,7 +183,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.HotPink,
     borderRadius: 10,
     padding: 10,
-    alignSelf: "flex-end",
+    marginRight: 20,
   },
   buttonText: {
     fontSize: 16,
