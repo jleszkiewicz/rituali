@@ -3,31 +3,50 @@ import * as Localization from "expo-localization";
 
 const supportedLangs = ["pl", "en", "es", "fr", "de", "it"] as const;
 type SupportedLang = (typeof supportedLangs)[number];
-type HabitsKey = `habits_${SupportedLang}`;
 
 export const getHabitsForCurrentLanguage = (
   challenge: RecommendedChallengeData
 ): string[] => {
-  if (!challenge) {
-    console.warn('getHabitsForCurrentLanguage: challenge is undefined');
+  if (!challenge || !challenge.habits) {
+    console.warn('getHabitsForCurrentLanguage: challenge or habits is undefined');
     return [];
   }
-
-  const deviceLang = Localization.locale.split("-")[0];
-  const lang = supportedLangs.includes(deviceLang as SupportedLang)
-    ? (deviceLang as SupportedLang)
-    : "en";
-
-  const key: HabitsKey = `habits_${lang}`;
-  const habits = challenge[key] ?? challenge.habits_en ?? [];
   
-  try {
-    if (typeof habits === 'string') {
-      return JSON.parse(habits);
+  const deviceLang = Localization.locale.split("-")[0];
+  
+  const parseHabits = (habits: any): string[] => {
+    if (Array.isArray(habits)) {
+      return habits;
     }
-    return Array.isArray(habits) ? habits : [];
-  } catch (error) {
-    console.warn('Error parsing habits:', error);
+    if (typeof habits === 'string') {
+      try {
+        const parsed = JSON.parse(habits);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+        console.warn('Parsed habits is not an array:', parsed);
+        return [];
+      } catch (e) {
+        console.warn('Failed to parse habits string:', e);
+        return [];
+      }
+    }
+    console.warn('Habits is neither an array nor a string:', habits);
     return [];
+  };
+  
+
+  if (deviceLang in challenge.habits) {
+    const habits = challenge.habits[deviceLang as keyof typeof challenge.habits];
+    return parseHabits(habits);
   }
+
+  if ('en' in challenge.habits) {
+    const habits = challenge.habits.en;
+    return parseHabits(habits);
+  }
+
+  const firstLang = Object.keys(challenge.habits)[0];
+  const habits = challenge.habits[firstLang as keyof typeof challenge.habits];
+  return parseHabits(habits);
 };

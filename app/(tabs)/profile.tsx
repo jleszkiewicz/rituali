@@ -68,12 +68,10 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     if (userId) {
-      // Sprawdź status uprawnień do powiadomień
       Notifications.getPermissionsAsync().then(({ status }) => {
         setNotificationsEnabled(status === "granted");
       });
 
-      // Subskrybuj się do powiadomień o zaproszeniach
       const unsubscribeFriendRequests =
         subscribeToFriendRequestNotifications(userId);
       const unsubscribeChallengeInvitations =
@@ -102,7 +100,7 @@ const ProfileScreen = () => {
       dispatch(clearUserData());
       router.replace("/(auth)/login");
     } catch (error) {
-      // Handle error silently
+      console.error(error);
     }
   };
 
@@ -112,7 +110,7 @@ const ProfileScreen = () => {
       dispatch(clearUserData());
       router.replace("/(auth)/login");
     } catch (error) {
-      // Handle error silently
+      console.error(error);
     }
   };
 
@@ -147,7 +145,7 @@ const ProfileScreen = () => {
         setNotificationsEnabled(false);
       }
     } catch (error) {
-      // Handle error silently
+      console.error(error);
     }
   };
 

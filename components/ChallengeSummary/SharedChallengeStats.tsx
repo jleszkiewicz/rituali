@@ -22,7 +22,6 @@ export const SharedChallengeStats = ({
 }: SharedChallengeStatsProps) => {
   const userId = useSelector(selectUserId);
 
-  // Sort participants by completion rate
   const sortedParticipants = [...participants].sort(
     (a, b) => b.completionRate - a.completionRate
   );

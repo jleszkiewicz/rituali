@@ -59,7 +59,7 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, selectedDate }) => {
       dispatch(setHabits(updatedHabits));
       await updateHabitCompletion(habit.id, updatedCompletionDates);
     } catch (error) {
-      // Handle error silently
+      console.error(error);
     } finally {
       setIsLoading(false);
     }

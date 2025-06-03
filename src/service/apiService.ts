@@ -50,13 +50,15 @@ export interface RecommendedChallengeData {
   id: string;
   name: string;
   duration: string;
-  habits_en: string[];
-  habits_pl: string[];
-  habits_es: string[];
-  habits_fr: string[];
-  habits_de: string[];
-  habits_it: string[];
+  habits: {
+    pl: string[];
+    en: string[];
+    it: string[];
+    fr: string[];
+    de: string[];
+  };
   participants_count: number;
+  background_illustration: string;
 }
 
 interface DbChallenge {
@@ -545,6 +547,23 @@ export const updateHabit = async (habitId: string, habit: Omit<HabitData, "id">)
 
 export const deleteChallenge = async (challengeId: string) => {
   try {
+    const { data: challenge, error: fetchError } = await supabase
+      .from("challenges")
+      .select("habits")
+      .eq("id", challengeId)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    if (challenge && challenge.habits && challenge.habits.length > 0) {
+      const { error: habitsError } = await supabase
+        .from("habits")
+        .delete()
+        .in("id", challenge.habits);
+
+      if (habitsError) throw habitsError;
+    }
+
     const { error } = await supabase
       .from("challenges")
       .delete()
@@ -587,44 +606,45 @@ export const updateChallengeHabits = async (challengeId: string, habits: string[
   }
 };
 
-export const fetchRecommendedChallenges = async (userId: string): Promise<RecommendedChallengeData[]> => {
+export const fetchRecommendedChallenges = async (userId: string) => {
   try {
-    const { data: recommendedData, error: recommendedError } = await supabase
+    const { data: recommendedChallenges, error } = await supabase
       .from("recommended_challenges")
       .select("*");
 
-    if (recommendedError) throw recommendedError;
+    if (error) throw error;
 
-    const { data: activeChallenges, error: activeError } = await supabase
-      .from('challenges')
-      .select('name')
-      .contains('participants', [userId])
-      .gt('end_date', new Date().toISOString());
+    const today = new Date().toISOString();
+    const { data: userChallenges, error: userChallengesError } = await supabase
+      .from("challenges")
+      .select("name")
+      .contains("participants", [userId])
+      .gt("end_date", today);
 
-    if (activeError) throw activeError;
+    if (userChallengesError) throw userChallengesError;
 
-    const activeChallengeNames = new Set(
-      (activeChallenges || []).map(challenge => challenge.name.toLowerCase())
-    );
-
-    const filteredChallenges = recommendedData.filter(
-      challenge => !activeChallengeNames.has(challenge.name.toLowerCase())
+    const activeChallengeNames = userChallenges.map((challenge) => challenge.name);
+    const filteredChallenges = recommendedChallenges.filter(
+      (challenge) => !activeChallengeNames.includes(challenge.name)
     );
 
     return filteredChallenges.map((challenge) => ({
       id: challenge.id,
       name: challenge.name,
-      duration: challenge.duration.toString(),
-      habits_en: challenge.habits_en || [],
-      habits_pl: challenge.habits_pl || [],
-      habits_es: challenge.habits_es || [],
-      habits_fr: challenge.habits_fr || [],
-      habits_de: challenge.habits_de || [],
-      habits_it: challenge.habits_it || [],
-      participants_count: challenge.participants_count || 0
+      duration: challenge.duration,
+      background_illustration: challenge.background_illustration,
+      participants_count: challenge.participants_count,
+      habits: {
+        pl: challenge.habits_pl || [],
+        en: challenge.habits_en || [],
+        it: challenge.habits_it || [],
+        fr: challenge.habits_fr || [],
+        de: challenge.habits_de || []
+      }
     }));
   } catch (error) {
-    throw error;
+    console.error("Error fetching recommended challenges:", error);
+    return [];
   }
 };
 
@@ -1146,14 +1166,13 @@ export const addRecommendedChallenge = async (
   challengeData: RecommendedChallengeData
 ): Promise<ChallengeData> => {
   try {
-    // Start a transaction
     const { data: challenge, error: challengeError } = await supabase
       .from('challenges')
       .insert({
         name: challengeData.name,
         start_date: new Date().toISOString(),
         end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        habits: challengeData.habits_en,
+        habits: challengeData.habits.en,
         participants: [userId],
       })
       .select()
@@ -1163,7 +1182,6 @@ export const addRecommendedChallenge = async (
       throw challengeError;
     }
 
-    // Increment participants count in recommended_challenges
     const { error: updateError } = await supabase
       .from('recommended_challenges')
       .update({ participants_count: challengeData.participants_count + 1 })

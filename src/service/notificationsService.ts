@@ -5,7 +5,6 @@ import { Platform } from 'react-native';
 import { format } from 'date-fns';
 import { dateFormat } from '@/constants/Constants';
 
-// Konfiguracja powiadomień
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -14,7 +13,6 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// Funkcja do sprawdzania i żądania uprawnień
 export const requestNotificationPermissions = async (): Promise<boolean> => {
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
@@ -42,12 +40,10 @@ export const requestNotificationPermissions = async (): Promise<boolean> => {
   return finalStatus === 'granted';
 };
 
-// Funkcja do anulowania wszystkich zaplanowanych powiadomień
 export const cancelAllNotifications = async () => {
   await Notifications.cancelAllScheduledNotificationsAsync();
 };
 
-// Funkcja do planowania sprawdzania nieukończonych nawyków
 export const scheduleUncompletedHabitsCheck = async (userId: string) => {
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
@@ -56,7 +52,6 @@ export const scheduleUncompletedHabitsCheck = async (userId: string) => {
   }
 };
 
-// Funkcja do sprawdzania nieukończonych nawyków
 export const checkUncompletedHabits = async (userId: string) => {
   try {
     const today = format(new Date(), dateFormat);
@@ -81,7 +76,6 @@ export const checkUncompletedHabits = async (userId: string) => {
   }
 };
 
-// Funkcja do wysyłania powiadomienia o zaproszeniu do znajomych
 export const sendFriendRequestNotification = async (
   userId: string,
   senderName: string
@@ -100,7 +94,6 @@ export const sendFriendRequestNotification = async (
   }
 };
 
-// Funkcja do wysyłania powiadomienia o zaproszeniu do wyzwania
 export const sendChallengeInvitationNotification = async (
   userId: string,
   senderName: string,
@@ -122,7 +115,6 @@ export const sendChallengeInvitationNotification = async (
   }
 };
 
-// Funkcja do wysyłania powiadomienia o zakończeniu wyzwania
 export const sendChallengeCompletedNotification = async (
   userId: string,
   challengeName: string
@@ -151,7 +143,6 @@ export const sendChallengeCompletedNotification = async (
   }
 };
 
-// Subskrypcja do powiadomień o zaproszeniach do znajomych
 export const subscribeToFriendRequestNotifications = (userId: string) => {
   const channel = supabase
     .channel(`friend_requests:${userId}`)
@@ -182,7 +173,6 @@ export const subscribeToFriendRequestNotifications = (userId: string) => {
   };
 };
 
-// Subskrypcja do powiadomień o zaproszeniach do wyzwań
 export const subscribeToChallengeInvitationNotifications = (userId: string) => {
   const channel = supabase
     .channel(`challenge_invitations:${userId}`)
@@ -223,7 +213,6 @@ export const subscribeToChallengeInvitationNotifications = (userId: string) => {
   };
 };
 
-// Subskrypcja do powiadomień o poke'ach
 export const subscribeToPokeNotifications = (userId: string) => {
   const channel = supabase
     .channel(`pokes:${userId}`)

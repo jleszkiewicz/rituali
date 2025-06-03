@@ -33,7 +33,7 @@ const ScreenWrapper = ({
       const habits = await fetchUserHabits(userId);
       dispatch(setHabits(habits));
     } catch (error) {
-      // Handle error silently
+      console.error(error);
     } finally {
       setRefreshing(false);
     }

@@ -27,7 +27,6 @@ export const ChallengeScreen = () => {
     try {
       setIsLoading(true);
 
-      // Pobierz wyzwania
       const { data: challengesData, error: challengesError } = await supabase
         .from("challenges")
         .select("*")
@@ -37,7 +36,6 @@ export const ChallengeScreen = () => {
       if (challengesError) throw challengesError;
       setChallenges(challengesData || []);
 
-      // Pobierz zaproszenia
       const { data: invitationsData, error: invitationsError } = await supabase
         .from("challenge_invitations")
         .select(
@@ -54,7 +52,6 @@ export const ChallengeScreen = () => {
       if (invitationsError) throw invitationsError;
       setInvitations(invitationsData || []);
 
-      // Pobierz statystyki
       const { data: statsData, error: statsError } = await supabase
         .from("challenge_stats")
         .select("*")
