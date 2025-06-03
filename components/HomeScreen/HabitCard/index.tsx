@@ -12,6 +12,7 @@ import HabitTitle from "./HabitTitle";
 import HabitCheckbox from "./HabitCheckbox";
 import HabitIcon from "./HabitIcon";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 interface HabitCardProps {
   habit: HabitData;
@@ -88,11 +89,19 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, selectedDate }) => {
           </View>
         </View>
 
-        <HabitCheckbox
-          isCompleted={isCompleted}
-          isDisabled={isLoading || isFutureDate}
-          onPress={toggleCompletion}
-        />
+        <View style={styles.rightContent}>
+          <HabitCheckbox
+            isCompleted={isCompleted}
+            isDisabled={isLoading || isFutureDate}
+            onPress={toggleCompletion}
+          />
+          <Ionicons
+            name="chevron-forward"
+            size={20}
+            color={Colors.PrimaryGray}
+            style={styles.chevron}
+          />
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -115,9 +124,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
   },
+  rightContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   titleContainer: {
     flex: 1,
     marginLeft: 10,
+  },
+  chevron: {
+    marginLeft: 4,
   },
 });
 
