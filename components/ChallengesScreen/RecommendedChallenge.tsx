@@ -56,8 +56,10 @@ export const RecommendedChallenge = ({
           </View>
         </View>
         <View style={styles.rulesContainer}>
-          {habits.map((habit) => (
-            <ThemedText style={styles.rule}>{habit}</ThemedText>
+          {habits.map((habit, index) => (
+            <ThemedText style={styles.rule} key={index}>
+              {habit}
+            </ThemedText>
           ))}
         </View>
       </View>

@@ -235,12 +235,22 @@ export default function ChallengeSummaryScreen() {
             <ThemedText style={styles.sectionTitle} bold>
               {t("habits")}
             </ThemedText>
+            <ThemedText style={styles.sectionDescription}>
+              {t("individual_habits_completion_rate")}
+            </ThemedText>
             <ChallengeHabits
               habits={challengeHabits}
               startDate={startDate}
               endDate={endDate}
               totalDays={totalDays}
             />
+
+            <ThemedText style={styles.sectionTitle} bold>
+              {t("visual_progress")}
+            </ThemedText>
+            <ThemedText style={styles.sectionDescription}>
+              {t("photos_private_description")}
+            </ThemedText>
 
             <View style={styles.photosContainer}>
               <View style={{ width: PAGE_WIDTH, alignSelf: "center" }}>
@@ -358,8 +368,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     color: Colors.PrimaryGray,
-    textTransform: "capitalize",
-    marginBottom: 12,
+    marginVertical: 10,
+  },
+  sectionDescription: {
+    fontSize: 14,
+    color: Colors.PrimaryGray,
+    marginBottom: 10,
+    opacity: 0.7,
   },
   description: {
     fontSize: 14,

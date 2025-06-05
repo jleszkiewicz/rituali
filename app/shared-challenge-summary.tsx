@@ -251,6 +251,9 @@ export default function SharedChallengeSummaryScreen() {
             <ThemedText style={styles.sectionTitle} bold>
               {t("habits")}
             </ThemedText>
+            <ThemedText style={styles.sectionDescription}>
+              {t("individual_habits_completion_rate")}
+            </ThemedText>
             <SharedChallengeHabits
               habits={challengeHabits}
               totalDays={totalDays}
@@ -260,6 +263,9 @@ export default function SharedChallengeSummaryScreen() {
             <ThemedText style={styles.sectionTitle} bold>
               {t("completion_calendar")}
             </ThemedText>
+            <ThemedText style={styles.sectionDescription}>
+              {t("completion_calendar_description")}
+            </ThemedText>
 
             <ChallengeCompletionCalendar
               startDate={startDate}
@@ -267,6 +273,13 @@ export default function SharedChallengeSummaryScreen() {
               challengeId={challengeId as string}
               showLegend={true}
             />
+
+            <ThemedText style={styles.sectionTitle} bold>
+              {t("visual_progress")}
+            </ThemedText>
+            <ThemedText style={styles.sectionDescription}>
+              {t("photos_private_description")}
+            </ThemedText>
 
             <View style={styles.photosContainer}>
               <View style={{ width: PAGE_WIDTH, alignSelf: "center" }}>
@@ -314,9 +327,7 @@ export default function SharedChallengeSummaryScreen() {
                               }}
                             />
                           ) : (
-                            <View style={styles.loadingContainer}>
-                              <Loading />
-                            </View>
+                            <Loading />
                           )
                         ) : (
                           <PhotoPicker
@@ -368,8 +379,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingTop: 20,
-    paddingBottom: 100,
+    paddingVertical: 20,
   },
   container: {
     flex: 1,
@@ -388,13 +398,18 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     textTransform: "capitalize",
   },
+  sectionDescription: {
+    fontSize: 14,
+    color: Colors.PrimaryGray,
+    marginBottom: 10,
+    opacity: 0.7,
+  },
   description: {
     fontSize: 14,
     color: Colors.PrimaryGray,
     marginBottom: 16,
   },
   photosContainer: {
-    marginBottom: 24,
     backgroundColor: Colors.White,
     borderRadius: 12,
     padding: 16,
@@ -428,15 +443,6 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     marginBottom: 12,
-  },
-  loadingContainer: {
-    height: 300,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    marginTop: 12,
-    color: Colors.PrimaryGray,
   },
   emptyHabitsContainer: {
     marginVertical: 20,

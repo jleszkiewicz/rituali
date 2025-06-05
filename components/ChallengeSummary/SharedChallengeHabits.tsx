@@ -49,9 +49,6 @@ export const SharedChallengeHabits = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.titleContainer}>
-        <ThemedText style={styles.subtitle}>{t("completion_rate")}</ThemedText>
-      </View>
       <View style={styles.tableHeader}>
         <View style={styles.habitColumn} />
         <View style={styles.statsColumn}>

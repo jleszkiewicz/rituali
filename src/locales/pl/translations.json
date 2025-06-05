@@ -221,5 +221,9 @@
   "start_challenge_description": "Czy jesteś pewny, że chcesz rozpocząć to wyzwanie? Możesz to zrobić później.",
   "challenge_added": "Wyzwanie zostało dodane",
   "challenge_added_description": "Wyzwanie zostało dodane do Twoich wyzwań, możesz je zobaczyć w sekcji \"Twoje wyzwania\".",
-  "today_completion_rate": "Ukończono"
+  "today_completion_rate": "Ukończono",
+  "visual_progress": "Postęp wizualny",
+  "photos_private_description": "Zdjęcia są prywatne i widoczne tylko dla Ciebie w podsumowaniu wyzwania.",
+  "individual_habits_completion_rate": "Wskaźnik ukończenia poszczególnych nawyków.",
+  "completion_calendar_description": "Kalendarz ukończeń pokazuje dni, w których ukończyłeś wszystkie nawyki w wyzwaniu."
 }

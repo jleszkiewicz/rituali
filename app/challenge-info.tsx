@@ -22,7 +22,7 @@ import { supabase } from "@/src/service/supabaseClient";
 import {
   fetchSharedChallenge,
   fetchChallengeParticipants,
-  deleteSharedChallenge,
+  deleteChallenge,
   updateChallengeHabits,
   fetchUserHabits,
   fetchUserChallenges,
@@ -93,7 +93,7 @@ export default function ChallengeInfoScreen() {
   const handleDelete = async () => {
     if (!userId || !challenge) return;
     try {
-      await deleteSharedChallenge(challenge.id);
+      await deleteChallenge(challenge.id);
       const updatedChallenges = await fetchUserChallenges(userId);
       dispatch(setChallenges(updatedChallenges));
       router.back();
@@ -221,6 +221,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: Colors.PrimaryGray,
     marginVertical: 10,
+  },
+  sectionDescription: {
+    fontSize: 14,
+    color: Colors.PrimaryGray,
+    marginBottom: 10,
+    opacity: 0.7,
   },
   deleteButton: {
     flexDirection: "row",

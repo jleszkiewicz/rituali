@@ -258,5 +258,9 @@
   "start_challenge_description": "Are you sure you want to start this challenge? You can do it later.",
   "challenge_added": "Challenge added",
   "challenge_added_description": "Challenge added to your challenges, you can see it in the \"Your challenges\" section",
-  "today_completion_rate": "Completed"
+  "today_completion_rate": "Completed",
+  "visual_progress": "Visual progress",
+  "photos_private_description": "Photos are private and only visible to you in the challenge summary.",
+  "individual_habits_completion_rate": "Individual habits completion rate.",
+  "completion_calendar_description": "Completion calendar shows days when you completed all habits in the challenge."
 }
