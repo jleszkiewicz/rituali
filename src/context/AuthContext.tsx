@@ -9,17 +9,13 @@ import { supabase } from "../service/supabaseClient";
 import { useDispatch } from "react-redux";
 import { setUserData, clearUserData } from "../store/userSlice";
 import { AppDispatch } from "../store";
-import * as WebBrowser from "expo-web-browser";
 import { useErrorModal } from "./ErrorModalContext";
 import { t } from "../service/translateService";
-
-WebBrowser.maybeCompleteAuthSession();
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  loginWithGoogle: () => Promise<void>;
   register: (
     email: string,
     password: string,
@@ -98,7 +94,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) {
-        showError(t("invalid_credentials"));
         return false;
       }
 
@@ -112,31 +107,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       showError(t("invalid_credentials"));
       return false;
-    }
-  };
-
-  const loginWithGoogle = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          queryParams: {
-            access_type: "offline",
-            prompt: "consent",
-          },
-          redirectTo: "exp+rituali://",
-          skipBrowserRedirect: false,
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        await WebBrowser.openBrowserAsync(data.url);
-      }
-    } catch (error) {
-      setIsAuthenticated(false);
-      showError("Błąd logowania przez Google");
     }
   };
 
@@ -228,7 +198,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated,
         isLoading,
         login,
-        loginWithGoogle,
         register,
         logout,
         deleteAccount,

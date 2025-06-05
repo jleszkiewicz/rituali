@@ -18,7 +18,7 @@ import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import { ErrorModal } from "@/src/components/Commons/ErrorModal";
 
 export default function LoginScreen() {
-  const { login, loginWithGoogle } = useAuth();
+  const { login } = useAuth();
   const { showErrorModal, errorMessage, showError, hideError } =
     useErrorModal();
   const router = useRouter();
@@ -70,10 +70,6 @@ export default function LoginScreen() {
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const handleGoogleLogin = () => {
-    loginWithGoogle();
-  };
-
   return (
     <ScreenWrapper>
       <View style={styles.innerContainer}>
@@ -122,20 +118,6 @@ export default function LoginScreen() {
           <ThemedText style={styles.buttonText}>{t("login_button")}</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.googleButton}
-          onPress={handleGoogleLogin}
-        >
-          <Ionicons
-            name="logo-google"
-            size={24}
-            color={Colors.White}
-            style={styles.googleIcon}
-          />
-          <ThemedText style={styles.buttonText}>
-            {t("login_with_google")}
-          </ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity
           style={styles.registerButton}
           onPress={() => router.push(AuthRoutes.Register)}
         >
@@ -164,7 +146,6 @@ const styles = StyleSheet.create({
   image: {
     width: 250,
     height: 250,
-    marginBottom: 20,
   },
   inputContainer: {
     width: "100%",
@@ -214,20 +195,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: Colors.White,
     fontSize: 18,
-  },
-  googleButton: {
-    width: "100%",
-    height: 50,
-    backgroundColor: Colors.PrimaryRed,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-    elevation: 5,
-    flexDirection: "row",
-  },
-  googleIcon: {
-    marginRight: 10,
   },
   registerButton: {
     marginTop: 10,
