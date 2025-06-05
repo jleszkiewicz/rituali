@@ -225,5 +225,7 @@
   "visual_progress": "Postęp wizualny",
   "photos_private_description": "Zdjęcia są prywatne i widoczne tylko dla Ciebie w podsumowaniu wyzwania.",
   "individual_habits_completion_rate": "Wskaźnik ukończenia poszczególnych nawyków.",
-  "completion_calendar_description": "Kalendarz ukończeń pokazuje dni, w których ukończyłeś wszystkie nawyki w wyzwaniu."
+  "completion_calendar_description": "Kalendarz ukończeń pokazuje dni, w których ukończyłeś wszystkie nawyki w wyzwaniu.",
+  "no_challenges_title": "Brak wyzwań",
+  "no_challenges_description": "Dodaj wyzwanie, aby rozpocząć swoją podróż."
 }

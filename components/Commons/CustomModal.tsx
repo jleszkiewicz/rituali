@@ -1,5 +1,11 @@
 import React from "react";
-import { View, StyleSheet, Modal, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Pressable,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "./ThemedText";
 import { t } from "@/src/service/translateService";
@@ -23,6 +29,8 @@ const CustomModal: React.FC<CustomModalProps> = ({
   isWithBuddy,
   isPartOfChallenge,
 }) => {
+  if (!visible) return null;
+
   const getImageSource = () => {
     if (type === "error") {
       return require("@/assets/ilustrations/warning.png");
@@ -37,34 +45,38 @@ const CustomModal: React.FC<CustomModalProps> = ({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onClose}
-      statusBarTranslucent={true}
-      presentationStyle="overFullScreen"
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <Image source={getImageSource()} style={styles.modalIcon} />
-          <ThemedText style={styles.modalTitle}>{title}</ThemedText>
-          <ThemedText style={styles.modalMessage}>{message}</ThemedText>
-          <TouchableOpacity style={styles.modalButton} onPress={onClose}>
-            <ThemedText style={styles.modalButtonText}>{t("ok")}</ThemedText>
-          </TouchableOpacity>
-        </View>
+    <View style={styles.modalOverlay}>
+      <Pressable style={styles.backdrop} onPress={onClose} />
+      <View style={styles.modalContent}>
+        <Image source={getImageSource()} style={styles.modalIcon} />
+        <ThemedText style={styles.modalTitle}>{title}</ThemedText>
+        <ThemedText style={styles.modalMessage}>{message}</ThemedText>
+        <TouchableOpacity style={styles.modalButton} onPress={onClose}>
+          <ThemedText style={styles.modalButtonText}>{t("ok")}</ThemedText>
+        </TouchableOpacity>
       </View>
-    </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 9999,
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalIcon: {
     width: 120,

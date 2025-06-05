@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  Pressable,
-  ScrollView,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import {
@@ -33,7 +27,6 @@ import PhotoPicker from "../Commons/PhotoPicker";
 import * as ImagePicker from "expo-image-picker";
 import { Switch } from "react-native";
 import Dropdown from "../Commons/Dropdown";
-import CustomModal from "../Commons/CustomModal";
 
 interface AddChallengeModalProps {
   isVisible: boolean;
@@ -72,16 +65,6 @@ export default function AddChallengeModal({
   const [selectedBuddies, setSelectedBuddies] = useState<string[]>([]);
   const [friends, setFriends] = useState<any[]>([]);
   const [isLoadingFriends, setIsLoadingFriends] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalConfig, setModalConfig] = useState<{
-    title: string;
-    message: string;
-    type: "success" | "error";
-  }>({
-    title: "",
-    message: "",
-    type: "success",
-  });
 
   useEffect(() => {
     const loadFriends = async () => {
@@ -100,15 +83,6 @@ export default function AddChallengeModal({
     };
     loadFriends();
   }, [userId]);
-
-  const showModal = (
-    title: string,
-    message: string,
-    type: "success" | "error"
-  ) => {
-    setModalConfig({ title, message, type });
-    setModalVisible(true);
-  };
 
   const validateForm = () => {
     const newErrors = {
@@ -248,21 +222,6 @@ export default function AddChallengeModal({
     });
   };
 
-  const handleSendInvitations = async () => {
-    if (!userId || !selectedBuddies.length) return;
-
-    try {
-      await Promise.all(
-        selectedBuddies.map((buddyId) =>
-          sendChallengeInvitation(challengeData.id, userId, buddyId)
-        )
-      );
-      onClose();
-    } catch (error) {
-      console.error("Error sending invitations:", error);
-    }
-  };
-
   if (!isVisible) return null;
 
   return (
@@ -384,14 +343,6 @@ export default function AddChallengeModal({
           </View>
         </ScrollView>
       </View>
-
-      <CustomModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        title={modalConfig.title}
-        message={modalConfig.message}
-        type={modalConfig.type}
-      />
     </View>
   );
 }

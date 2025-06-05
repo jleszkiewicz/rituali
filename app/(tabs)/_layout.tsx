@@ -90,6 +90,7 @@ export default function TabsLayout() {
   };
 
   const handleChallengeSuccess = (isWithBuddy: boolean) => {
+    setIsAddChallengeModalVisible(false);
     setSuccessModalConfig({
       title: t("success"),
       message: isWithBuddy
@@ -102,6 +103,7 @@ export default function TabsLayout() {
   };
 
   const handleHabitSuccess = (isPartOfChallenge: boolean) => {
+    setIsAddHabitModalVisible(false);
     setSuccessModalConfig({
       title: t("success"),
       message: isPartOfChallenge
@@ -217,19 +219,15 @@ export default function TabsLayout() {
         onSuccess={handleChallengeSuccess}
       />
 
-      {successModalVisible && (
-        <View style={styles.modalContainer}>
-          <CustomModal
-            visible={successModalVisible}
-            onClose={() => setSuccessModalVisible(false)}
-            title={successModalConfig.title}
-            message={successModalConfig.message}
-            type={successModalConfig.type}
-            isWithBuddy={successModalConfig.isWithBuddy}
-            isPartOfChallenge={successModalConfig.isPartOfChallenge}
-          />
-        </View>
-      )}
+      <CustomModal
+        visible={successModalVisible}
+        onClose={() => setSuccessModalVisible(false)}
+        title={successModalConfig.title}
+        message={successModalConfig.message}
+        type={successModalConfig.type}
+        isWithBuddy={successModalConfig.isWithBuddy}
+        isPartOfChallenge={successModalConfig.isPartOfChallenge}
+      />
     </View>
   );
 }
@@ -255,16 +253,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.5,
     elevation: 5,
-  },
-  modalContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 9999,
   },
 });
