@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
+import { useSubscription } from "@/src/hooks/useSubscription";
 
 interface Participant {
   id: string;
@@ -19,15 +20,18 @@ interface YourChallengeCardProps {
   challenge: ChallengeData;
   onChallengeDeleted?: () => void;
   participants?: Participant[];
+  onShowSubscriptionModal: () => void;
 }
 
 export default function YourChallengeCard({
   challenge,
   onChallengeDeleted,
   participants = [],
+  onShowSubscriptionModal,
 }: YourChallengeCardProps) {
   const router = useRouter();
   const userId = useSelector(selectUserId);
+  const { isSubscribed } = useSubscription();
 
   const startDate = new Date(challenge.startDate + "T00:00:00");
   const endDate = new Date(challenge.endDate + "T00:00:00");
@@ -46,6 +50,11 @@ export default function YourChallengeCard({
 
   const handlePress = () => {
     if (isCompleted) {
+      if (!isSubscribed) {
+        onShowSubscriptionModal();
+        return;
+      }
+
       if (isSharedChallenge) {
         router.push({
           pathname: "/shared-challenge-summary",

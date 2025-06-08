@@ -34,7 +34,8 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
     const { data, error } = await supabase
       .from("habits")
       .select("*")
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .eq("status", "active");
 
     if (error) {
       throw error;
@@ -96,13 +97,10 @@ const mapChallengeToDb = (challenge: ChallengeData): DbChallenge => ({
 
 export const getActiveChallenges = async (userId: string): Promise<ChallengeData[]> => {
   try {
-    const today = new Date().toISOString();
-    
     const { data, error } = await supabase
       .from('challenges')
       .select('*')
       .contains('participants', [userId])
-      .gt('end_date', today)
       .order('start_date', { ascending: true });
 
     if (error) {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Modal, TouchableOpacity, Image } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../Commons/ThemedText";
@@ -14,6 +14,8 @@ import { setChallenges } from "@/src/store/challengesSlice";
 import { fetchUserHabits, fetchUserChallenges } from "@/src/service/apiService";
 import { RecommendedChallengeData } from "../AddHabitModal/types";
 import { SuccessModal } from "./SuccessModal";
+import { useSubscription } from "@/src/hooks/useSubscription";
+import { selectHabits } from "@/src/store/habitsSlice";
 
 interface StartChallengeModalProps {
   isVisible: boolean;
@@ -31,10 +33,42 @@ export const StartChallengeModal = ({
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
   const userId = useSelector(selectUserId);
   const dispatch = useDispatch();
+  const { isSubscribed } = useSubscription();
+  const habits = useSelector(selectHabits);
+  const [freshHabits, setFreshHabits] = useState(habits);
+
+  useEffect(() => {
+    const loadFreshHabits = async () => {
+      if (userId && isVisible) {
+        try {
+          const updatedHabits = await fetchUserHabits(userId);
+          setFreshHabits(updatedHabits);
+          dispatch(setHabits(updatedHabits));
+        } catch (error) {
+          console.error("Error fetching fresh habits:", error);
+        }
+      }
+    };
+    loadFreshHabits();
+  }, [userId, isVisible, dispatch]);
+
+  const habitsInChallenge = challenge.habits.en.length;
+  const existingHabitsInChallenge = freshHabits.filter((habit) =>
+    challenge.habits.en.includes(habit.name)
+  ).length;
+  const newHabitsToAdd = habitsInChallenge - existingHabitsInChallenge;
+  const activeHabits = freshHabits.filter((habit) => habit.status === "active");
+  const hasReachedHabitLimit =
+    !isSubscribed && activeHabits.length + newHabitsToAdd >= 5;
 
   const handleStart = async () => {
     if (!userId) {
       console.error("User not found");
+      return;
+    }
+
+    if (hasReachedHabitLimit) {
+      onClose();
       return;
     }
 
@@ -104,26 +138,53 @@ export const StartChallengeModal = ({
               source={require("@/assets/illustrations/medal.png")}
               style={styles.modalImage}
             />
-            <ThemedText style={styles.modalTitle}>
-              {t("start_challenge")}
-            </ThemedText>
-            <ThemedText style={styles.modalDescription}>
-              {t("start_challenge_description")}
-            </ThemedText>
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={onClose}
-              >
-                <ThemedText style={styles.buttonText}>{t("cancel")}</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.addButton]}
-                onPress={handleStart}
-              >
-                <ThemedText style={styles.buttonText}>{t("start")}</ThemedText>
-              </TouchableOpacity>
-            </View>
+            {hasReachedHabitLimit ? (
+              <>
+                <ThemedText style={styles.modalTitle}>
+                  {t("free_limit_exceeded")}
+                </ThemedText>
+                <ThemedText style={styles.modalDescription}>
+                  {t("subscription_required_for_challenge")}
+                </ThemedText>
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.cancelButton]}
+                    onPress={onClose}
+                  >
+                    <ThemedText style={styles.buttonText}>
+                      {t("cancel")}
+                    </ThemedText>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : (
+              <>
+                <ThemedText style={styles.modalTitle}>
+                  {t("start_challenge")}
+                </ThemedText>
+                <ThemedText style={styles.modalDescription}>
+                  {t("start_challenge_description")}
+                </ThemedText>
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.cancelButton]}
+                    onPress={onClose}
+                  >
+                    <ThemedText style={styles.buttonText}>
+                      {t("cancel")}
+                    </ThemedText>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.addButton]}
+                    onPress={handleStart}
+                  >
+                    <ThemedText style={styles.buttonText}>
+                      {t("start")}
+                    </ThemedText>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
           </View>
         </View>
       </Modal>

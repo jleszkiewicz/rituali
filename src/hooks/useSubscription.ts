@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/src/store/store";
 import { supabase } from "@/src/service/supabaseClient";
+import { setShowSubscriptionModal } from "@/src/store/subscriptionSlice";
 
 interface SubscriptionLimits {
   maxFriends: number;
@@ -26,16 +27,16 @@ const PREMIUM_TIER_LIMITS: SubscriptionLimits = {
 
 export const useSubscription = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const userId = useSelector((state: RootState) => state.user.userId);
+  const showSubscriptionModal = useSelector((state: RootState) => state.subscription.showSubscriptionModal);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const checkSubscriptionStatus = async () => {
       if (!userId) {
         setIsLoading(false);
         setIsSubscribed(false);
-        setShowSubscriptionModal(false);
         return;
       }
 
@@ -51,13 +52,10 @@ export const useSubscription = () => {
 
         if (error) {
           if (error.code === 'PGRST116') {
-            // No subscription found
             setIsSubscribed(false);
-            setShowSubscriptionModal(true);
           } else {
             console.error("Error checking subscription:", error);
             setIsSubscribed(false);
-            setShowSubscriptionModal(true);
           }
         } else {
           const now = new Date();
@@ -65,15 +63,10 @@ export const useSubscription = () => {
           const isInTrial = data.status === 'trial' && new Date(data.trial_end_date) > now;
           
           setIsSubscribed(isActive || isInTrial);
-          
-          if (!isActive && !isInTrial) {
-            setShowSubscriptionModal(true);
-          }
         }
       } catch (error) {
         console.error("Error checking subscription status:", error);
         setIsSubscribed(false);
-        setShowSubscriptionModal(true);
       } finally {
         setIsLoading(false);
       }
@@ -107,7 +100,7 @@ export const useSubscription = () => {
       if (error) throw error;
 
       setIsSubscribed(true);
-      setShowSubscriptionModal(false);
+      dispatch(setShowSubscriptionModal(false));
       return true;
     } catch (error) {
       console.error("Error subscribing:", error);
@@ -141,7 +134,7 @@ export const useSubscription = () => {
       if (error) throw error;
 
       setIsSubscribed(true);
-      setShowSubscriptionModal(false);
+      dispatch(setShowSubscriptionModal(false));
       return true;
     } catch (error) {
       console.error("Error starting trial:", error);
@@ -166,7 +159,7 @@ export const useSubscription = () => {
     isSubscribed,
     isLoading,
     showSubscriptionModal,
-    setShowSubscriptionModal,
+    setShowSubscriptionModal: (show: boolean) => dispatch(setShowSubscriptionModal(show)),
     subscribe: handleSubscribe,
     startTrial: handleStartTrial,
     getSubscriptionLimits,

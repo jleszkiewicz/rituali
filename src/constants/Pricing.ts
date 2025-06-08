@@ -51,11 +51,10 @@ const PRICING: Record<string, PricingConfig> = {
 };
 
 export const getPricing = (languageCode: string): PricingConfig => {
-  return PRICING[languageCode] || PRICING.en; // fallback to English pricing
+  return PRICING[languageCode] || PRICING.en;
 };
 
 export const formatPrice = (amount: number, currencySymbol: string): string => {
-  // If the number is a whole number, don't show decimal places
   const formattedAmount = Number.isInteger(amount) ? amount.toString() : amount.toFixed(2);
   return `${formattedAmount} ${currencySymbol}`;
 }; 
