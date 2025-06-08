@@ -7,6 +7,8 @@ import { t } from "../../src/service/translateService";
 import { markChallengeAsViewed } from "@/src/service/apiService";
 import { Ionicons } from "@expo/vector-icons";
 import { ChallengeData } from "../AddChallengeModal/types";
+import { useSubscription } from "@/src/hooks/useSubscription";
+import { ProFeatureBadge } from "../Commons/ProFeatureBadge";
 
 interface CompletedChallengeCardProps {
   challenge: ChallengeData;
@@ -16,10 +18,16 @@ export const CompletedChallengeCard: React.FC<CompletedChallengeCardProps> = ({
   challenge,
 }) => {
   const router = useRouter();
+  const { isSubscribed, setShowSubscriptionModal } = useSubscription();
 
   const handleViewSummary = async () => {
     if (!challenge.id) {
       console.error("Challenge ID is undefined");
+      return;
+    }
+
+    if (!isSubscribed) {
+      setShowSubscriptionModal(true);
       return;
     }
 
@@ -53,10 +61,18 @@ export const CompletedChallengeCard: React.FC<CompletedChallengeCardProps> = ({
             challenge.name || ""
           )}
         </ThemedText>
-        <TouchableOpacity style={styles.button} onPress={handleViewSummary}>
-          <ThemedText style={styles.buttonText}>{t("view_summary")}</ThemedText>
-          <Ionicons name="chevron-forward" size={18} color={Colors.White} />
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.button, !isSubscribed && styles.buttonDisabled]}
+            onPress={handleViewSummary}
+          >
+            <ThemedText style={styles.buttonText}>
+              {t("view_summary")}
+            </ThemedText>
+            <Ionicons name="chevron-forward" size={18} color={Colors.White} />
+          </TouchableOpacity>
+          {!isSubscribed && <ProFeatureBadge style={styles.badge} />}
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -99,18 +115,29 @@ const styles = StyleSheet.create({
     color: Colors.PrimaryGray,
     marginBottom: 12,
   },
+  buttonContainer: {
+    position: "relative",
+    alignSelf: "flex-end",
+  },
   button: {
     backgroundColor: Colors.HotPink,
     padding: 8,
     borderRadius: 8,
-    alignSelf: "flex-end",
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
   buttonText: {
     color: Colors.White,
     fontSize: 14,
     fontWeight: "500",
+  },
+  badge: {
+    position: "absolute",
+    top: -8,
+    right: -8,
   },
 });

@@ -7,12 +7,14 @@ import { t } from "@/src/service/translateService";
 interface FriendRequestModalProps {
   visible: boolean;
   isSuccess: boolean;
+  error?: string;
   onClose: () => void;
 }
 
 export const FriendRequestModal = ({
   visible,
   isSuccess,
+  error,
   onClose,
 }: FriendRequestModalProps) => {
   return (
@@ -38,7 +40,7 @@ export const FriendRequestModal = ({
           <ThemedText style={styles.message}>
             {isSuccess
               ? t("friend_request_sent_description")
-              : t("friend_request_error_description")}
+              : error || t("friend_request_error_description")}
           </ThemedText>
           <TouchableOpacity style={styles.button} onPress={onClose}>
             <ThemedText style={styles.buttonText}>{t("ok")}</ThemedText>

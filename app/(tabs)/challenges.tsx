@@ -9,8 +9,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { ThemedText } from "@/components/Commons/ThemedText";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/src/store";
+import { setActiveChallengesTab } from "@/src/store/tabsSlice";
 import {
   fetchRecommendedChallenges,
   getActiveChallenges,
@@ -26,6 +27,8 @@ import { Colors } from "@/constants/Colors";
 import { StartChallengeModal } from "@/components/ChallengesScreen/StartChallengeModal";
 import YourChallengesTab from "@/components/ChallengesScreen/YourChallengesTab";
 import DiscoverChallengesTab from "@/components/ChallengesScreen/DiscoverChallengesTab";
+import { useFocusEffect } from "@react-navigation/native";
+import { useLocalSearchParams } from "expo-router";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const PAGE_WIDTH = SCREEN_WIDTH - 20;
@@ -33,7 +36,10 @@ const ITEM_MARGIN = 10;
 const SCREEN_WRAPPER_PADDING = 20;
 
 const ChallengesScreen = () => {
-  const [activeTab, setActiveTab] = useState<"your" | "discover">("your");
+  const dispatch = useDispatch();
+  const activeTab = useSelector(
+    (state: RootState) => state.tabs.activeChallengesTab
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [activeChallenges, setActiveChallenges] = useState<ChallengeData[]>([]);
@@ -81,9 +87,11 @@ const ChallengesScreen = () => {
     loadData();
   }, [loadData]);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
 
   const handleChallengePress = (challenge: RecommendedChallengeData) => {
     setSelectedChallenge(challenge);
@@ -93,6 +101,10 @@ const ChallengesScreen = () => {
   const handleCloseStartModal = () => {
     setIsStartModalVisible(false);
     setSelectedChallenge(null);
+  };
+
+  const handleTabPress = (tab: "your" | "discover") => {
+    dispatch(setActiveChallengesTab(tab));
   };
 
   const renderContent = () => {
@@ -110,7 +122,7 @@ const ChallengesScreen = () => {
                   styles.tabButton,
                   activeTab === "your" && styles.activeTabButton,
                 ]}
-                onPress={() => setActiveTab("your")}
+                onPress={() => handleTabPress("your")}
               >
                 <ThemedText
                   style={[
@@ -127,7 +139,7 @@ const ChallengesScreen = () => {
                   styles.tabButton,
                   activeTab === "discover" && styles.activeTabButton,
                 ]}
-                onPress={() => setActiveTab("discover")}
+                onPress={() => handleTabPress("discover")}
               >
                 <ThemedText
                   style={[

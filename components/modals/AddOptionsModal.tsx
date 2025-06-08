@@ -4,6 +4,11 @@ import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import PrimaryButton from "../Commons/PrimaryButton";
+import { useSubscription } from "@/src/hooks/useSubscription";
+import { useSelector } from "react-redux";
+import { selectHabits } from "@/src/store/habitsSlice";
+import { selectChallenges } from "@/src/store/challengesSlice";
+import { ProFeatureBadge } from "../Commons/ProFeatureBadge";
 
 interface AddOptionsModalProps {
   isVisible: boolean;
@@ -19,6 +24,24 @@ const AddOptionsModal = ({
   onAddChallenge,
 }: AddOptionsModalProps) => {
   const [isConnected, setIsConnected] = useState(true);
+  const { isSubscribed, setShowSubscriptionModal } = useSubscription();
+  const habits = useSelector(selectHabits);
+  const challenges = useSelector(selectChallenges);
+  const activeHabits = habits.filter((habit) => habit.status === "active");
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const activeChallenges = challenges.filter((challenge) => {
+    const startDate = new Date(challenge.startDate);
+    const endDate = new Date(challenge.endDate);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+    return today >= startDate && today <= endDate;
+  });
+
+  const hasReachedHabitLimit = !isSubscribed && activeHabits.length >= 5;
+  const hasReachedChallengeLimit =
+    !isSubscribed && activeChallenges.length >= 1;
 
   useEffect(() => {
     let isMounted = true;
@@ -61,18 +84,41 @@ const AddOptionsModal = ({
     return null;
   }
 
+  const handleAddHabitPress = () => {
+    if (hasReachedHabitLimit) {
+      setShowSubscriptionModal(true);
+      onClose();
+    } else {
+      onAddHabit();
+    }
+  };
+
+  const handleAddChallengePress = () => {
+    if (hasReachedChallengeLimit) {
+      setShowSubscriptionModal(true);
+      onClose();
+    } else {
+      onAddChallenge();
+    }
+  };
+
   return (
     <Pressable style={styles.container} onPress={onClose}>
       <Pressable style={styles.content} onPress={(e) => e.stopPropagation()}>
         <PrimaryButton
           title={t("add_habit")}
-          onPress={onAddHabit}
-          style={styles.option}
+          onPress={handleAddHabitPress}
+          style={[styles.option, hasReachedHabitLimit && styles.disabledButton]}
+          rightIcon={hasReachedHabitLimit ? <ProFeatureBadge /> : undefined}
         />
         <PrimaryButton
           title={t("add_challenge")}
-          onPress={onAddChallenge}
-          style={styles.option}
+          onPress={handleAddChallengePress}
+          style={[
+            styles.option,
+            hasReachedChallengeLimit && styles.disabledButton,
+          ]}
+          rightIcon={hasReachedChallengeLimit ? <ProFeatureBadge /> : undefined}
         />
         <Pressable style={styles.cancelButton} onPress={onClose}>
           <ThemedText style={styles.cancelButtonText}>{t("cancel")}</ThemedText>
@@ -101,6 +147,9 @@ const styles = StyleSheet.create({
   },
   option: {
     marginBottom: 10,
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
   cancelButton: {
     padding: 15,

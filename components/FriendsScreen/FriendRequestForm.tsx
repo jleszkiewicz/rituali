@@ -13,6 +13,8 @@ import { FriendRequestModal } from "./FriendRequestModal";
 import { useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import { sendFriendRequest } from "@/src/service/apiService";
+import { useSubscription } from "@/src/hooks/useSubscription";
+import { ProFeatureBadge } from "../Commons/ProFeatureBadge";
 
 interface FriendRequestFormProps {
   onRequestSent: () => void;
@@ -25,9 +27,15 @@ const FriendRequestForm = ({ onRequestSent }: FriendRequestFormProps) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
   const userId = useSelector(selectUserId);
+  const { isSubscribed, setShowSubscriptionModal } = useSubscription();
 
   const handleSendFriendRequest = async () => {
     if (!userId) return;
+
+    if (!isSubscribed) {
+      setShowSubscriptionModal(true);
+      return;
+    }
 
     if (!email) {
       setError(t("email_required"));
@@ -35,14 +43,12 @@ const FriendRequestForm = ({ onRequestSent }: FriendRequestFormProps) => {
     }
 
     if (!email.trim()) {
-      setIsSuccess(false);
-      setShowModal(true);
+      setError(t("email_required"));
       return;
     }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
-      setIsSuccess(false);
-      setShowModal(true);
+      setError(t("invalid_email"));
       return;
     }
 
@@ -85,20 +91,26 @@ const FriendRequestForm = ({ onRequestSent }: FriendRequestFormProps) => {
           keyboardType="email-address"
           autoCapitalize="none"
         />
-        <TouchableOpacity
-          style={[styles.button, isLoading && styles.buttonDisabled]}
-          onPress={handleSendFriendRequest}
-          disabled={isLoading}
-        >
-          <ThemedText style={styles.buttonText} bold>
-            {isLoading ? t("sending") : t("send_friend_request")}
-          </ThemedText>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              (isLoading || !isSubscribed) && styles.buttonDisabled,
+            ]}
+            onPress={handleSendFriendRequest}
+          >
+            <ThemedText style={styles.buttonText} bold>
+              {isLoading ? t("sending") : t("send_friend_request")}
+            </ThemedText>
+          </TouchableOpacity>
+          {!isSubscribed && <ProFeatureBadge style={styles.badge} />}
+        </View>
       </View>
 
       <FriendRequestModal
         visible={showModal}
         isSuccess={isSuccess}
+        error={error}
         onClose={() => setShowModal(false)}
       />
     </View>
@@ -123,6 +135,9 @@ const styles = StyleSheet.create({
     borderColor: Colors.LightGray,
     fontSize: 16,
   },
+  buttonContainer: {
+    position: "relative",
+  },
   button: {
     backgroundColor: Colors.HotPink,
     padding: 15,
@@ -136,6 +151,11 @@ const styles = StyleSheet.create({
     color: Colors.White,
     fontSize: 16,
     fontWeight: "600",
+  },
+  badge: {
+    position: "absolute",
+    top: -8,
+    right: -8,
   },
   image: {
     width: 160,

@@ -39,20 +39,6 @@ function AuthWrapper() {
     }
   }, [isLoading, isAuthenticated, segments, router]);
 
-  const handleSubscribe = async (type: "monthly" | "yearly") => {
-    const success = await subscribe(type);
-    if (success) {
-      setShowSubscriptionModal(false);
-    }
-  };
-
-  const handleStartTrial = async () => {
-    const success = await startTrial();
-    if (success) {
-      setShowSubscriptionModal(false);
-    }
-  };
-
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
@@ -67,8 +53,8 @@ function AuthWrapper() {
       <SubscriptionModal
         isVisible={showSubscriptionModal}
         onClose={() => setShowSubscriptionModal(false)}
-        onSubscribe={handleSubscribe}
-        onStartTrial={handleStartTrial}
+        onSubscribe={subscribe}
+        onStartTrial={startTrial}
       />
     </>
   );

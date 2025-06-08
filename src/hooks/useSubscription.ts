@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/src/store/store";
-import { supabase } from "@/src/service/supabaseClient";
+import { setShowSubscriptionModal, triggerRefresh } from "@/src/store/subscriptionSlice";
+import { checkSubscriptionStatus, startSubscription, startTrial } from "@/src/service/apiService";
 
 interface SubscriptionLimits {
   maxFriends: number;
@@ -26,61 +27,44 @@ const PREMIUM_TIER_LIMITS: SubscriptionLimits = {
 
 export const useSubscription = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const userId = useSelector((state: RootState) => state.user.userId);
+  const showSubscriptionModal = useSelector((state: RootState) => state.subscription.showSubscriptionModal);
+  const refreshTrigger = useSelector((state: RootState) => state.subscription.refreshTrigger);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    const checkSubscriptionStatus = async () => {
-      if (!userId) {
-        setIsLoading(false);
+  const checkStatus = async () => {
+    if (!userId) {
+      setIsLoading(false);
+      setIsSubscribed(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const data = await checkSubscriptionStatus(userId);
+
+      if (!data) {
         setIsSubscribed(false);
-        setShowSubscriptionModal(false);
         return;
       }
 
-      try {
-        setIsLoading(true);
-        const { data, error } = await supabase
-          .from('subscriptions')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
+      const now = new Date();
+      const isActive = data.status === 'active' && new Date(data.end_date) > now;
+      const isInTrial = data.status === 'trial' && data.trial_end_date ? new Date(data.trial_end_date) > now : false;
+      
+      setIsSubscribed(isActive || isInTrial);
+    } catch (error) {
+      console.error("Error checking subscription status:", error);
+      setIsSubscribed(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        if (error) {
-          if (error.code === 'PGRST116') {
-            // No subscription found
-            setIsSubscribed(false);
-            setShowSubscriptionModal(true);
-          } else {
-            console.error("Error checking subscription:", error);
-            setIsSubscribed(false);
-            setShowSubscriptionModal(true);
-          }
-        } else {
-          const now = new Date();
-          const isActive = data.status === 'active' && new Date(data.end_date) > now;
-          const isInTrial = data.status === 'trial' && new Date(data.trial_end_date) > now;
-          
-          setIsSubscribed(isActive || isInTrial);
-          
-          if (!isActive && !isInTrial) {
-            setShowSubscriptionModal(true);
-          }
-        }
-      } catch (error) {
-        console.error("Error checking subscription status:", error);
-        setIsSubscribed(false);
-        setShowSubscriptionModal(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkSubscriptionStatus();
-  }, [userId]);
+  useEffect(() => {
+    checkStatus();
+  }, [userId, refreshTrigger]);
 
   const handleSubscribe = async (type: "monthly" | "yearly") => {
     if (!userId) {
@@ -89,25 +73,9 @@ export const useSubscription = () => {
     }
 
     try {
-      const now = new Date();
-      const endDate = new Date();
-      endDate.setMonth(endDate.getMonth() + (type === 'yearly' ? 12 : 1));
-
-      const { error } = await supabase
-        .from('subscriptions')
-        .insert({
-          user_id: userId,
-          status: 'active',
-          plan_type: type,
-          start_date: now.toISOString(),
-          end_date: endDate.toISOString(),
-          updated_at: now.toISOString()
-        });
-
-      if (error) throw error;
-
-      setIsSubscribed(true);
-      setShowSubscriptionModal(false);
+      await startSubscription(userId, type);
+      dispatch(setShowSubscriptionModal(false));
+      dispatch(triggerRefresh());
       return true;
     } catch (error) {
       console.error("Error subscribing:", error);
@@ -122,26 +90,9 @@ export const useSubscription = () => {
     }
 
     try {
-      const now = new Date();
-      const trialEndDate = new Date();
-      trialEndDate.setDate(trialEndDate.getDate() + 7);
-
-      const { error } = await supabase
-        .from('subscriptions')
-        .insert({
-          user_id: userId,
-          status: 'trial',
-          plan_type: 'monthly',
-          start_date: now.toISOString(),
-          end_date: trialEndDate.toISOString(),
-          trial_end_date: trialEndDate.toISOString(),
-          updated_at: now.toISOString()
-        });
-
-      if (error) throw error;
-
-      setIsSubscribed(true);
-      setShowSubscriptionModal(false);
+      await startTrial(userId);
+      dispatch(setShowSubscriptionModal(false));
+      dispatch(triggerRefresh());
       return true;
     } catch (error) {
       console.error("Error starting trial:", error);
@@ -166,7 +117,7 @@ export const useSubscription = () => {
     isSubscribed,
     isLoading,
     showSubscriptionModal,
-    setShowSubscriptionModal,
+    setShowSubscriptionModal: (show: boolean) => dispatch(setShowSubscriptionModal(show)),
     subscribe: handleSubscribe,
     startTrial: handleStartTrial,
     getSubscriptionLimits,

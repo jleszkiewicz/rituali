@@ -137,9 +137,23 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
     }
 
     try {
+      let endDate = null;
+      if (isPartOfChallenge && selectedChallengeIds.length > 0) {
+        const selectedChallenges = challenges.filter((challenge) =>
+          selectedChallengeIds.includes(challenge.id)
+        );
+        const latestChallenge = selectedChallenges.reduce((latest, current) => {
+          return new Date(current.endDate) > new Date(latest.endDate)
+            ? current
+            : latest;
+        }, selectedChallenges[0]);
+        endDate = latestChallenge.endDate;
+      }
+
       await updateHabit(habit.id, {
         ...habitData,
         isPartOfChallenge: isPartOfChallenge,
+        endDate: endDate,
       });
 
       if (isPartOfChallenge && selectedChallengeIds.length > 0) {

@@ -12,6 +12,7 @@ import { selectChallenges, setChallenges } from "@/src/store/challengesSlice";
 import {
   fetchUserHabits,
   fetchCompletedChallenges,
+  checkAndUpdateExpiredHabits,
 } from "@/src/service/apiService";
 import CalendarCarousel from "@/components/HomeScreen/CalendarCarousel";
 import { format } from "date-fns";
@@ -62,6 +63,9 @@ export default function HomeScreen() {
   const refresh = async () => {
     setRefreshing(true);
     try {
+      if (userId) {
+        await checkAndUpdateExpiredHabits(userId);
+      }
       const [habitsData, challengesData, completedChallengesData] =
         await Promise.all([
           fetchUserHabits(userId),
@@ -85,6 +89,9 @@ export default function HomeScreen() {
 
       try {
         dispatch(setLoading(true));
+        if (userId) {
+          await checkAndUpdateExpiredHabits(userId);
+        }
         const [habitsData, challengesData, completedChallengesData] =
           await Promise.all([
             fetchUserHabits(userId),
@@ -264,7 +271,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   emptyHabitsContainer: {
-    marginTop: 80,
     justifyContent: "center",
     alignItems: "center",
   },

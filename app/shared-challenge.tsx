@@ -103,6 +103,7 @@ export default function SharedChallengeScreen() {
       }
     } catch (error) {
       console.error("Error loading challenge:", error);
+      router.push("/challenges");
     } finally {
       setIsLoading(false);
     }
@@ -130,7 +131,7 @@ export default function SharedChallengeScreen() {
       await deleteSharedChallenge(challenge.id);
       const updatedChallenges = await fetchUserChallenges(userId);
       dispatch(setChallenges(updatedChallenges));
-      router.back();
+      router.push("/challenges");
     } catch (error) {
       console.error("Error deleting challenge:", error);
     }

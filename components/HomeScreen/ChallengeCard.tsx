@@ -8,6 +8,8 @@ import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import { AppRoutes } from "@/src/routes/AppRoutes";
 import { router } from "expo-router";
+import { useDispatch } from "react-redux";
+import { setActiveChallengesTab } from "@/src/store/tabsSlice";
 
 interface ChallengeCardProps {
   challenge: ChallengeData;
@@ -24,6 +26,8 @@ export default function ChallengeCard({
   width,
   style,
 }: ChallengeCardProps) {
+  const dispatch = useDispatch();
+
   const challengeHabits = habits.filter(
     (habit) => challenge.habits.includes(habit.id) && habit.status === "active"
   );
@@ -54,6 +58,7 @@ export default function ChallengeCard({
   };
 
   const naviagteToChallengesScreen = () => {
+    dispatch(setActiveChallengesTab("your"));
     router.push(AppRoutes.Challenges);
   };
 

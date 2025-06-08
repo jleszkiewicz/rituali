@@ -34,7 +34,8 @@ export const fetchUserHabits = async (userId: string | null): Promise<HabitData[
     const { data, error } = await supabase
       .from("habits")
       .select("*")
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .eq("status", "active");
 
     if (error) {
       throw error;
@@ -96,13 +97,10 @@ const mapChallengeToDb = (challenge: ChallengeData): DbChallenge => ({
 
 export const getActiveChallenges = async (userId: string): Promise<ChallengeData[]> => {
   try {
-    const today = new Date().toISOString();
-    
     const { data, error } = await supabase
       .from('challenges')
       .select('*')
       .contains('participants', [userId])
-      .gt('end_date', today)
       .order('start_date', { ascending: true });
 
     if (error) {
@@ -404,7 +402,7 @@ export const respondToChallengeInvitation = async (
       }
 
       const { data: challengeHabits, error: habitsError } = await supabase
-        .from('habits')
+        .from("habits")
         .select('*')
         .in('id', challengeData.habits)
         .eq('user_id', invitationData.sender_id);
@@ -420,12 +418,12 @@ export const respondToChallengeInvitation = async (
         category: habit.category,
         is_part_of_challenge: true,
         start_date: format(new Date(), dateFormat),
-        end_date: null,
+        end_date: challengeData.end_date,
         status: 'active'
       }));
 
       const { error: insertError } = await supabase
-        .from('habits')
+        .from("habits")
         .insert(newHabits);
 
       if (insertError) {
@@ -1385,6 +1383,132 @@ export const fetchHabitById = async (habitId: string): Promise<HabitData> => {
 
     return mapHabitFromDb(data);
   } catch (error) {
+    throw error;
+  }
+};
+
+export interface SubscriptionData {
+  id: string;
+  user_id: string;
+  status: 'active' | 'trial';
+  plan_type: 'monthly' | 'yearly';
+  start_date: string;
+  end_date: string;
+  trial_end_date?: string;
+  updated_at: string;
+}
+
+export const checkSubscriptionStatus = async (userId: string): Promise<SubscriptionData | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error checking subscription:", error);
+    throw error;
+  }
+};
+
+export const startSubscription = async (userId: string, type: "monthly" | "yearly"): Promise<SubscriptionData> => {
+  try {
+    const now = new Date();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + (type === 'yearly' ? 12 : 1));
+
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .insert({
+        user_id: userId,
+        status: 'active',
+        plan_type: type,
+        start_date: now.toISOString(),
+        end_date: endDate.toISOString(),
+        updated_at: now.toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error subscribing:", error);
+    throw error;
+  }
+};
+
+export const startTrial = async (userId: string): Promise<SubscriptionData> => {
+  try {
+    const now = new Date();
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + 7);
+
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .insert({
+        user_id: userId,
+        status: 'trial',
+        plan_type: 'monthly',
+        start_date: now.toISOString(),
+        end_date: trialEndDate.toISOString(),
+        trial_end_date: trialEndDate.toISOString(),
+        updated_at: now.toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error starting trial:", error);
+    throw error;
+  }
+};
+
+export const checkAndUpdateExpiredHabits = async (userId: string | null): Promise<void> => {
+  if (!userId) return;
+  
+  try {
+    const today = format(new Date(), dateFormat);
+    const { data: habits, error } = await supabase
+      .from("habits")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .not("end_date", "is", null);
+
+    if (error) throw error;
+
+    const expiredHabits = habits?.filter(habit => {
+      const endDate = new Date(habit.end_date);
+      const todayDate = new Date();
+      return endDate < todayDate;
+    });
+
+    if (expiredHabits && expiredHabits.length > 0) {
+      const updatePromises = expiredHabits.map(habit => 
+        supabase
+          .from("habits")
+          .update({ status: "completed" })
+          .eq("id", habit.id)
+      );
+
+      await Promise.all(updatePromises);
+    }
+  } catch (error) {
+    console.error("Error checking expired habits:", error);
     throw error;
   }
 };

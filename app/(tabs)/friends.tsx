@@ -12,6 +12,7 @@ import PendingFriendRequests from "@/components/FriendsScreen/PendingFriendReque
 import FriendsList from "@/components/FriendsScreen/FriendsList";
 import ConditionalRenderer from "@/components/Commons/ConditionalRenderer";
 import Loading from "@/components/Commons/Loading";
+import { useSubscription } from "@/src/hooks/useSubscription";
 
 interface Friend {
   id: string;
@@ -24,6 +25,7 @@ const FriendsScreen = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const userId = useSelector(selectUserId);
+  const { isSubscribed } = useSubscription();
 
   const fetchFriendsList = async () => {
     if (!userId) return;
@@ -75,8 +77,10 @@ const FriendsScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         <FriendRequestForm onRequestSent={handleRefresh} />
-        <PendingFriendRequests onRequestHandled={handleRefresh} />
-        <ConditionalRenderer condition={friends.length > 0}>
+        <ConditionalRenderer condition={isSubscribed}>
+          <PendingFriendRequests onRequestHandled={handleRefresh} />
+        </ConditionalRenderer>
+        <ConditionalRenderer condition={friends.length > 0 && isSubscribed}>
           <FriendsList
             friends={friends}
             onFriendRemoved={handleFriendRemoved}
