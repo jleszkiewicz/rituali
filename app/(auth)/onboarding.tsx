@@ -12,17 +12,17 @@ const PAGE_WIDTH = SCREEN_WIDTH - 40;
 
 const onboardingData = [
   {
-    image: require("@/assets/ilustrations/onboarding1.png"),
+    image: require("@/assets/illustrations/onboarding1.png"),
     titleKey: "onboarding_track_habits_title",
     descriptionKey: "onboarding_track_habits_description",
   },
   {
-    image: require("@/assets/ilustrations/onboarding2.png"),
+    image: require("@/assets/illustrations/onboarding2.png"),
     titleKey: "onboarding_challenges_title",
     descriptionKey: "onboarding_challenges_description",
   },
   {
-    image: require("@/assets/ilustrations/onboarding3.png"),
+    image: require("@/assets/illustrations/onboarding3.png"),
     titleKey: "onboarding_stats_title",
     descriptionKey: "onboarding_stats_description",
   },

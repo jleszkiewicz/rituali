@@ -39,7 +39,7 @@ export const CompletedChallengeCard: React.FC<CompletedChallengeCardProps> = ({
   return (
     <TouchableOpacity style={styles.container} onPress={handleViewSummary}>
       <Image
-        source={require("../../assets/ilustrations/success.png")}
+        source={require("@/assets/illustrations/success.png")}
         style={styles.image}
         resizeMode="contain"
       />

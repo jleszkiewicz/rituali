@@ -25,7 +25,7 @@ export const RemoveFriendModal = ({
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Image
-            source={require("@/assets/ilustrations/trash.png")}
+            source={require("@/assets/illustrations/trash.png")}
             style={styles.illustration}
             resizeMode="contain"
           />

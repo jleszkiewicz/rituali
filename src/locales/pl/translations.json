@@ -227,5 +227,22 @@
   "individual_habits_completion_rate": "Wskaźnik ukończenia poszczególnych nawyków.",
   "completion_calendar_description": "Kalendarz ukończeń pokazuje dni, w których ukończyłeś wszystkie nawyki w wyzwaniu.",
   "no_challenges_title": "Brak wyzwań",
-  "no_challenges_description": "Dodaj wyzwanie, aby rozpocząć swoją podróż."
+  "no_challenges_description": "Dodaj wyzwanie, aby rozpocząć swoją podróż.",
+  "unlock_full_potential": "Odblokuj pełny potencjał",
+  "subscription_description": "Rozpocznij 7-dniowy okres próbny i odkryj wszystkie funkcje premium",
+  "unlimited_friends": "Nieograniczona liczba przyjaciół",
+  "unlimited_challenges": "Nieograniczona liczba wyzwań",
+  "unlimited_habits": "Nieograniczona liczba nawyków",
+  "challenge_summaries": "Podsumowania wyzwań",
+  "start_free_trial": "Rozpocznij darmowy okres próbny",
+  "7_days_free": "7 dni za darmo",
+  "monthly": "Miesięcznie",
+  "yearly": "Rocznie",
+  "month": "miesiąc",
+  "year": "rok",
+  "best_value": "Najlepsza oferta",
+  "save_15_percent": "Oszczędź 15%",
+  "maybe_later": "Może później",
+  "start_your_membership": "Rozpocznij subskrypcję",
+  "add_your_friends": "Dodaj znajomych, rywalizuj i motywuj się nawzajem"
 }

@@ -75,7 +75,7 @@ const PendingFriendRequests = ({
           source={
             item.sender?.user_metadata?.avatar_url
               ? { uri: item.sender.user_metadata.avatar_url }
-              : require("@/assets/ilustrations/avatar.png")
+              : require("@/assets/illustrations/avatar.png")
           }
           style={styles.avatar}
         />

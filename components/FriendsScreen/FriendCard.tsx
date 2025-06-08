@@ -77,7 +77,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({
               source={
                 friend.avatar_url
                   ? { uri: friend.avatar_url }
-                  : require("@/assets/ilustrations/avatar.png")
+                  : require("@/assets/illustrations/avatar.png")
               }
               style={styles.avatar}
             />

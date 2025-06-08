@@ -26,7 +26,7 @@ export const ErrorModal = ({
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Image
-            source={require("@/assets/ilustrations/login_error.png")}
+            source={require("@/assets/illustrations/login_error.png")}
             style={styles.modalImage}
           />
           <ThemedText style={styles.modalTitle}>{title}</ThemedText>

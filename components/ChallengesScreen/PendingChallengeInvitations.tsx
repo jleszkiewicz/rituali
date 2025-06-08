@@ -79,7 +79,7 @@ const PendingChallengeInvitations = ({
           onPress={() => toggleExpand(item.id)}
         >
           <Image
-            source={require("@/assets/ilustrations/medals.png")}
+            source={require("@/assets/illustrations/medals.png")}
             style={styles.medalIcon}
           />
           <View style={styles.textContainer}>

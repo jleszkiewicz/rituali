@@ -1,11 +1,5 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  TouchableOpacity,
-} from "react-native";
+import { useEffect, useState } from "react";
+import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
@@ -22,6 +16,7 @@ import EditHabitModal from "@/components/modals/EditHabitModal";
 import DeleteHabitModal from "@/components/modals/DeleteHabitModal";
 import Loading from "@/components/Commons/Loading";
 import { AppRoutes } from "@/src/routes/AppRoutes";
+import React = require("react");
 
 const HabitSummaryScreen = () => {
   const { habitId } = useLocalSearchParams();

@@ -263,5 +263,21 @@
   "individual_habits_completion_rate": "Individual habits completion rate.",
   "completion_calendar_description": "Completion calendar shows days when you completed all habits in the challenge.",
   "no_challenges_title": "No challenges yet",
-  "no_challenges_description": "Add a challenge to get started with your journey."
+  "no_challenges_description": "Add a challenge to get started with your journey.",
+  "unlock_full_potential": "Unlock Full Potential",
+  "subscription_description": "Start a 7-day free trial and discover all premium features",
+  "unlimited_friends": "Unlimited friends",
+  "unlimited_challenges": "Unlimited challenges",
+  "unlimited_habits": "Unlimited habits",
+  "challenge_summaries": "Challenge summaries",
+  "start_free_trial": "Start free trial",
+  "7_days_free": "7 days free",
+  "yearly": "Yearly",
+  "month": "month",
+  "year": "year",
+  "best_value": "Best value",
+  "save_15_percent": "Save 15%",
+  "maybe_later": "Maybe later",
+  "start_your_membership": "Start Your Membership",
+  "add_your_friends": "Add your friends, compete and motivate each other"
 }

@@ -74,7 +74,7 @@ export default function LoginScreen() {
     <ScreenWrapper>
       <View style={styles.innerContainer}>
         <Image
-          source={require("@/assets/ilustrations/login.png")}
+          source={require("@/assets/illustrations/login.png")}
           style={styles.image}
         />
         <View style={styles.inputContainer}>

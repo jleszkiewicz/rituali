@@ -27,8 +27,8 @@ export const FriendRequestModal = ({
           <Image
             source={
               isSuccess
-                ? require("@/assets/ilustrations/success.png")
-                : require("@/assets/ilustrations/error.png")
+                ? require("@/assets/illustrations/success.png")
+                : require("@/assets/illustrations/error.png")
             }
             style={styles.modalImage}
           />

@@ -148,7 +148,7 @@ export default function CompletionStats({
                   </ThemedText>
                   {!hideLegend && (
                     <Image
-                      source={require("@/assets/ilustrations/trophy.png")}
+                      source={require("@/assets/illustrations/trophy.png")}
                       style={styles.trophyIcon}
                       resizeMode="contain"
                     />

@@ -18,7 +18,7 @@ const EmptyHabitsList = ({
   return (
     <View style={styles.container}>
       <Image
-        source={require("@/assets/ilustrations/login_error.png")}
+        source={require("@/assets/illustrations/login_error.png")}
         style={[styles.image, { width: imageWidth, height: imageWidth }]}
       />
       <ThemedText style={[styles.title, { color: textColor }]}>

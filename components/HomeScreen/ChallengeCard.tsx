@@ -48,9 +48,9 @@ export default function ChallengeCard({
   const isCompleted = completedHabits === totalHabits && totalHabits > 0;
 
   const getStatusIcon = () => {
-    if (totalHabits === 0) return require("@/assets/ilustrations/warning.png");
-    if (isCompleted) return require("@/assets/ilustrations/clap.png");
-    return require("@/assets/ilustrations/sad.png");
+    if (totalHabits === 0) return require("@/assets/illustrations/warning.png");
+    if (isCompleted) return require("@/assets/illustrations/clap.png");
+    return require("@/assets/illustrations/sad.png");
   };
 
   const naviagteToChallengesScreen = () => {

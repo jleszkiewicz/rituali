@@ -33,15 +33,15 @@ const CustomModal: React.FC<CustomModalProps> = ({
 
   const getImageSource = () => {
     if (type === "error") {
-      return require("@/assets/ilustrations/warning.png");
+      return require("@/assets/illustrations/warning.png");
     }
     if (isWithBuddy) {
-      return require("@/assets/ilustrations/onboarding2.png");
+      return require("@/assets/illustrations/onboarding2.png");
     }
     if (isPartOfChallenge) {
-      return require("@/assets/ilustrations/onboarding2.png");
+      return require("@/assets/illustrations/onboarding2.png");
     }
-    return require("@/assets/ilustrations/success.png");
+    return require("@/assets/illustrations/success.png");
   };
 
   return (

@@ -86,7 +86,7 @@ const DeleteHabitModal = ({
         onPress={(e) => e.stopPropagation()}
       >
         <Image
-          source={require("@/assets/ilustrations/trash.png")}
+          source={require("@/assets/illustrations/trash.png")}
           style={styles.illustration}
           resizeMode="contain"
         />

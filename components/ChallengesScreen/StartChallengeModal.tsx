@@ -101,7 +101,7 @@ export const StartChallengeModal = ({
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Image
-              source={require("@/assets/ilustrations/medal.png")}
+              source={require("@/assets/illustrations/medal.png")}
               style={styles.modalImage}
             />
             <ThemedText style={styles.modalTitle}>

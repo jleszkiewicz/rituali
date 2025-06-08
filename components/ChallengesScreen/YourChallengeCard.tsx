@@ -72,7 +72,7 @@ export default function YourChallengeCard({
     <TouchableOpacity style={styles.container} onPress={handlePress}>
       <View style={styles.content}>
         <Image
-          source={require("@/assets/ilustrations/medal.png")}
+          source={require("@/assets/illustrations/medal.png")}
           style={styles.medal}
         />
         <View style={styles.leftSection}>
@@ -92,7 +92,7 @@ export default function YourChallengeCard({
                   source={
                     firstOtherParticipant.avatar_url
                       ? { uri: firstOtherParticipant.avatar_url }
-                      : require("@/assets/ilustrations/profile.png")
+                      : require("@/assets/illustrations/profile.png")
                   }
                   style={styles.avatar}
                 />

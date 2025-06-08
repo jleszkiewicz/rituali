@@ -17,7 +17,7 @@ const EmptyChallengesList = ({
   return (
     <View style={styles.container}>
       <Image
-        source={require("@/assets/ilustrations/empty_list.png")}
+        source={require("@/assets/illustrations/empty_list.png")}
         style={[styles.image, { width: imageWidth, height: imageWidth }]}
       />
       <ThemedText style={[styles.title, { color: textColor }]}>

@@ -31,7 +31,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
       <Pressable style={styles.backdrop} onPress={onClose} />
       <View style={styles.content}>
         <Image
-          source={require("@/assets/ilustrations/trash.png")}
+          source={require("@/assets/illustrations/trash.png")}
           style={styles.illustration}
           resizeMode="contain"
         />

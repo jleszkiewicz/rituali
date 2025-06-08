@@ -20,7 +20,7 @@ export const SuccessModal = ({ isVisible, onClose }: SuccessModalProps) => {
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Image
-            source={require("@/assets/ilustrations/success.png")}
+            source={require("@/assets/illustrations/success.png")}
             style={styles.modalImage}
           />
           <ThemedText style={styles.modalTitle}>

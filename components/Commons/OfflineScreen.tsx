@@ -8,7 +8,7 @@ const OfflineScreen = () => {
   return (
     <View style={styles.container}>
       <Image
-        source={require("@/assets/ilustrations/offline.png")}
+        source={require("@/assets/illustrations/offline.png")}
         style={styles.image}
       />
       <ThemedText style={styles.title}>{t("offline_mode")}</ThemedText>

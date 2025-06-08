@@ -90,7 +90,7 @@ export default function RegisterScreen() {
     <ScreenWrapper>
       <View style={styles.innerContainer}>
         <Image
-          source={require("@/assets/ilustrations/register.png")}
+          source={require("@/assets/illustrations/register.png")}
           style={styles.image}
         />
         <View style={styles.inputContainer}>

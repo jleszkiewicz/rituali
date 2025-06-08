@@ -37,8 +37,8 @@ export default function ParticipantsProgress({
               <Image
                 source={
                   participant.completion_percentage === 100
-                    ? require("@/assets/ilustrations/clap.png")
-                    : require("@/assets/ilustrations/sad.png")
+                    ? require("@/assets/illustrations/clap.png")
+                    : require("@/assets/illustrations/sad.png")
                 }
                 style={styles.icon}
                 resizeMode="contain"

@@ -1,6 +1,5 @@
-import { Slot } from "expo-router";
-import { useRouter, useSegments } from "expo-router";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
+import { Stack, useRouter, useSegments } from "expo-router";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { ErrorProvider } from "../src/context/ErrorContext";
 import { ErrorModalProvider } from "../src/context/ErrorModalContext";
@@ -11,11 +10,71 @@ import { Provider } from "react-redux";
 import { store } from "../src/store";
 import * as Font from "expo-font";
 import { Fonts } from "@/src/constants/Fonts";
+import { useSubscription } from "@/src/hooks/useSubscription";
+import SubscriptionModal from "@/components/Commons/SubscriptionModal/SubscriptionModal";
 
 const PoppinsRegular = require("../assets/fonts/Poppins-Regular.ttf");
 const PoppinsBold = require("../assets/fonts/Poppins-Bold.ttf");
 
-export default function RootLayout() {
+function AuthWrapper() {
+  const router = useRouter();
+  const segments = useSegments();
+  const { isAuthenticated, isLoading } = useAuth();
+  const {
+    showSubscriptionModal,
+    setShowSubscriptionModal,
+    subscribe,
+    startTrial,
+  } = useSubscription();
+
+  useEffect(() => {
+    if (!isLoading) {
+      const inAuthGroup = segments[0] === "(auth)";
+
+      if (!isAuthenticated && !inAuthGroup) {
+        router.replace(AuthRoutes.Login);
+      } else if (isAuthenticated && inAuthGroup) {
+        router.replace(AppRoutes.Home);
+      }
+    }
+  }, [isLoading, isAuthenticated, segments, router]);
+
+  const handleSubscribe = async (type: "monthly" | "yearly") => {
+    const success = await subscribe(type);
+    if (success) {
+      setShowSubscriptionModal(false);
+    }
+  };
+
+  const handleStartTrial = async () => {
+    const success = await startTrial();
+    if (success) {
+      setShowSubscriptionModal(false);
+    }
+  };
+
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="habit-summary" />
+        <Stack.Screen name="challenge-info" />
+        <Stack.Screen name="challenge-summary" />
+        <Stack.Screen name="shared-challenge" />
+        <Stack.Screen name="shared-challenge-summary" />
+      </Stack>
+      <SubscriptionModal
+        isVisible={showSubscriptionModal}
+        onClose={() => setShowSubscriptionModal(false)}
+        onSubscribe={handleSubscribe}
+        onStartTrial={handleStartTrial}
+      />
+    </>
+  );
+}
+
+function RootLayoutContent() {
   useEffect(() => {
     async function loadFonts() {
       try {
@@ -31,34 +90,20 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <Provider store={store}>
-      <ErrorModalProvider>
-        <ErrorProvider>
-          <AuthProvider>
-            <AuthWrapper />
-          </AuthProvider>
-        </ErrorProvider>
-      </ErrorModalProvider>
-    </Provider>
+    <ErrorModalProvider>
+      <ErrorProvider>
+        <AuthProvider>
+          <AuthWrapper />
+        </AuthProvider>
+      </ErrorProvider>
+    </ErrorModalProvider>
   );
 }
 
-function AuthWrapper() {
-  const router = useRouter();
-  const segments = useSegments();
-  const { isAuthenticated, isLoading } = useAuth();
-
-  useEffect(() => {
-    if (!isLoading) {
-      const inAuthGroup = segments[0] === "(auth)";
-
-      if (!isAuthenticated && !inAuthGroup) {
-        router.replace(AuthRoutes.Login);
-      } else if (isAuthenticated && inAuthGroup) {
-        router.replace(AppRoutes.Home);
-      }
-    }
-  }, [isLoading, isAuthenticated, segments, router]);
-
-  return <Slot />;
+export default function RootLayout() {
+  return (
+    <Provider store={store}>
+      <RootLayoutContent />
+    </Provider>
+  );
 }

@@ -67,7 +67,7 @@ const FriendRequestForm = ({ onRequestSent }: FriendRequestFormProps) => {
     <View style={styles.container}>
       <View style={styles.inputContainer}>
         <Image
-          source={require("@/assets/ilustrations/friends.png")}
+          source={require("@/assets/illustrations/friends.png")}
           style={styles.image}
         />
         <ThemedText style={styles.title} bold>

@@ -55,7 +55,7 @@ export const SharedChallengeStats = ({
               </ThemedText>
               {index === 0 && (
                 <Image
-                  source={require("@/assets/ilustrations/trophy.png")}
+                  source={require("@/assets/illustrations/trophy.png")}
                   style={styles.trophyIcon}
                 />
               )}

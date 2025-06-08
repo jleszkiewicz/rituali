@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
-import { ThemedText } from "@/components/Commons/ThemedText";
+import { StyleSheet, ScrollView } from "react-native";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
 import { t } from "@/src/service/translateService";
 import { useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
-import {
-  fetchFriends,
-  fetchPendingFriendRequests,
-} from "@/src/service/apiService";
+import { fetchFriends } from "@/src/service/apiService";
 import { subscribeToPokeNotifications } from "@/src/service/notificationsService";
 import FriendRequestForm from "@/components/FriendsScreen/FriendRequestForm";
 import PendingFriendRequests from "@/components/FriendsScreen/PendingFriendRequests";
@@ -28,16 +24,12 @@ const FriendsScreen = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const userId = useSelector(selectUserId);
-  const [refreshing, setRefreshing] = useState(false);
 
   const fetchFriendsList = async () => {
     if (!userId) return;
     try {
       setIsLoading(true);
-      const [friendsData, pendingRequests] = await Promise.all([
-        fetchFriends(userId),
-        fetchPendingFriendRequests(userId),
-      ]);
+      const [friendsData] = await Promise.all([fetchFriends(userId)]);
       setFriends(friendsData);
     } catch (error) {
       console.error("Error fetching friends:", error);
@@ -63,9 +55,7 @@ const FriendsScreen = () => {
   }, [userId]);
 
   const handleRefresh = async () => {
-    setRefreshing(true);
     await fetchFriendsList();
-    setRefreshing(false);
   };
 
   const handleFriendRemoved = () => {
@@ -73,11 +63,7 @@ const FriendsScreen = () => {
   };
 
   if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <Loading />
-      </View>
-    );
+    return <Loading />;
   }
 
   return (
