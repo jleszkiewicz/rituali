@@ -40,6 +40,7 @@ import PageIndicator from "@/components/Commons/PageIndicator";
 import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
 import { SharedChallengeHabits } from "@/components/ChallengeSummary/SharedChallengeHabits";
 import { SharedChallengeStats } from "@/components/ChallengeSummary/SharedChallengeStats";
+import { Podium } from "@/components/SharedChallengeScreen/Podium";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const PAGE_WIDTH = SCREEN_WIDTH - 40;
@@ -247,6 +248,11 @@ export default function SharedChallengeSummaryScreen() {
                 ),
               }))}
             />
+
+            <ThemedText style={styles.sectionTitle} bold>
+              {t("competition")}
+            </ThemedText>
+            <Podium participants={participants} />
 
             <ThemedText style={styles.sectionTitle} bold>
               {t("habits")}

@@ -48,7 +48,7 @@ const HabitsSection: React.FC<HabitsSectionProps> = ({
         {habits.length === 0 ? (
           <EmptyHabitsList
             imageWidth={120}
-            textColor={Colors.White}
+            textColor={headerColor}
             title={t("no_habits_title")}
             description={t("no_habits_in_challenge_description")}
           />

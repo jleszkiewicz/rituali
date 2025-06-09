@@ -30,6 +30,7 @@ import {
   fetchChallengeCompletionHistory,
 } from "@/src/service/apiService";
 import Loading from "@/components/Commons/Loading";
+import { Podium } from "@/components/SharedChallengeScreen/Podium";
 
 interface ParticipantProgress {
   id: string;
@@ -215,14 +216,21 @@ export default function SharedChallengeScreen() {
           />
 
           <ThemedText style={styles.sectionTitle} bold>
+            {t("competition")}
+          </ThemedText>
+
+          <Podium participants={participantsStats} />
+
+          <ThemedText style={styles.sectionTitle} bold>
             {t("completion_stats")}
           </ThemedText>
 
           <CompletionStats
             participants={participantsStats}
-            currentUserId={currentUserId}
+            currentUserId={userId}
             challengeStartDate={challenge.startDate}
             challengeEndDate={challenge.endDate}
+            hideLegend={true}
           />
 
           <ActionButtons

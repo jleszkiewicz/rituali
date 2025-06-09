@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 8,
-    backgroundColor: Colors.LightGray,
+    backgroundColor: Colors.White,
     borderRadius: 4,
     overflow: "hidden",
   },

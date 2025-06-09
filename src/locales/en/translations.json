@@ -281,5 +281,6 @@
   "start_your_membership": "Start Your Membership",
   "add_your_friends": "Add your friends, compete and motivate each other",
   "subscription_required_for_challenge": "To start a challenge, you need to have an active subscription",
-  "free_limit_exceeded": "Free limit exceeded"
+  "free_limit_exceeded": "Free limit exceeded",
+  "competition": "Competition"
 }

@@ -1237,25 +1237,28 @@ export const fetchSharedChallenge = async (challengeId: string): Promise<Challen
 };
 
 export const fetchChallengeParticipants = async (challengeData: ChallengeData) => {
-  const friends = await getFriends(challengeData.participants[0]);
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) return [];
 
-  const allParticipants = [
-    {
-      id: user.id,
-      display_name: user.user_metadata?.full_name || "You",
-      avatar_url: user.user_metadata?.avatar_url,
-    },
-    ...friends,
-  ];
+  const participantsData = await Promise.all(
+    challengeData.participants.map(async (participantId) => {
+      const { data: userData } = await supabase
+        .rpc('get_user_by_id', { user_id: participantId });
+
+      return {
+        id: participantId,
+        display_name: userData?.[0]?.display_name || userData?.[0]?.email?.split('@')[0] || "User",
+        avatar_url: userData?.[0]?.avatar_url || null,
+      };
+    })
+  );
 
   const today = new Date();
   const todayStr = format(today, dateFormat);
 
   return Promise.all(
-    allParticipants.map(async (participant) => {
+    participantsData.map(async (participant) => {
       const { data: habits } = await supabase
         .from("habits")
         .select("completion_dates")
@@ -1273,9 +1276,7 @@ export const fetchChallengeParticipants = async (challengeData: ChallengeData) =
         : 0;
 
       return {
-        id: participant.id,
-        display_name: participant.display_name,
-        avatar_url: participant.avatar_url,
+        ...participant,
         completion_percentage: completionPercentage,
       };
     })
