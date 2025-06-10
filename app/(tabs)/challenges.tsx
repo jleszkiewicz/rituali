@@ -1,17 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { StyleSheet, ScrollView, View, Dimensions } from "react-native";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-  TouchableOpacity,
-} from "react-native";
-import { ThemedText } from "@/components/Commons/ThemedText";
+import { t } from "@/src/service/translateService";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/src/store";
-import { setActiveChallengesTab } from "@/src/store/tabsSlice";
+import { selectUserId } from "@/src/store/userSlice";
 import {
   fetchRecommendedChallenges,
   getActiveChallenges,
@@ -21,14 +14,15 @@ import {
 } from "@/src/service/apiService";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { RecommendedChallengeData } from "@/components/AddHabitModal/types";
-import { t } from "@/src/service/translateService";
-import Loading from "@/components/Commons/Loading";
+import { ThemedText } from "@/components/Commons/ThemedText";
 import { Colors } from "@/constants/Colors";
-import { StartChallengeModal } from "@/components/ChallengesScreen/StartChallengeModal";
+import { RootState } from "@/src/store";
+import { setActiveChallengesTab } from "@/src/store/tabsSlice";
+import TabNavigator from "@/components/Commons/TabNavigator";
+import Loading from "@/components/Commons/Loading";
 import YourChallengesTab from "@/components/ChallengesScreen/YourChallengesTab";
 import DiscoverChallengesTab from "@/components/ChallengesScreen/DiscoverChallengesTab";
-import { useFocusEffect } from "@react-navigation/native";
-import { useLocalSearchParams } from "expo-router";
+import { StartChallengeModal } from "@/components/ChallengesScreen/StartChallengeModal";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const PAGE_WIDTH = SCREEN_WIDTH - 20;
@@ -53,7 +47,7 @@ const ChallengesScreen = () => {
   const [selectedChallenge, setSelectedChallenge] =
     useState<RecommendedChallengeData | null>(null);
   const [isStartModalVisible, setIsStartModalVisible] = useState(false);
-  const userId = useSelector((state: RootState) => state.user.userId);
+  const userId = useSelector(selectUserId);
 
   const loadData = useCallback(async () => {
     if (!userId) return;
@@ -77,21 +71,19 @@ const ChallengesScreen = () => {
       setFriends(friendsData);
       setIsDataLoaded(true);
     } catch (error) {
-      throw error;
+      console.error("Error loading data:", error);
     } finally {
       setIsLoading(false);
     }
   }, [userId]);
 
-  const handleChallengeDeleted = useCallback(() => {
+  useEffect(() => {
     loadData();
   }, [loadData]);
 
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData])
-  );
+  const handleChallengeDeleted = useCallback(() => {
+    loadData();
+  }, [loadData]);
 
   const handleChallengePress = (challenge: RecommendedChallengeData) => {
     setSelectedChallenge(challenge);
@@ -103,87 +95,49 @@ const ChallengesScreen = () => {
     setSelectedChallenge(null);
   };
 
-  const handleTabPress = (tab: "your" | "discover") => {
-    dispatch(setActiveChallengesTab(tab));
+  const handleTabPress = (tabId: string) => {
+    dispatch(setActiveChallengesTab(tabId as "your" | "discover"));
   };
 
-  const renderContent = () => {
-    if (isLoading || !isDataLoaded) {
-      return <Loading />;
-    }
+  const tabs = [
+    { id: "your", label: t("your_challenges") },
+    { id: "discover", label: t("discover") },
+  ];
 
-    return (
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
-          <View style={styles.tabContainer}>
-            <View style={styles.tabButtons}>
-              <TouchableOpacity
-                style={[
-                  styles.tabButton,
-                  activeTab === "your" && styles.activeTabButton,
-                ]}
-                onPress={() => handleTabPress("your")}
-              >
-                <ThemedText
-                  style={[
-                    styles.tabButtonText,
-                    activeTab === "your" && styles.activeTabButtonText,
-                  ]}
-                  bold={activeTab === "your"}
-                >
-                  {t("your_challenges")}
-                </ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.tabButton,
-                  activeTab === "discover" && styles.activeTabButton,
-                ]}
-                onPress={() => handleTabPress("discover")}
-              >
-                <ThemedText
-                  style={[
-                    styles.tabButtonText,
-                    activeTab === "discover" && styles.activeTabButtonText,
-                  ]}
-                  bold={activeTab === "discover"}
-                >
-                  {t("discover")}
-                </ThemedText>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {activeTab === "your" ? (
-            <YourChallengesTab
-              activeChallenges={activeChallenges}
-              completedChallenges={completedChallenges}
-              friends={friends}
-              userId={userId}
-              isLoading={isLoading}
-              onInvitationHandled={loadData}
-              onChallengeDeleted={handleChallengeDeleted}
-              PAGE_WIDTH={PAGE_WIDTH}
-              ITEM_MARGIN={ITEM_MARGIN}
-            />
-          ) : (
-            <DiscoverChallengesTab
-              recommendedChallenges={recommendedChallenges}
-              isLoading={isLoading}
-              onChallengePress={handleChallengePress}
-              SCREEN_WIDTH={SCREEN_WIDTH}
-              SCREEN_WRAPPER_PADDING={SCREEN_WRAPPER_PADDING}
-            />
-          )}
-        </View>
-      </ScrollView>
-    );
-  };
+  if (isLoading || !isDataLoaded || !userId) {
+    return <Loading />;
+  }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper showOfflineScreen={false}>
       <ScreenHeader title={t("challenges")} />
-      {renderContent()}
+      <View style={styles.container}>
+        <TabNavigator
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabPress={handleTabPress}
+        />
+        {activeTab === "your" ? (
+          <YourChallengesTab
+            activeChallenges={[...activeChallenges, ...completedChallenges]}
+            friends={friends}
+            userId={userId}
+            isLoading={isLoading}
+            onInvitationHandled={loadData}
+            onChallengeDeleted={handleChallengeDeleted}
+            PAGE_WIDTH={PAGE_WIDTH}
+            ITEM_MARGIN={ITEM_MARGIN}
+          />
+        ) : (
+          <DiscoverChallengesTab
+            recommendedChallenges={recommendedChallenges}
+            isLoading={isLoading}
+            onChallengePress={handleChallengePress}
+            SCREEN_WIDTH={SCREEN_WIDTH}
+            SCREEN_WRAPPER_PADDING={SCREEN_WRAPPER_PADDING}
+          />
+        )}
+      </View>
 
       {selectedChallenge && (
         <StartChallengeModal
@@ -200,31 +154,6 @@ const ChallengesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  tabContainer: {
-    marginBottom: 20,
-  },
-  tabButtons: {
-    flexDirection: "row",
-    backgroundColor: Colors.PrimaryGray,
-    borderRadius: 8,
-    padding: 4,
-  },
-  tabButton: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: "center",
-    borderRadius: 6,
-  },
-  activeTabButton: {
-    backgroundColor: Colors.White,
-  },
-  tabButtonText: {
-    fontSize: 14,
-    color: Colors.White,
-  },
-  activeTabButtonText: {
-    color: Colors.HotPink,
   },
 });
 
