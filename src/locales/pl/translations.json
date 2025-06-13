@@ -247,5 +247,13 @@
   "add_your_friends": "Dodaj znajomych, rywalizuj i motywuj się nawzajem",
   "subscription_required_for_challenge": "Aby rozpocząć wyzwanie, musisz mieć aktywną subskrypcję",
   "free_limit_exceeded": "Limit osiągnięty",
-  "competition": "Rywalizacja"
+  "competition": "Rywalizacja",
+  "competition_steps": "Kroki",
+  "competition_calories": "Spalone kalorie",
+  "no_competition_data": "Brak danych do rywalizacji",
+  "no_competition_data_description": "Aby rozpocząć rywalizację, musisz udzielić dostępu do danych Google Fit. Przejdź do ustawień aplikacji, aby udzielić wymaganych uprawnień.",
+  "no_competition_data_description_ios": "Funkcja rywalizacji jest dostępna tylko na urządzeniach z systemem Android. Na iOS możesz korzystać z innych funkcji aplikacji.",
+  "open_settings": "Otwórz ustawienia",
+  "open_google_fit": "Otwórz Google Fit",
+  "add_friends": "Dodaj znajomych"
 }

@@ -1,16 +1,15 @@
 package com.rituali.app
 import expo.modules.splashscreen.SplashScreenManager
+
 import android.os.Build
 import android.os.Bundle
+
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
+
 import expo.modules.ReactActivityDelegateWrapper
-import com.google.android.gms.fitness.FitnessOptions
-import com.google.android.gms.fitness.Fitness
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.fitness.data.DataType
 
 class MainActivity : ReactActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,21 +21,6 @@ class MainActivity : ReactActivity() {
     SplashScreenManager.registerOnActivity(this)
     // @generated end expo-splashscreen
     super.onCreate(null)
-    
-    val fitnessOptions = FitnessOptions.builder()
-      .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-      .addDataType(DataType.TYPE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
-      .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
-      .build()
-
-    if (!GoogleSignIn.hasPermissions(GoogleSignIn.getLastSignedInAccount(this), fitnessOptions)) {
-      GoogleSignIn.requestPermissions(
-        this,
-        GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
-        GoogleSignIn.getLastSignedInAccount(this),
-        fitnessOptions
-      )
-    }
   }
 
   /**
@@ -77,9 +61,5 @@ class MainActivity : ReactActivity() {
       // Use the default back button implementation on Android S
       // because it's doing more than [Activity.moveTaskToBack] in fact.
       super.invokeDefaultOnBackPressed()
-  }
-
-  companion object {
-    private const val GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 1
   }
 }

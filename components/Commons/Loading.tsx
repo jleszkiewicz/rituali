@@ -120,6 +120,7 @@ const Loading = () => {
 
 const styles = StyleSheet.create({
   loaderContainer: {
+    backgroundColor: Colors.White,
     flex: 1,
     justifyContent: "center",
     alignItems: "center",

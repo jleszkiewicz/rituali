@@ -159,7 +159,7 @@ const ProfileScreen = () => {
               <Image source={{ uri: avatarUrl }} style={styles.avatar} />
             ) : (
               <Image
-                source={require("@/assets/illustrations/profile.png")}
+                source={require("@/assets/illustrations/avatar.png")}
                 style={styles.avatar}
               />
             )}

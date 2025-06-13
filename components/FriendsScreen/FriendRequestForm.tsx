@@ -70,49 +70,54 @@ const FriendRequestForm = ({ onRequestSent }: FriendRequestFormProps) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.inputContainer}>
-        <Image
-          source={require("@/assets/illustrations/friends.png")}
-          style={styles.image}
-        />
-        <ThemedText style={styles.title} bold>
-          {t("add_friends_title")}
-        </ThemedText>
-        <ThemedText style={styles.description}>
-          {t("add_friends_description")}
-        </ThemedText>
-        <TextInput
-          style={styles.input}
-          placeholder={t("enter_friend_email")}
-          value={email}
-          onChangeText={setEmail}
-          placeholderTextColor={Colors.PrimaryGray}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[
-              styles.button,
-              (isLoading || !isSubscribed) && styles.buttonDisabled,
-            ]}
-            onPress={handleSendFriendRequest}
-          >
-            <ThemedText style={styles.buttonText} bold>
-              {isLoading ? t("sending") : t("send_friend_request")}
-            </ThemedText>
-          </TouchableOpacity>
-          {!isSubscribed && <ProFeatureBadge style={styles.badge} />}
+    <View>
+      <ThemedText style={styles.sectionTitle} bold>
+        {t("add_friends")}
+      </ThemedText>
+      <View style={styles.container}>
+        <View style={styles.inputContainer}>
+          <Image
+            source={require("@/assets/illustrations/friends.png")}
+            style={styles.image}
+          />
+          <ThemedText style={styles.title} bold>
+            {t("add_friends_title")}
+          </ThemedText>
+          <ThemedText style={styles.description}>
+            {t("add_friends_description")}
+          </ThemedText>
+          <TextInput
+            style={styles.input}
+            placeholder={t("enter_friend_email")}
+            value={email}
+            onChangeText={setEmail}
+            placeholderTextColor={Colors.PrimaryGray}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                (isLoading || !isSubscribed) && styles.buttonDisabled,
+              ]}
+              onPress={handleSendFriendRequest}
+            >
+              <ThemedText style={styles.buttonText} bold>
+                {isLoading ? t("sending") : t("send_friend_request")}
+              </ThemedText>
+            </TouchableOpacity>
+            {!isSubscribed && <ProFeatureBadge style={styles.badge} />}
+          </View>
         </View>
-      </View>
 
-      <FriendRequestModal
-        visible={showModal}
-        isSuccess={isSuccess}
-        error={error}
-        onClose={() => setShowModal(false)}
-      />
+        <FriendRequestModal
+          visible={showModal}
+          isSuccess={isSuccess}
+          error={error}
+          onClose={() => setShowModal(false)}
+        />
+      </View>
     </View>
   );
 };
@@ -120,6 +125,11 @@ const FriendRequestForm = ({ onRequestSent }: FriendRequestFormProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    marginBottom: 12,
+    color: Colors.PrimaryGray,
   },
   inputContainer: {
     gap: 10,

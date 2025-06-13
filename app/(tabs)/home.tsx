@@ -34,7 +34,6 @@ import { CompletedChallengeCard } from "@/components/HomeScreen/CompletedChallen
 import { selectViewedChallengeIds } from "@/src/store/viewedChallengesSlice";
 import { getActiveChallenges } from "@/src/service/apiService";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
-import FitnessData from "@/components/HomeScreen/FitnessData";
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
@@ -155,7 +154,6 @@ export default function HomeScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={refresh} />
         }
       >
-        <FitnessData />
         {filteredCompletedChallenges.length > 0 && (
           <View style={styles.completedChallengesContainer}>
             {filteredCompletedChallenges.map((challenge) => {

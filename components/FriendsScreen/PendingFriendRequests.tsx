@@ -127,7 +127,7 @@ const PendingFriendRequests = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 16,
+    marginVertical: 16,
   },
   sectionTitle: {
     fontSize: 18,
@@ -135,16 +135,18 @@ const styles = StyleSheet.create({
     color: Colors.PrimaryGray,
   },
   requestItem: {
-    padding: 12,
+    padding: 10,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: Colors.HotPink,
+    borderColor: Colors.LightGray,
+    justifyContent: "space-between",
+    flexDirection: "row",
+    alignItems: "center",
   },
   userInfo: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
   },
   avatar: {
     width: 40,
@@ -158,7 +160,6 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: "row",
-    justifyContent: "flex-end",
     gap: 8,
   },
   button: {
@@ -168,6 +169,7 @@ const styles = StyleSheet.create({
     minWidth: 80,
     alignItems: "center",
     justifyContent: "center",
+    height: 40,
   },
   acceptButton: {
     backgroundColor: Colors.HotPink,

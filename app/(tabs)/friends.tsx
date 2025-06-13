@@ -13,11 +13,11 @@ import FriendsList from "@/components/FriendsScreen/FriendsList";
 import ConditionalRenderer from "@/components/Commons/ConditionalRenderer";
 import Loading from "@/components/Commons/Loading";
 import { useSubscription } from "@/src/hooks/useSubscription";
-import { ThemedText } from "@/components/Commons/ThemedText";
 import { Colors } from "@/constants/Colors";
 import { RootState } from "@/src/store";
 import { setActiveFriendsTab } from "@/src/store/tabsSlice";
 import TabNavigator from "@/components/Commons/TabNavigator";
+import CompetitionOptionsList from "@/components/CompetitionScreen/CompetitionOptionsList";
 
 interface Friend {
   id: string;
@@ -69,10 +69,10 @@ const FriendsTab = () => {
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <FriendRequestForm onRequestSent={handleRefresh} />
       <ConditionalRenderer condition={isSubscribed}>
         <PendingFriendRequests onRequestHandled={handleRefresh} />
       </ConditionalRenderer>
+      <FriendRequestForm onRequestSent={handleRefresh} />
       <ConditionalRenderer condition={friends.length > 0 && isSubscribed}>
         <FriendsList friends={friends} onFriendRemoved={handleFriendRemoved} />
       </ConditionalRenderer>
@@ -81,17 +81,15 @@ const FriendsTab = () => {
 };
 
 const CompetitionTab = () => {
+  const handleOptionPress = (optionId: string) => {
+    // TODO: Implement competition option selection
+    console.log("Selected competition option:", optionId);
+  };
+
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.competitionContainer}>
-        <ThemedText style={styles.comingSoonText}>
-          {t("competition")}
-        </ThemedText>
-        <ThemedText style={styles.comingSoonDescription}>
-          {t("coming_soon")}
-        </ThemedText>
-      </View>
-    </ScrollView>
+    <View style={styles.tabContent}>
+      <CompetitionOptionsList onOptionPress={handleOptionPress} />
+    </View>
   );
 };
 
@@ -161,6 +159,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     color: Colors.PrimaryGray,
+  },
+  tabContent: {
+    flex: 1,
   },
 });
 

@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     marginRight: 10,
-    height: 200,
+    height: 180,
     overflow: "visible",
     shadowColor: Colors.Black,
     shadowOffset: {
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 6,
-    backgroundColor: Colors.LightPink,
+    backgroundColor: Colors.White,
     borderRadius: 3,
     overflow: "hidden",
   },

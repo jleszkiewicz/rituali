@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   blurWrapper: {
-    borderRadius: 12,
+    borderRadius: 8,
     overflow: "hidden",
     backgroundColor: "rgba(245, 245, 245, 1)",
     borderWidth: 1,
