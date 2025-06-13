@@ -7,9 +7,18 @@ type ProfileOptionProps = {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   onPress: () => void;
+  shouldShowBottomBorder?: boolean;
 };
-const ProfileOption = ({ icon, label, onPress }: ProfileOptionProps) => (
-  <TouchableOpacity style={styles.optionRow} onPress={onPress}>
+const ProfileOption = ({
+  icon,
+  label,
+  onPress,
+  shouldShowBottomBorder = true,
+}: ProfileOptionProps) => (
+  <TouchableOpacity
+    style={[styles.optionRow, shouldShowBottomBorder && styles.bottomBorder]}
+    onPress={onPress}
+  >
     <Ionicons
       name={icon}
       size={22}
@@ -44,13 +53,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 16,
     paddingHorizontal: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F2",
   },
   optionLabel: {
     fontSize: 16,
     color: Colors.PrimaryGray,
     marginLeft: 12,
+  },
+  bottomBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.LightGray,
   },
 });
 

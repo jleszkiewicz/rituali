@@ -1,7 +1,6 @@
 import {
   StyleSheet,
   SafeAreaView,
-  View,
   ScrollView,
   RefreshControl,
 } from "react-native";
@@ -110,5 +109,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     flexGrow: 1,
     marginHorizontal: 20,
+    paddingBottom: 80,
   },
 });

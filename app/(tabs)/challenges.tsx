@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { StyleSheet, ScrollView, View, Dimensions } from "react-native";
+import { StyleSheet, View, Dimensions } from "react-native";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
 import { t } from "@/src/service/translateService";
@@ -14,8 +14,6 @@ import {
 } from "@/src/service/apiService";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { RecommendedChallengeData } from "@/components/AddHabitModal/types";
-import { ThemedText } from "@/components/Commons/ThemedText";
-import { Colors } from "@/constants/Colors";
 import { RootState } from "@/src/store";
 import { setActiveChallengesTab } from "@/src/store/tabsSlice";
 import TabNavigator from "@/components/Commons/TabNavigator";

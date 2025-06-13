@@ -240,7 +240,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: Colors.PrimaryGray,
     marginBottom: 16,
-    marginTop: 6,
     textTransform: "capitalize",
   },
   habitsHeader: {

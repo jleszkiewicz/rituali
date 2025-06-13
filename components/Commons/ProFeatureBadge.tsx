@@ -2,12 +2,19 @@ import * as React from "react";
 import { View, StyleSheet } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { Colors } from "@/constants/Colors";
+import { useSubscription } from "@/src/hooks/useSubscription";
 
 interface ProFeatureBadgeProps {
   style?: any;
 }
 
 export const ProFeatureBadge: React.FC<ProFeatureBadgeProps> = ({ style }) => {
+  const { isLoading } = useSubscription();
+
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <View style={[styles.container, style]}>
       <ThemedText style={styles.text}>PRO</ThemedText>

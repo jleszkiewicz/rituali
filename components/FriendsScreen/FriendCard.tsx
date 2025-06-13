@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   container: {
     marginHorizontal: 2,
-    backgroundColor: Colors.White,
+    backgroundColor: Colors.OffWhite,
     borderRadius: 12,
     borderWidth: 0.3,
     borderColor: Colors.LightGray,
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   menu: {
-    backgroundColor: Colors.White,
+    backgroundColor: Colors.OffWhite,
     borderRadius: 12,
     shadowColor: Colors.Black,
     shadowOffset: { width: 0, height: 0 },

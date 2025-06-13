@@ -2,11 +2,8 @@ import React, { useState } from "react";
 import {
   View,
   StyleSheet,
-  Alert,
   ImageBackground,
   TouchableOpacity,
-  Modal,
-  Image,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,17 +11,6 @@ import { ThemedText } from "../Commons/ThemedText";
 import { RecommendedChallengeData } from "../AddHabitModal/types";
 import { getHabitsForCurrentLanguage } from "./methods";
 import { t } from "@/src/service/translateService";
-import { useSelector } from "react-redux";
-import { selectUserId } from "@/src/store/userSlice";
-import { addChallenge, addHabit } from "@/src/service/apiService";
-import { format, addDays } from "date-fns";
-import { dateFormat } from "@/constants/Constants";
-import { useDispatch } from "react-redux";
-import { setHabits } from "@/src/store/habitsSlice";
-import { setChallenges } from "@/src/store/challengesSlice";
-import { fetchUserHabits, fetchUserChallenges } from "@/src/service/apiService";
-import { StartChallengeModal } from "./StartChallengeModal";
-import * as Localization from "expo-localization";
 
 interface RecommendedChallengeProps {
   challenge: RecommendedChallengeData;
@@ -35,8 +21,6 @@ export const RecommendedChallenge = ({
   challenge,
   onPress,
 }: RecommendedChallengeProps) => {
-  const [isStartModalVisible, setIsStartModalVisible] = useState(false);
-
   const habits = getHabitsForCurrentLanguage(challenge);
 
   return (
@@ -47,7 +31,9 @@ export const RecommendedChallenge = ({
     >
       <View style={styles.mainContent}>
         <View style={styles.headerContainer}>
-          <ThemedText style={styles.title}>{challenge.name}</ThemedText>
+          <ThemedText style={styles.title} bold>
+            {challenge.name}
+          </ThemedText>
           <View style={styles.durationContainer}>
             <ThemedText style={styles.duration} bold>
               {challenge.duration}
@@ -105,23 +91,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     lineHeight: 26,
-    fontWeight: "bold",
     color: Colors.White,
     flex: 1,
-    marginRight: 16,
+    marginRight: 8,
   },
   durationContainer: {
     justifyContent: "flex-start",
     alignItems: "center",
   },
   duration: {
-    fontSize: 20,
+    fontSize: 18,
     color: Colors.ButterYellow,
     lineHeight: 24,
     marginBottom: -4,
   },
   durationDays: {
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.ButterYellow,
   },
   rulesContainer: {

@@ -121,7 +121,7 @@ export default function ChallengeCard({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.ButterYellow,
+    backgroundColor: Colors.PrimaryGray,
     borderRadius: 10,
     padding: 15,
     marginRight: 10,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 1,
   },
   statusIconContainer: {
     position: "absolute",
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     textAlign: "left",
-    color: Colors.PrimaryGray,
+    color: Colors.ButterYellow,
     marginBottom: 16,
   },
   progressContainer: {
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 12,
-    color: Colors.PrimaryGray,
+    color: Colors.ButterYellow,
     textAlign: "center",
     marginTop: 5,
   },
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   noHabitsText: {
     fontSize: 14,
-    color: Colors.PrimaryGray,
+    color: Colors.ButterYellow,
     lineHeight: 22,
     textAlign: "center",
   },
@@ -196,12 +196,12 @@ const styles = StyleSheet.create({
   },
   timeProgressFill: {
     height: "100%",
-    backgroundColor: Colors.PrimaryGray,
+    backgroundColor: Colors.LightPink,
     borderRadius: 3,
   },
   timeProgressText: {
     fontSize: 12,
-    color: Colors.PrimaryGray,
+    color: Colors.ButterYellow,
     textAlign: "center",
     marginTop: 5,
   },

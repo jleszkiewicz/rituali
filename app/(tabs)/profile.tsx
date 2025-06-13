@@ -253,6 +253,7 @@ const ProfileScreen = () => {
             icon={"trash" as keyof typeof Ionicons.glyphMap}
             label={t("delete_account")}
             onPress={() => setIsDeleteModalVisible(true)}
+            shouldShowBottomBorder={false}
           />
         </View>
         <PrimaryButton onPress={handleLogout} style={styles.logoutRow}>
@@ -273,54 +274,6 @@ const ProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  section: {
-    backgroundColor: Colors.PrimaryGray,
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 20,
-  },
-  settingItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
-  },
-  settingLabel: {
-    fontSize: 16,
-    color: Colors.White,
-  },
-  settingValue: {
-    fontSize: 16,
-    color: Colors.White,
-    opacity: 0.7,
-  },
-  button: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    gap: 10,
-  },
-  logoutButton: {
-    backgroundColor: Colors.HotPink,
-  },
-  deleteButton: {
-    backgroundColor: "transparent",
-    borderWidth: 1,
-    borderColor: Colors.HotPink,
-  },
-  buttonText: {
-    fontSize: 16,
-    color: Colors.White,
-    fontWeight: "bold",
-  },
   profileHeaderContainer: {
     alignItems: "center",
     marginTop: 24,
@@ -377,7 +330,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   optionsContainer: {
-    backgroundColor: Colors.White,
+    backgroundColor: Colors.OffWhite,
     borderRadius: 16,
     margin: 2,
     marginBottom: 24,
@@ -387,8 +340,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 1,
-    borderWidth: 1,
-    borderColor: Colors.PrimaryGray,
   },
   optionLabel: {
     fontSize: 16,
@@ -410,6 +361,7 @@ const styles = StyleSheet.create({
     color: Colors.White,
     fontSize: 18,
     fontWeight: "bold",
+    marginStart: 10,
   },
   switchRow: {
     flexDirection: "row",
@@ -419,7 +371,7 @@ const styles = StyleSheet.create({
     paddingStart: 24,
     paddingEnd: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F2",
+    borderBottomColor: Colors.LightGray,
   },
   leftSwitchConatiner: {
     flexDirection: "row",

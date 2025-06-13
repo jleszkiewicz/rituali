@@ -11,8 +11,6 @@ interface ChallengeCarouselProps {
   title: string;
   challenges: ChallengeData[];
   friends: Friend[];
-  userId: string;
-  onChallengeDeleted: () => void;
   PAGE_WIDTH: number;
   ITEM_MARGIN: number;
   onShowSubscriptionModal: () => void;
@@ -22,8 +20,6 @@ const ChallengeCarousel = ({
   title,
   challenges,
   friends,
-  userId,
-  onChallengeDeleted,
   PAGE_WIDTH,
   ITEM_MARGIN,
   onShowSubscriptionModal,
@@ -61,7 +57,6 @@ const ChallengeCarousel = ({
             <View style={{ width: PAGE_WIDTH - ITEM_MARGIN }}>
               <YourChallengeCard
                 challenge={item}
-                onChallengeDeleted={onChallengeDeleted}
                 participants={participants}
                 onShowSubscriptionModal={onShowSubscriptionModal}
               />

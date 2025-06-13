@@ -18,10 +18,8 @@ import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
 import CompletionStats from "@/components/SharedChallengeScreen/CompletionStats";
 import PrimaryButton from "@/components/Commons/PrimaryButton";
-import { supabase } from "@/src/service/supabaseClient";
 import {
   fetchSharedChallenge,
-  fetchChallengeParticipants,
   deleteChallenge,
   updateChallengeHabits,
   fetchUserHabits,

@@ -14,6 +14,8 @@ import { useColorScheme } from "react-native";
 import { useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import { useRouter } from "expo-router";
+import { BlurView } from "expo-blur";
+import { BottomTabBar } from "@react-navigation/bottom-tabs";
 
 export default function TabsLayout() {
   const colorScheme = useColorScheme();
@@ -118,20 +120,45 @@ export default function TabsLayout() {
   return (
     <View style={styles.root}>
       <Tabs
+        tabBar={(props) => (
+          <View
+            style={{
+              position: "absolute",
+              left: 20,
+              right: 20,
+              bottom: 16,
+              borderRadius: 24,
+              elevation: 2,
+              borderWidth: 0.2,
+              borderColor: Colors.LightGray,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.12,
+              shadowRadius: 2,
+              backgroundColor: Colors.OffWhite,
+              height: Platform.OS === "ios" ? 85 : 61,
+              justifyContent: "center",
+            }}
+          >
+            <BottomTabBar {...props} />
+          </View>
+        )}
         screenOptions={{
           tabBarIconStyle: {
             color: Colors.PrimaryGray,
-            marginTop: 10,
           },
           tabBarShowLabel: false,
           tabBarActiveTintColor: Colors.PrimaryGray,
           tabBarInactiveTintColor: Colors.PrimaryGray,
           tabBarStyle: {
-            backgroundColor: Colors.White,
-            borderTopWidth: 1,
-            borderTopColor: Colors.LightGray,
-            height: Platform.OS === "ios" ? 85 : 60,
-            paddingBottom: Platform.OS === "ios" ? 20 : 10,
+            backgroundColor: "transparent",
+            borderTopWidth: 0,
+            elevation: 0,
+            height: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingBottom: Platform.OS === "ios" ? 28 : 12,
+            paddingTop: 10,
           },
           headerShown: false,
         }}
@@ -239,7 +266,7 @@ const styles = StyleSheet.create({
   },
   button: {
     position: "absolute",
-    top: -0,
+    top: -10,
     left: "50%",
     transform: [{ translateX: -30 }],
     backgroundColor: Colors.HotPink,

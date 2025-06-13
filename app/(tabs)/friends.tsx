@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, ScrollView, View } from "react-native";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
@@ -99,14 +99,17 @@ const FriendsScreen = () => {
   const activeTab = useSelector(
     (state: RootState) => state.tabs.activeFriendsTab
   );
+  const isSubscribedRef = useRef(false);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || isSubscribedRef.current) return;
 
     const unsubscribe = subscribeToPokeNotifications(userId);
+    isSubscribedRef.current = true;
 
     return () => {
       unsubscribe();
+      isSubscribedRef.current = false;
     };
   }, [userId]);
 

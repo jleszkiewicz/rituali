@@ -116,8 +116,6 @@ const YourChallengesTab = ({
         title={t("your_open_challenges")}
         challenges={singleUserChallenges}
         friends={friends}
-        userId={userId}
-        onChallengeDeleted={onChallengeDeleted}
         PAGE_WIDTH={PAGE_WIDTH}
         ITEM_MARGIN={ITEM_MARGIN}
         onShowSubscriptionModal={() => setShowSubscriptionModal(true)}
@@ -127,8 +125,6 @@ const YourChallengesTab = ({
         title={t("completed_challenges")}
         challenges={completedChallengesList}
         friends={friends}
-        userId={userId}
-        onChallengeDeleted={onChallengeDeleted}
         PAGE_WIDTH={PAGE_WIDTH}
         ITEM_MARGIN={ITEM_MARGIN}
         onShowSubscriptionModal={() => setShowSubscriptionModal(true)}

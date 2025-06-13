@@ -26,7 +26,7 @@ const PREMIUM_TIER_LIMITS: SubscriptionLimits = {
 };
 
 export const useSubscription = () => {
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const userId = useSelector((state: RootState) => state.user.userId);
   const showSubscriptionModal = useSelector((state: RootState) => state.subscription.showSubscriptionModal);
@@ -108,13 +108,14 @@ export const useSubscription = () => {
     feature: keyof SubscriptionLimits,
     currentCount: number
   ): boolean => {
+    if (isSubscribed === null) return true; // Don't show pro badges while loading
     const limits = getSubscriptionLimits();
     const limit = limits[feature];
     return typeof limit === 'number' ? currentCount < limit : true;
   };
 
   return {
-    isSubscribed,
+    isSubscribed: isSubscribed ?? false,
     isLoading,
     showSubscriptionModal,
     setShowSubscriptionModal: (show: boolean) => dispatch(setShowSubscriptionModal(show)),

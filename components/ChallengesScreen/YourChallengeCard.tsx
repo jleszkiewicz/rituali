@@ -18,14 +18,12 @@ interface Participant {
 
 interface YourChallengeCardProps {
   challenge: ChallengeData;
-  onChallengeDeleted?: () => void;
   participants?: Participant[];
   onShowSubscriptionModal: () => void;
 }
 
 export default function YourChallengeCard({
   challenge,
-  onChallengeDeleted,
   participants = [],
   onShowSubscriptionModal,
 }: YourChallengeCardProps) {
@@ -115,11 +113,7 @@ export default function YourChallengeCard({
               </View>
             </View>
           )}
-          <Ionicons
-            name="chevron-forward"
-            size={24}
-            color={Colors.PrimaryGray}
-          />
+          <Ionicons name="chevron-forward" size={24} color={Colors.White} />
         </View>
       </View>
     </TouchableOpacity>
@@ -128,7 +122,7 @@ export default function YourChallengeCard({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.ButterYellow,
+    backgroundColor: Colors.PrimaryGray,
     borderRadius: 10,
     padding: 10,
     marginEnd: 10,
@@ -156,11 +150,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 17,
-    color: Colors.PrimaryGray,
+    color: Colors.White,
   },
   duration: {
     fontSize: 14,
-    color: Colors.PrimaryGray,
+    color: Colors.ButterYellow,
     opacity: 0.8,
     marginTop: 4,
   },
@@ -187,7 +181,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: Colors.White,
     borderWidth: 2,
-    borderColor: Colors.PrimaryGray,
+    borderColor: Colors.ButterYellow,
     marginLeft: -10,
     justifyContent: "center",
     alignItems: "center",

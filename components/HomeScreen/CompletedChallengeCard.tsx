@@ -80,14 +80,13 @@ export const CompletedChallengeCard: React.FC<CompletedChallengeCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.White,
+    marginHorizontal: 1,
+    backgroundColor: Colors.OffWhite,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 2,
-    borderColor: Colors.ButterYellow,
     shadowColor: Colors.PrimaryGray,
     shadowOffset: {
       width: 0,
@@ -95,7 +94,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
   image: {
     width: 80,
