@@ -15,8 +15,13 @@ import {
   parseISO,
   addMonths,
   subMonths,
+  getDay,
+  getWeek,
+  getYear,
+  isAfter,
 } from "date-fns";
 import { Ionicons } from "@expo/vector-icons";
+import { HabitData } from "@/components/AddHabitModal/types";
 
 interface CompletionDay {
   date: string;
@@ -36,6 +41,7 @@ interface CompletionStatsProps {
   challengeStartDate: string;
   challengeEndDate: string;
   hideLegend?: boolean;
+  habits?: HabitData[];
 }
 
 export default function CompletionStats({
@@ -44,6 +50,7 @@ export default function CompletionStats({
   challengeStartDate,
   challengeEndDate,
   hideLegend,
+  habits = [],
 }: CompletionStatsProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -94,6 +101,38 @@ export default function CompletionStats({
   const currentMonthKey = format(currentMonth, "yyyy-MM");
   const currentMonthDays = daysByMonth[currentMonthKey] || [];
 
+  const generateCalendarWeeks = (month: Date) => {
+    const start = new Date(month.getFullYear(), month.getMonth(), 1);
+    const end = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+
+    const allDays = eachDayOfInterval({ start, end });
+    const weeks: (Date | null)[][] = [];
+    let currentWeek: (Date | null)[] = [];
+
+    allDays.forEach((day) => {
+      currentWeek.push(day);
+
+      if (getDay(day) === 0 || day.getTime() === end.getTime()) {
+        while (currentWeek.length < 7) {
+          currentWeek.unshift(null);
+        }
+        weeks.push([...currentWeek]);
+        currentWeek = [];
+      }
+    });
+
+    if (currentWeek.length > 0) {
+      while (currentWeek.length < 7) {
+        currentWeek.push(null);
+      }
+      weeks.push(currentWeek);
+    }
+
+    return weeks;
+  };
+
+  const calendarWeeks = generateCalendarWeeks(currentMonth);
+
   const handlePrevMonth = () => {
     const prevMonth = subMonths(currentMonth, 1);
     const prevMonthKey = format(prevMonth, "yyyy-MM");
@@ -120,6 +159,46 @@ export default function CompletionStats({
     return colors[index % colors.length];
   };
 
+  const shouldShowHabitOnDate = (date: Date): boolean => {
+    if (habits.length === 0) return true;
+
+    return habits.some((habit) => {
+      const parsedStartDate = parseISO(habit.startDate);
+
+      if (isAfter(parsedStartDate, date)) {
+        return false;
+      }
+
+      switch (habit.frequency) {
+        case "daily":
+          return true;
+
+        case "weekly":
+          const weekOfYear = getWeek(date);
+          const yearOfYear = getYear(date);
+          const habitStartWeek = getWeek(parsedStartDate);
+          const habitStartYear = getYear(parsedStartDate);
+          return weekOfYear === habitStartWeek && yearOfYear === habitStartYear;
+
+        case "selected_days":
+          const dayNames = [
+            "sunday",
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+          ];
+          const currentDayName = dayNames[getDay(date)];
+          return habit.selectedDays?.includes(currentDayName) || false;
+
+        default:
+          return true;
+      }
+    });
+  };
+
   if (Object.keys(daysByMonth).length === 0) {
     return (
       <View style={styles.section}>
@@ -143,6 +222,19 @@ export default function CompletionStats({
             <View key={participant.id} style={styles.participantStats}>
               <View style={styles.participantHeader}>
                 <View style={styles.nameContainer}>
+                  <View
+                    style={[
+                      styles.participantDot,
+                      {
+                        backgroundColor: getParticipantColor(
+                          participant.id,
+                          participantsWithStats.findIndex(
+                            (p) => p.id === participant.id
+                          )
+                        ),
+                      },
+                    ]}
+                  />
                   <ThemedText style={styles.participantName}>
                     {participant.display_name?.replace(" ", "\n") || "User"}
                   </ThemedText>
@@ -216,45 +308,81 @@ export default function CompletionStats({
           </TouchableOpacity>
         </View>
 
-        <View style={styles.calendarGrid}>
-          {currentMonthDays.map((day) => {
-            const dayData = participantsWithStats.map((participant) => {
-              const completion = participant.completionHistory.find(
-                (d) => d.date === format(day, "yyyy-MM-dd")
-              );
-              return {
-                id: participant.id,
-                completion: completion?.completion_percentage || 0,
-              };
-            });
+        <View style={styles.calendarHeader}>
+          {[
+            t("mon"),
+            t("tue"),
+            t("wed"),
+            t("thu"),
+            t("fri"),
+            t("sat"),
+            t("sun"),
+          ].map((dayName) => (
+            <View key={dayName} style={styles.calendarHeaderDay}>
+              <ThemedText style={styles.calendarHeaderText}>
+                {dayName}
+              </ThemedText>
+            </View>
+          ))}
+        </View>
 
-            return (
-              <View key={day.toString()} style={styles.calendarDay}>
-                <ThemedText style={styles.dayNumber} bold>
-                  {format(day, "d")}
-                </ThemedText>
-                <View style={styles.dotsContainer}>
-                  {dayData.map((data) => (
-                    <View
-                      key={data.id}
+        <View style={styles.calendarGrid}>
+          {calendarWeeks.map((week, weekIndex) => (
+            <View key={weekIndex} style={styles.calendarWeek}>
+              {week.map((day, dayIndex) => {
+                if (!day) {
+                  return <View key={dayIndex} style={styles.calendarDay} />;
+                }
+
+                const dayData = participantsWithStats.map((participant) => {
+                  const completion = participant.completionHistory.find(
+                    (d) => d.date === format(day, "yyyy-MM-dd")
+                  );
+                  return {
+                    id: participant.id,
+                    completion: completion?.completion_percentage || 0,
+                  };
+                });
+
+                const shouldShow = shouldShowHabitOnDate(day);
+
+                return (
+                  <View key={day.toString()} style={styles.calendarDay}>
+                    <ThemedText
                       style={[
-                        styles.completionDot,
-                        {
-                          backgroundColor: getParticipantColor(
-                            data.id,
-                            participantsWithStats.findIndex(
-                              (p) => p.id === data.id
-                            )
-                          ),
-                          opacity: data.completion / 100,
-                        },
+                        styles.dayNumber,
+                        !shouldShow && styles.dayNumberDisabled,
                       ]}
-                    />
-                  ))}
-                </View>
-              </View>
-            );
-          })}
+                      bold
+                    >
+                      {format(day, "d")}
+                    </ThemedText>
+                    <View style={styles.dotsContainer}>
+                      {dayData.map((data) => (
+                        <View
+                          key={data.id}
+                          style={[
+                            styles.completionDot,
+                            {
+                              backgroundColor: shouldShow
+                                ? getParticipantColor(
+                                    data.id,
+                                    participantsWithStats.findIndex(
+                                      (p) => p.id === data.id
+                                    )
+                                  )
+                                : Colors.LightGray,
+                              opacity: data.completion / 100,
+                            },
+                          ]}
+                        />
+                      ))}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ))}
         </View>
       </View>
       {!hideLegend && (
@@ -323,6 +451,12 @@ const styles = StyleSheet.create({
     marginRight: 6,
     flex: 1,
   },
+  participantDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 8,
+  },
   participantName: {
     fontSize: 16,
     color: Colors.White,
@@ -367,12 +501,27 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textTransform: "capitalize",
   },
-  calendarGrid: {
+  calendarHeader: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
-    gap: 8,
+    marginBottom: 10,
+  },
+  calendarHeaderDay: {
+    width: "14.28%",
+    alignItems: "center",
+    paddingVertical: 5,
+  },
+  calendarHeaderText: {
+    fontSize: 12,
+    color: Colors.PrimaryGray,
+    fontWeight: "bold",
+  },
+  calendarGrid: {
+    flexDirection: "column",
     paddingBottom: 10,
+  },
+  calendarWeek: {
+    flexDirection: "row",
+    gap: 8,
   },
   calendarDay: {
     width: 40,
@@ -383,6 +532,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.PrimaryGray,
     marginBottom: 4,
+  },
+  dayNumberDisabled: {
+    opacity: 0.3,
   },
   dotsContainer: {
     flexDirection: "row",

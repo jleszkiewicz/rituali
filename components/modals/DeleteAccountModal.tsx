@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, Pressable, Image } from "react-native";
+import { View, StyleSheet, Pressable, Image, Modal } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../Commons/ThemedText";
 import { t } from "@/src/service/translateService";
@@ -24,51 +24,51 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   confirmText = t("delete"),
   cancelText = t("cancel"),
 }) => {
-  if (!isVisible) return null;
-
   return (
-    <View style={styles.overlay}>
-      <Pressable style={styles.backdrop} onPress={onClose} />
-      <View style={styles.content}>
-        <Image
-          source={require("@/assets/illustrations/trash.png")}
-          style={styles.illustration}
-          resizeMode="contain"
-        />
-        <ThemedText style={styles.title}>{title}</ThemedText>
-        <ThemedText style={styles.description}>{message}</ThemedText>
-        <View style={styles.buttonContainer}>
-          <Pressable
-            style={[styles.button, styles.cancelButton]}
-            onPress={onClose}
-          >
-            <ThemedText style={styles.buttonText}>{cancelText}</ThemedText>
-          </Pressable>
-          <PrimaryButton style={styles.button} onPress={onConfirm}>
-            <ThemedText
-              style={[styles.buttonText, styles.deleteButtonText]}
-              bold
+    <Modal
+      visible={isVisible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View style={styles.overlay}>
+        <Pressable style={styles.backdrop} onPress={onClose} />
+        <View style={styles.content}>
+          <Image
+            source={require("@/assets/illustrations/trash.png")}
+            style={styles.illustration}
+            resizeMode="contain"
+          />
+          <ThemedText style={styles.title}>{title}</ThemedText>
+          <ThemedText style={styles.description}>{message}</ThemedText>
+          <View style={styles.buttonContainer}>
+            <Pressable
+              style={[styles.button, styles.cancelButton]}
+              onPress={onClose}
             >
-              {confirmText}
-            </ThemedText>
-          </PrimaryButton>
+              <ThemedText style={styles.buttonText}>{cancelText}</ThemedText>
+            </Pressable>
+            <PrimaryButton style={styles.button} onPress={onConfirm}>
+              <ThemedText
+                style={[styles.buttonText, styles.deleteButtonText]}
+                bold
+              >
+                {confirmText}
+              </ThemedText>
+            </PrimaryButton>
+          </View>
         </View>
       </View>
-    </View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
   overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    marginHorizontal: -20,
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 9999,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   backdrop: {
     position: "absolute",
@@ -76,7 +76,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   content: {
     backgroundColor: Colors.White,

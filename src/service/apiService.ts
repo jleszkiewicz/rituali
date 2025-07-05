@@ -11,6 +11,8 @@ const mapHabitFromDb = (dbHabit: any): HabitData => ({
   name: dbHabit.name,
   completionDates: dbHabit.completion_dates,
   category: dbHabit.category,
+  frequency: dbHabit.frequency || "daily",
+  selectedDays: dbHabit.selected_days || [],
   isPartOfChallenge: dbHabit.is_part_of_challenge,
   startDate: dbHabit.start_date,
   endDate: dbHabit.end_date,
@@ -21,6 +23,8 @@ const mapHabitToDb = (habit: HabitData): any => ({
   name: habit.name,
   completion_dates: habit.completionDates,
   category: habit.category,
+  frequency: habit.frequency,
+  selected_days: habit.selectedDays,
   is_part_of_challenge: habit.isPartOfChallenge,
   start_date: habit.startDate,
   end_date: habit.endDate,
@@ -185,6 +189,8 @@ export const addHabit = async (userId: string | null, habit: HabitData) => {
     name: habit.name,
     completion_dates: habit.completionDates,
     category: habit.category,
+    frequency: habit.frequency,
+    selected_days: habit.selectedDays,
     is_part_of_challenge: habit.isPartOfChallenge,
     start_date: habit.startDate,
     end_date: habit.endDate,
@@ -576,21 +582,9 @@ export const deleteChallenge = async (challengeId: string) => {
 
 export const updateChallengeHabits = async (challengeId: string, habits: string[]) => {
   try {
-    const { data: challengeData, error: fetchError } = await supabase
-      .from("challenges")
-      .select("habits")
-      .eq("id", challengeId)
-      .single();
-
-    if (fetchError) {
-      throw fetchError;
-    }
-
-    const updatedHabits = [...new Set([...(challengeData?.habits || []), ...habits])];
-
     const { data, error } = await supabase
       .from("challenges")
-      .update({ habits: updatedHabits })
+      .update({ habits: habits })
       .eq("id", challengeId)
       .select();
 

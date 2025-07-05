@@ -230,6 +230,7 @@ export default function ChallengeSummaryScreen() {
               endDate={endDate}
               challengeId={challengeId as string}
               showLegend={false}
+              habits={challengeHabits}
             />
 
             <ThemedText style={styles.sectionTitle} bold>

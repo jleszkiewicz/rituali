@@ -13,6 +13,7 @@ interface HabitsSectionProps {
   challengeId: string;
   headerColor?: string;
   onAddHabit: () => void;
+  onHabitRemoved?: () => void;
 }
 
 const HabitsSection: React.FC<HabitsSectionProps> = ({
@@ -20,6 +21,7 @@ const HabitsSection: React.FC<HabitsSectionProps> = ({
   challengeId,
   headerColor = Colors.White,
   onAddHabit,
+  onHabitRemoved,
 }) => {
   return (
     <View style={styles.container}>
@@ -58,6 +60,7 @@ const HabitsSection: React.FC<HabitsSectionProps> = ({
               key={habit.id}
               habit={habit}
               challengeId={challengeId}
+              onHabitRemoved={onHabitRemoved}
             />
           ))
         )}

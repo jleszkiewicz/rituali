@@ -15,9 +15,12 @@ import {
   checkAndUpdateExpiredHabits,
 } from "@/src/service/apiService";
 import CalendarCarousel from "@/components/HomeScreen/CalendarCarousel";
-import { format } from "date-fns";
+import { format, getDay, getWeek, getMonth, getYear } from "date-fns";
 import { Colors } from "@/constants/Colors";
-import type { HabitData } from "../../components/AddHabitModal/types";
+import type {
+  HabitData,
+  Frequency,
+} from "../../components/AddHabitModal/types";
 import AddHabitModal from "@/components/modals/AddHabitModal";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import { dateFormat } from "@/constants/Constants";
@@ -34,6 +37,64 @@ import { CompletedChallengeCard } from "@/components/HomeScreen/CompletedChallen
 import { selectViewedChallengeIds } from "@/src/store/viewedChallengesSlice";
 import { getActiveChallenges } from "@/src/service/apiService";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
+
+const shouldShowHabitOnDate = (habit: HabitData, date: Date): boolean => {
+  if (habit.status === "deleted") {
+    return false;
+  }
+
+  if (habit.status !== "active") {
+    return false;
+  }
+
+  const habitStartDate = new Date(habit.startDate + "T00:00:00");
+  const habitEndDate = habit.endDate
+    ? new Date(habit.endDate + "T00:00:00")
+    : null;
+  const normalizedDate = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+
+  if (normalizedDate < habitStartDate) {
+    return false;
+  }
+
+  if (habitEndDate && normalizedDate > habitEndDate) {
+    return false;
+  }
+
+  const dayOfWeek = getDay(date);
+
+  switch (habit.frequency) {
+    case "daily":
+      return true;
+
+    case "weekly":
+      const weekOfYear = getWeek(date);
+      const yearOfYear = getYear(date);
+      const habitStartWeek = getWeek(habitStartDate);
+      const habitStartYear = getYear(habitStartDate);
+      return weekOfYear === habitStartWeek && yearOfYear === habitStartYear;
+
+    case "selected_days":
+      const dayNames = [
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+      ];
+      const currentDayName = dayNames[dayOfWeek];
+      return habit.selectedDays.includes(currentDayName);
+
+    default:
+      return true;
+  }
+};
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
@@ -69,7 +130,7 @@ export default function HomeScreen() {
       const [habitsData, challengesData, completedChallengesData] =
         await Promise.all([
           fetchUserHabits(userId),
-          getActiveChallenges(userId),
+          getActiveChallenges(userId!),
           fetchCompletedChallenges(),
         ]);
 
@@ -95,7 +156,7 @@ export default function HomeScreen() {
         const [habitsData, challengesData, completedChallengesData] =
           await Promise.all([
             fetchUserHabits(userId),
-            getActiveChallenges(userId),
+            getActiveChallenges(userId!),
             fetchCompletedChallenges(),
           ]);
 
@@ -113,23 +174,7 @@ export default function HomeScreen() {
   }, [userId, dispatch]);
 
   const activeHabits = habits
-    .filter((habit: HabitData) => {
-      const habitStartDate = new Date(habit.startDate);
-      const habitEndDate = habit.endDate ? new Date(habit.endDate) : null;
-      const isActiveInSelectedDate =
-        habitStartDate <= selectedDate &&
-        (!habitEndDate || habitEndDate >= selectedDate);
-
-      if (habit.status === "deleted") {
-        return false;
-      }
-
-      if (habit.status === "active") {
-        return isActiveInSelectedDate;
-      }
-
-      return false;
-    })
+    .filter((habit: HabitData) => shouldShowHabitOnDate(habit, selectedDate))
     .sort((a: HabitData, b: HabitData) => a.name.localeCompare(b.name));
 
   if (isLoading) {

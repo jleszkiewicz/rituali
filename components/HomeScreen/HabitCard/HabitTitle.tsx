@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginStart: 10,
     maxWidth: "80%",
+    marginBottom: 4,
   },
   nameContainer: {
     position: "relative",

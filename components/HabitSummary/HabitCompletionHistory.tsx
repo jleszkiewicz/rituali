@@ -5,7 +5,22 @@ import { ThemedText } from "@/components/Commons/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
 import { t } from "@/src/service/translateService";
 import { HabitData } from "@/components/AddHabitModal/types";
-import { format, eachDayOfInterval, addMonths, subMonths } from "date-fns";
+import {
+  format,
+  eachDayOfInterval,
+  addMonths,
+  subMonths,
+  getDay,
+  getWeek,
+  getYear,
+  isAfter,
+  parseISO,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval as eachDay,
+} from "date-fns";
 import { dateFormat } from "@/constants/Constants";
 
 interface HabitCompletionHistoryProps {
@@ -17,6 +32,42 @@ const HabitCompletionHistory: React.FC<HabitCompletionHistoryProps> = ({
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date(habit.startDate));
   const today = new Date();
+
+  const shouldShowHabitOnDate = (date: Date): boolean => {
+    const parsedStartDate = parseISO(habit.startDate);
+
+    if (isAfter(parsedStartDate, date)) {
+      return false;
+    }
+
+    switch (habit.frequency) {
+      case "daily":
+        return true;
+
+      case "weekly":
+        const weekOfYear = getWeek(date);
+        const yearOfYear = getYear(date);
+        const habitStartWeek = getWeek(parsedStartDate);
+        const habitStartYear = getYear(parsedStartDate);
+        return weekOfYear === habitStartWeek && yearOfYear === habitStartYear;
+
+      case "selected_days":
+        const dayNames = [
+          "sunday",
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+        ];
+        const currentDayName = dayNames[getDay(date)];
+        return habit.selectedDays?.includes(currentDayName) || false;
+
+      default:
+        return true;
+    }
+  };
 
   const days = eachDayOfInterval({
     start: new Date(habit.startDate),
@@ -35,6 +86,42 @@ const HabitCompletionHistory: React.FC<HabitCompletionHistoryProps> = ({
   const monthKeys = Object.keys(daysByMonth).sort();
   const currentMonthKey = format(currentMonth, "yyyy-MM");
   const currentMonthDays = daysByMonth[currentMonthKey] || [];
+
+  const generateCalendarDays = (month: Date) => {
+    const start = startOfMonth(month);
+    const end = endOfMonth(month);
+
+    const allDays = eachDay({ start, end });
+    const weeks: (Date | null)[][] = [];
+
+    let currentWeek: (Date | null)[] = [];
+
+    allDays.forEach((day) => {
+      currentWeek.push(day);
+
+      if (getDay(day) === 0 || day.getTime() === end.getTime()) {
+        while (currentWeek.length < 7) {
+          currentWeek.unshift(null);
+        }
+        weeks.push([...currentWeek]);
+        currentWeek = [];
+      }
+    });
+
+    if (currentWeek.length > 0) {
+      while (currentWeek.length < 7) {
+        currentWeek.push(null);
+      }
+      weeks.push(currentWeek);
+    }
+
+    return weeks;
+  };
+
+  const hasDaysInCurrentMonth = currentMonthDays.length > 0;
+  const calendarWeeks = hasDaysInCurrentMonth
+    ? generateCalendarDays(currentMonth)
+    : [];
 
   const handlePrevMonth = () => {
     const prevMonth = subMonths(currentMonth, 1);
@@ -104,28 +191,62 @@ const HabitCompletionHistory: React.FC<HabitCompletionHistoryProps> = ({
         </TouchableOpacity>
       </View>
 
+      <View style={styles.calendarHeader}>
+        {[
+          t("mon"),
+          t("tue"),
+          t("wed"),
+          t("thu"),
+          t("fri"),
+          t("sat"),
+          t("sun"),
+        ].map((dayName) => (
+          <View key={dayName} style={styles.calendarHeaderDay}>
+            <ThemedText style={styles.calendarHeaderText}>{dayName}</ThemedText>
+          </View>
+        ))}
+      </View>
+
       <View style={styles.calendarGrid}>
-        {currentMonthDays.map((day) => {
-          const isCompleted = habit.completionDates.includes(
-            format(day, dateFormat)
-          );
-          return (
-            <View key={day.toString()} style={styles.calendarDay}>
-              <ThemedText style={styles.dayNumber} bold>
-                {format(day, "d")}
-              </ThemedText>
-              <View
-                style={[
-                  styles.completionDot,
-                  {
-                    backgroundColor: Colors.HotPink,
-                    opacity: isCompleted ? 1 : 0,
-                  },
-                ]}
-              />
-            </View>
-          );
-        })}
+        {calendarWeeks.map((week, weekIndex) => (
+          <View key={weekIndex} style={styles.calendarWeek}>
+            {week.map((day, dayIndex) => {
+              if (!day) {
+                return <View key={dayIndex} style={styles.calendarDay} />;
+              }
+
+              const isCompleted = habit.completionDates.includes(
+                format(day, dateFormat)
+              );
+              const shouldShow = shouldShowHabitOnDate(day);
+
+              return (
+                <View key={day.toString()} style={styles.calendarDay}>
+                  <ThemedText
+                    style={[
+                      styles.dayNumber,
+                      !shouldShow && styles.dayNumberDisabled,
+                    ]}
+                    bold
+                  >
+                    {format(day, "d")}
+                  </ThemedText>
+                  <View
+                    style={[
+                      styles.completionDot,
+                      {
+                        backgroundColor: shouldShow
+                          ? Colors.HotPink
+                          : Colors.LightGray,
+                        opacity: isCompleted ? 1 : 0,
+                      },
+                    ]}
+                  />
+                </View>
+              );
+            })}
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -159,10 +280,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.PrimaryGray,
   },
-  calendarGrid: {
+  calendarHeader: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
+    marginBottom: 10,
+  },
+  calendarHeaderDay: {
+    width: "14.28%",
+    alignItems: "center",
+    paddingVertical: 5,
+  },
+  calendarHeaderText: {
+    fontSize: 12,
+    color: Colors.PrimaryGray,
+    fontWeight: "bold",
+  },
+  calendarGrid: {
+    flexDirection: "column",
+  },
+  calendarWeek: {
+    flexDirection: "row",
   },
   calendarDay: {
     width: "14.28%",
@@ -171,9 +307,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dayNumber: {
-    fontSize: 12,
+    fontSize: 14,
     color: Colors.PrimaryGray,
     marginBottom: 4,
+  },
+  dayNumberDisabled: {
+    opacity: 0.3,
+  },
+  dayNumberOtherMonth: {
+    opacity: 0.2,
   },
   completionDot: {
     width: 6,

@@ -16,6 +16,7 @@ import EditHabitModal from "@/components/modals/EditHabitModal";
 import DeleteHabitModal from "@/components/modals/DeleteHabitModal";
 import Loading from "@/components/Commons/Loading";
 import { AppRoutes } from "@/src/routes/AppRoutes";
+import FrequencyChip from "@/components/HomeScreen/HabitCard/FrequencyChip";
 import React from "react";
 
 const HabitSummaryScreen = () => {
@@ -107,6 +108,15 @@ const HabitSummaryScreen = () => {
           <ThemedText style={styles.habitDate}>
             {t("started")}: {format(new Date(habit.startDate), dateFormat)}
           </ThemedText>
+          <View style={styles.frequencyContainer}>
+            <ThemedText style={styles.frequencyLabel}>
+              {t("frequency")}:
+            </ThemedText>
+            <FrequencyChip
+              frequency={habit.frequency}
+              selectedDays={habit.selectedDays || []}
+            />
+          </View>
         </View>
 
         <HabitStats habit={habit} />
@@ -179,6 +189,17 @@ const styles = StyleSheet.create({
   habitDate: {
     fontSize: 16,
     color: Colors.LightGray,
+    marginBottom: 8,
+  },
+  frequencyContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+  },
+  frequencyLabel: {
+    fontSize: 16,
+    color: Colors.LightGray,
+    marginRight: 8,
   },
   errorContainer: {
     flex: 1,

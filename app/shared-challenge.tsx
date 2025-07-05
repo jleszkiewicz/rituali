@@ -205,6 +205,7 @@ export default function SharedChallengeScreen() {
             challengeId={challenge.id}
             headerColor={Colors.PrimaryGray}
             onAddHabit={handleAddHabit}
+            onHabitRemoved={loadChallenge}
           />
 
           <ThemedText style={styles.sectionTitle} bold>
@@ -231,6 +232,7 @@ export default function SharedChallengeScreen() {
             challengeStartDate={challenge.startDate}
             challengeEndDate={challenge.endDate}
             hideLegend={true}
+            habits={challengeHabits}
           />
 
           <ActionButtons

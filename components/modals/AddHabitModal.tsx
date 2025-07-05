@@ -15,6 +15,7 @@ import { selectUserId } from "@/src/store/userSlice";
 import { setHabits } from "@/src/store/habitsSlice";
 import { fetchUserHabits } from "@/src/service/apiService";
 import CategoriesSelector from "../AddHabitModal/CategoriesSelector";
+import FrequencySelector from "../AddHabitModal/FrequencySelector";
 import { t } from "@/src/service/translateService";
 import ModalButtons from "../AddChallengeModal/ModalButtons";
 import { ThemedText } from "../Commons/ThemedText";
@@ -48,15 +49,19 @@ const AddHabitModal = ({
   const [errors, setErrors] = useState<{
     name: string;
     challenges: string;
+    frequency: string;
   }>({
     name: "",
     challenges: "",
+    frequency: "",
   });
 
   const habitDataInitialState: HabitData = {
     id: "",
     name: "",
     category: "other",
+    frequency: "daily",
+    selectedDays: [],
     startDate: format(new Date(), dateFormat),
     endDate: null,
     completionDates: [],
@@ -72,6 +77,7 @@ const AddHabitModal = ({
     setErrors({
       name: "",
       challenges: "",
+      frequency: "",
     });
     onClose();
   };
@@ -98,6 +104,7 @@ const AddHabitModal = ({
     const newErrors = {
       name: "",
       challenges: "",
+      frequency: "",
     };
 
     if (!habitData.name.trim()) {
@@ -108,7 +115,14 @@ const AddHabitModal = ({
       newErrors.challenges = t("select_challenge_required");
     }
 
-    if (newErrors.name || newErrors.challenges) {
+    if (
+      habitData.frequency === "selected_days" &&
+      habitData.selectedDays.length === 0
+    ) {
+      newErrors.frequency = t("select_at_least_one_day");
+    }
+
+    if (newErrors.name || newErrors.challenges || newErrors.frequency) {
       setErrors(newErrors);
       return;
     }
@@ -198,6 +212,22 @@ const AddHabitModal = ({
             }}
             initialCategory={habitData.category}
           />
+
+          <FrequencySelector
+            onFrequencyChange={(frequency) => {
+              setHabitData({ ...habitData, frequency });
+              setErrors({ ...errors, frequency: "" });
+            }}
+            onSelectedDaysChange={(selectedDays) => {
+              setHabitData({ ...habitData, selectedDays });
+              setErrors({ ...errors, frequency: "" });
+            }}
+            initialFrequency={habitData.frequency}
+            initialSelectedDays={habitData.selectedDays}
+          />
+          {errors.frequency ? (
+            <ThemedText style={styles.errorText}>{errors.frequency}</ThemedText>
+          ) : null}
 
           <TouchableOpacity
             style={styles.switchContainer}
@@ -310,6 +340,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
+    marginTop: 15,
   },
   switchText: {
     fontSize: 16,

@@ -11,6 +11,7 @@ import { calculateStreak } from "@/src/utils/streakUtils";
 import HabitTitle from "./HabitTitle";
 import HabitCheckbox from "./HabitCheckbox";
 import HabitIcon from "./HabitIcon";
+import FrequencyChip from "./FrequencyChip";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -72,7 +73,12 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, selectedDate }) => {
     });
   };
 
-  const streak = calculateStreak(habit.startDate, habit.completionDates);
+  const streak = calculateStreak(
+    habit.startDate,
+    habit.completionDates,
+    habit.frequency,
+    habit.selectedDays || []
+  );
 
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>
@@ -85,6 +91,10 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, selectedDate }) => {
               streak={streak}
               isToday={isTodayDate}
               strikeThroughAnim={strikeThroughAnim}
+            />
+            <FrequencyChip
+              frequency={habit.frequency}
+              selectedDays={habit.selectedDays || []}
             />
           </View>
         </View>

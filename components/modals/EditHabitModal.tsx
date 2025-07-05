@@ -17,6 +17,7 @@ import { selectUserId } from "@/src/store/userSlice";
 import { setHabits } from "@/src/store/habitsSlice";
 import { fetchUserHabits } from "@/src/service/apiService";
 import CategoriesSelector from "../AddHabitModal/CategoriesSelector";
+import FrequencySelector from "../AddHabitModal/FrequencySelector";
 import { t } from "@/src/service/translateService";
 import ModalButtons from "../AddChallengeModal/ModalButtons";
 import { ThemedText } from "../Commons/ThemedText";
@@ -46,15 +47,19 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
   const [errors, setErrors] = useState<{
     name: string;
     challenges: string;
+    frequency: string;
   }>({
     name: "",
     challenges: "",
+    frequency: "",
   });
 
   const defaultHabitData: HabitData = {
     id: "",
     name: "",
     category: "other",
+    frequency: "daily",
+    selectedDays: [],
     startDate: format(new Date(), dateFormat),
     endDate: null,
     completionDates: [],
@@ -95,6 +100,7 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
     setErrors({
       name: "",
       challenges: "",
+      frequency: "",
     });
     onClose();
   };
@@ -121,6 +127,7 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
     const newErrors = {
       name: "",
       challenges: "",
+      frequency: "",
     };
 
     if (!habitData.name.trim()) {
@@ -131,7 +138,14 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
       newErrors.challenges = t("select_challenge_required");
     }
 
-    if (newErrors.name || newErrors.challenges) {
+    if (
+      habitData.frequency === "selected_days" &&
+      habitData.selectedDays.length === 0
+    ) {
+      newErrors.frequency = t("select_at_least_one_day");
+    }
+
+    if (newErrors.name || newErrors.challenges || newErrors.frequency) {
       setErrors(newErrors);
       return;
     }
@@ -218,6 +232,22 @@ const EditHabitModal = ({ isVisible, onClose, habit }: EditHabitModalProps) => {
             }}
             initialCategory={habitData.category}
           />
+
+          <FrequencySelector
+            onFrequencyChange={(frequency) => {
+              setHabitData({ ...habitData, frequency });
+              setErrors({ ...errors, frequency: "" });
+            }}
+            onSelectedDaysChange={(selectedDays) => {
+              setHabitData({ ...habitData, selectedDays });
+              setErrors({ ...errors, frequency: "" });
+            }}
+            initialFrequency={habitData.frequency}
+            initialSelectedDays={habitData.selectedDays}
+          />
+          {errors.frequency ? (
+            <ThemedText style={styles.errorText}>{errors.frequency}</ThemedText>
+          ) : null}
 
           <TouchableOpacity
             style={styles.switchContainer}
@@ -333,6 +363,7 @@ const styles = StyleSheet.create({
   },
   switchText: {
     fontSize: 16,
+    marginTop: 15,
   },
   challengesContainer: {
     marginBottom: 20,

@@ -278,6 +278,7 @@ export default function SharedChallengeSummaryScreen() {
               endDate={endDate}
               challengeId={challengeId as string}
               showLegend={true}
+              habits={challengeHabits}
             />
 
             <ThemedText style={styles.sectionTitle} bold>

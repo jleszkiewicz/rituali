@@ -6,6 +6,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { t } from "@/src/service/translateService";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { calculateStreak } from "@/src/utils/streakUtils";
+import {
+  eachDayOfInterval,
+  getDay,
+  getWeek,
+  getYear,
+  isAfter,
+  parseISO,
+} from "date-fns";
 
 interface HabitStatsProps {
   habit: HabitData;
@@ -14,14 +22,58 @@ interface HabitStatsProps {
 const HabitStats: React.FC<HabitStatsProps> = ({ habit }) => {
   const startDate = new Date(habit.startDate);
   const today = new Date();
-  const totalDays = Math.max(
-    1,
-    Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
-  );
+
+  const shouldShowHabitOnDate = (date: Date): boolean => {
+    const parsedStartDate = parseISO(habit.startDate);
+
+    if (isAfter(parsedStartDate, date)) {
+      return false;
+    }
+
+    switch (habit.frequency) {
+      case "daily":
+        return true;
+
+      case "weekly":
+        const weekOfYear = getWeek(date);
+        const yearOfYear = getYear(date);
+        const habitStartWeek = getWeek(parsedStartDate);
+        const habitStartYear = getYear(parsedStartDate);
+        return weekOfYear === habitStartWeek && yearOfYear === habitStartYear;
+
+      case "selected_days":
+        const dayNames = [
+          "sunday",
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+        ];
+        const currentDayName = dayNames[getDay(date)];
+        return habit.selectedDays?.includes(currentDayName) || false;
+
+      default:
+        return true;
+    }
+  };
+
+  const allDays = eachDayOfInterval({
+    start: startDate,
+    end: today,
+  });
+
+  const totalDays = allDays.filter(shouldShowHabitOnDate).length;
 
   const totalCompletions = habit.completionDates.length;
   const completionRate = Math.round((totalCompletions / totalDays) * 100);
-  const streak = calculateStreak(habit.startDate, habit.completionDates);
+  const streak = calculateStreak(
+    habit.startDate,
+    habit.completionDates,
+    habit.frequency,
+    habit.selectedDays || []
+  );
 
   return (
     <View style={styles.statsContainer}>

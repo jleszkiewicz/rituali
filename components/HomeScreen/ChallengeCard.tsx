@@ -3,7 +3,14 @@ import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { HabitData } from "@/components/AddHabitModal/types";
-import { differenceInDays } from "date-fns";
+import {
+  differenceInDays,
+  getDay,
+  getWeek,
+  getYear,
+  isAfter,
+  parseISO,
+} from "date-fns";
 import { t } from "@/src/service/translateService";
 import { ThemedText } from "../Commons/ThemedText";
 import { AppRoutes } from "@/src/routes/AppRoutes";
@@ -32,11 +39,52 @@ export default function ChallengeCard({
     (habit) => challenge.habits.includes(habit.id) && habit.status === "active"
   );
 
-  const completedHabits = challengeHabits.filter((habit) =>
+  const shouldShowHabitOnDate = (habit: HabitData, date: Date): boolean => {
+    const parsedStartDate = parseISO(habit.startDate);
+
+    if (isAfter(parsedStartDate, date)) {
+      return false;
+    }
+
+    switch (habit.frequency) {
+      case "daily":
+        return true;
+
+      case "weekly":
+        const weekOfYear = getWeek(date);
+        const yearOfYear = getYear(date);
+        const habitStartWeek = getWeek(parsedStartDate);
+        const habitStartYear = getYear(parsedStartDate);
+        return weekOfYear === habitStartWeek && yearOfYear === habitStartYear;
+
+      case "selected_days":
+        const dayNames = [
+          "sunday",
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+        ];
+        const currentDayName = dayNames[getDay(date)];
+        return habit.selectedDays?.includes(currentDayName) || false;
+
+      default:
+        return true;
+    }
+  };
+
+  const selectedDateObj = parseISO(selectedDate);
+  const habitsForToday = challengeHabits.filter((habit) =>
+    shouldShowHabitOnDate(habit, selectedDateObj)
+  );
+
+  const completedHabits = habitsForToday.filter((habit) =>
     habit.completionDates.includes(selectedDate)
   ).length;
 
-  const totalHabits = challengeHabits.length;
+  const totalHabits = habitsForToday.length;
   const progressPercentage =
     totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0;
 
@@ -52,7 +100,9 @@ export default function ChallengeCard({
   const isCompleted = completedHabits === totalHabits && totalHabits > 0;
 
   const getStatusIcon = () => {
-    if (totalHabits === 0) return require("@/assets/illustrations/warning.png");
+    if (challengeHabits.length === 0)
+      return require("@/assets/illustrations/warning.png");
+    if (totalHabits === 0) return require("@/assets/illustrations/clap.png");
     if (isCompleted) return require("@/assets/illustrations/clap.png");
     return require("@/assets/illustrations/sad.png");
   };
@@ -91,6 +141,27 @@ export default function ChallengeCard({
                 {completedHabits}/{totalHabits} {t("habits")}
               </ThemedText>
             </View>
+
+            <View style={styles.timeProgressContainer}>
+              <View style={styles.timeProgressBar}>
+                <View
+                  style={[
+                    styles.timeProgressFill,
+                    { width: `${timeProgressPercentage}%` },
+                  ]}
+                />
+              </View>
+              <ThemedText style={styles.timeProgressText} bold>
+                {daysPassed}/{totalDays}{" "}
+                {totalDays === 1 ? t("days_one") : t("days")}
+              </ThemedText>
+            </View>
+          </>
+        ) : challengeHabits.length > 0 ? (
+          <>
+            <ThemedText style={styles.noHabitsTodayText} bold>
+              {t("no_habits_today")}
+            </ThemedText>
 
             <View style={styles.timeProgressContainer}>
               <View style={styles.timeProgressBar}>
@@ -204,5 +275,11 @@ const styles = StyleSheet.create({
     color: Colors.ButterYellow,
     textAlign: "center",
     marginTop: 5,
+  },
+  noHabitsTodayText: {
+    fontSize: 14,
+    color: Colors.ButterYellow,
+    textAlign: "center",
+    marginVertical: 10,
   },
 });

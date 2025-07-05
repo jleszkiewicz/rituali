@@ -21,7 +21,6 @@
   "frequency": "Frequency",
   "daily": "Daily",
   "weekly": "Weekly",
-  "monthly": "Monthly",
   "selected_days": "Selected Days",
   "select_days": "Select Days",
   "start_date": "Start Date",
@@ -199,6 +198,7 @@
   "accept": "Accept",
   "decline": "Decline",
   "remove": "Remove",
+  "no_habits_today": "No habits today",
   "remove_friend": "Remove friend",
   "remove_friend_confirmation": "Are you sure you want to remove this friend?",
   "poke_sent_success": "Poke was sent, let's hope that's the motivation they need",
@@ -290,5 +290,6 @@
   "no_competition_data_description_ios": "The competition feature is only available on Android devices. On iOS, you can use other app features.",
   "open_settings": "Open Settings",
   "open_google_fit": "Open Google Fit",
-  "add_friends": "Add friends"
+  "add_friends": "Add friends",
+  "started": "Started"
 }

@@ -4,6 +4,7 @@ import { ThemedText } from "../Commons/ThemedText";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
 import { HabitData } from "@/components/AddHabitModal/types";
+import FrequencyChip from "../HomeScreen/HabitCard/FrequencyChip";
 
 interface ChallengeHabitsProps {
   habits: HabitData[];
@@ -42,13 +43,21 @@ export const ChallengeHabits = ({
 
         return (
           <View key={habit.id} style={styles.habitItem}>
-            <ThemedText style={styles.habitName}>{habit.name}</ThemedText>
-            <ThemedText style={styles.habitStats}>
-              {habitCompletions} / {totalDays} {t("completions")}
-            </ThemedText>
-            <ThemedText style={styles.habitStat}>
-              {habitCompletionRate}%
-            </ThemedText>
+            <View style={styles.habitInfo}>
+              <ThemedText style={styles.habitName}>{habit.name}</ThemedText>
+              <FrequencyChip
+                frequency={habit.frequency}
+                selectedDays={habit.selectedDays || []}
+              />
+            </View>
+            <View style={styles.habitStats}>
+              <ThemedText style={styles.habitStatsText}>
+                {habitCompletions} / {totalDays} {t("completions")}
+              </ThemedText>
+              <ThemedText style={styles.habitStat}>
+                {habitCompletionRate}%
+              </ThemedText>
+            </View>
           </View>
         );
       })}
@@ -71,11 +80,17 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.HotPink,
   },
+  habitInfo: {
+    flex: 1,
+  },
   habitName: {
     fontSize: 16,
     color: Colors.PrimaryGray,
   },
   habitStats: {
+    alignItems: "flex-end",
+  },
+  habitStatsText: {
     fontSize: 14,
     color: Colors.PrimaryGray,
     opacity: 0.7,

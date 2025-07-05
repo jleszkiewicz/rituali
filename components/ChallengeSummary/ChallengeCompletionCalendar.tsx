@@ -3,7 +3,17 @@ import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../Commons/ThemedText";
 import { t } from "@/src/service/translateService";
-import { format, eachDayOfInterval, addMonths, subMonths } from "date-fns";
+import {
+  format,
+  eachDayOfInterval,
+  addMonths,
+  subMonths,
+  getDay,
+  getWeek,
+  getYear,
+  isAfter,
+  parseISO,
+} from "date-fns";
 import { Ionicons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { selectUserId, selectDisplayName } from "@/src/store/userSlice";
@@ -12,12 +22,14 @@ import {
   fetchChallengeParticipants,
   fetchChallengeCompletionHistory,
 } from "@/src/service/apiService";
+import { HabitData } from "@/components/AddHabitModal/types";
 
 interface ChallengeCompletionCalendarProps {
   startDate: Date;
   endDate: Date;
   challengeId: string;
   showLegend?: boolean;
+  habits?: HabitData[];
 }
 
 interface ParticipantStats {
@@ -32,7 +44,7 @@ interface ParticipantStats {
 
 export const ChallengeCompletionCalendar: React.FC<
   ChallengeCompletionCalendarProps
-> = ({ startDate, endDate, challengeId, showLegend = false }) => {
+> = ({ startDate, endDate, challengeId, showLegend = false, habits = [] }) => {
   const [currentMonth, setCurrentMonth] = useState(startDate);
   const [participants, setParticipants] = useState<ParticipantStats[]>([]);
   const userId = useSelector(selectUserId);
@@ -47,6 +59,7 @@ export const ChallengeCompletionCalendar: React.FC<
         );
 
         if (participantsData.length === 0) {
+          if (!userId) return;
           const history = await fetchChallengeCompletionHistory(
             challengeId,
             userId
@@ -101,6 +114,37 @@ export const ChallengeCompletionCalendar: React.FC<
   const currentMonthKey = format(currentMonth, "yyyy-MM");
   const currentMonthDays = daysByMonth[currentMonthKey] || [];
 
+  const generateCalendarWeeks = (month: Date) => {
+    const start = new Date(month.getFullYear(), month.getMonth(), 1);
+    const end = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+
+    const allDays = eachDayOfInterval({ start, end });
+    const weeks: (Date | null)[][] = [];
+    let currentWeek: (Date | null)[] = [];
+
+    allDays.forEach((day) => {
+      currentWeek.push(day);
+      if (getDay(day) === 0 || day.getTime() === end.getTime()) {
+        while (currentWeek.length < 7) {
+          currentWeek.unshift(null);
+        }
+        weeks.push([...currentWeek]);
+        currentWeek = [];
+      }
+    });
+
+    if (currentWeek.length > 0) {
+      while (currentWeek.length < 7) {
+        currentWeek.push(null);
+      }
+      weeks.push(currentWeek);
+    }
+
+    return weeks;
+  };
+
+  const calendarWeeks = generateCalendarWeeks(currentMonth);
+
   const handlePrevMonth = () => {
     const prevMonth = subMonths(currentMonth, 1);
     const prevMonthKey = format(prevMonth, "yyyy-MM");
@@ -124,6 +168,46 @@ export const ChallengeCompletionCalendar: React.FC<
 
     const colors = [Colors.Yellow, Colors.PrimaryRed, Colors.LightBlue];
     return colors[index % colors.length];
+  };
+
+  const shouldShowHabitOnDate = (date: Date): boolean => {
+    if (habits.length === 0) return true;
+
+    return habits.some((habit) => {
+      const parsedStartDate = parseISO(habit.startDate);
+
+      if (isAfter(parsedStartDate, date)) {
+        return false;
+      }
+
+      switch (habit.frequency) {
+        case "daily":
+          return true;
+
+        case "weekly":
+          const weekOfYear = getWeek(date);
+          const yearOfYear = getYear(date);
+          const habitStartWeek = getWeek(parsedStartDate);
+          const habitStartYear = getYear(parsedStartDate);
+          return weekOfYear === habitStartWeek && yearOfYear === habitStartYear;
+
+        case "selected_days":
+          const dayNames = [
+            "sunday",
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+          ];
+          const currentDayName = dayNames[getDay(date)];
+          return habit.selectedDays?.includes(currentDayName) || false;
+
+        default:
+          return true;
+      }
+    });
   };
 
   if (Object.keys(daysByMonth).length === 0) {
@@ -178,43 +262,81 @@ export const ChallengeCompletionCalendar: React.FC<
           </TouchableOpacity>
         </View>
 
-        <View style={styles.calendarGrid}>
-          {currentMonthDays.map((day) => {
-            const dayData = participants.map((participant) => {
-              const completion = participant.completionHistory.find(
-                (d) => d.date === format(day, "yyyy-MM-dd")
-              );
-              return {
-                id: participant.id,
-                completion: completion?.completion_percentage || 0,
-              };
-            });
+        <View style={styles.calendarHeader}>
+          {[
+            t("mon"),
+            t("tue"),
+            t("wed"),
+            t("thu"),
+            t("fri"),
+            t("sat"),
+            t("sun"),
+          ].map((dayName) => (
+            <View key={dayName} style={styles.calendarHeaderDay}>
+              <ThemedText style={styles.calendarHeaderText}>
+                {dayName}
+              </ThemedText>
+            </View>
+          ))}
+        </View>
 
-            return (
-              <View key={day.toString()} style={styles.calendarDay}>
-                <ThemedText style={styles.dayNumber} bold>
-                  {format(day, "d")}
-                </ThemedText>
-                <View style={styles.dotsContainer}>
-                  {dayData.map((data) => (
-                    <View
-                      key={data.id}
+        <View style={styles.calendarGrid}>
+          {calendarWeeks.map((week, weekIndex) => (
+            <View key={weekIndex} style={styles.calendarWeek}>
+              {week.map((day, dayIndex) => {
+                if (!day) {
+                  return <View key={dayIndex} style={styles.calendarDay} />;
+                }
+
+                const dayData = participants.map((participant) => {
+                  const completion = participant.completionHistory.find(
+                    (d) => d.date === format(day, "yyyy-MM-dd")
+                  );
+                  return {
+                    id: participant.id,
+                    completion: completion?.completion_percentage || 0,
+                  };
+                });
+
+                const shouldShow = shouldShowHabitOnDate(day);
+
+                return (
+                  <View key={day.toString()} style={styles.calendarDay}>
+                    <ThemedText
                       style={[
-                        styles.completionDot,
-                        {
-                          backgroundColor: getParticipantColor(
-                            data.id,
-                            participants.findIndex((p) => p.id === data.id)
-                          ),
-                          opacity: data.completion / 100,
-                        },
+                        styles.dayNumber,
+                        !shouldShow && styles.dayNumberDisabled,
                       ]}
-                    />
-                  ))}
-                </View>
-              </View>
-            );
-          })}
+                      bold
+                    >
+                      {format(day, "d")}
+                    </ThemedText>
+                    <View style={styles.dotsContainer}>
+                      {dayData.map((data) => (
+                        <View
+                          key={data.id}
+                          style={[
+                            styles.completionDot,
+                            {
+                              backgroundColor: shouldShow
+                                ? getParticipantColor(
+                                    data.id,
+                                    participants.findIndex(
+                                      (p) => p.id === data.id
+                                    )
+                                  )
+                                : Colors.LightGray,
+                              opacity: data.completion / 100,
+                            },
+                          ]}
+                        />
+                      ))}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ))}
         </View>
       </View>
 
@@ -277,10 +399,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.PrimaryGray,
   },
-  calendarGrid: {
+  calendarHeader: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
+    marginBottom: 10,
+  },
+  calendarHeaderDay: {
+    width: "14.28%",
+    alignItems: "center",
+    paddingVertical: 5,
+  },
+  calendarHeaderText: {
+    fontSize: 12,
+    color: Colors.PrimaryGray,
+    fontWeight: "bold",
+  },
+  calendarGrid: {
+    flexDirection: "column",
+  },
+  calendarWeek: {
+    flexDirection: "row",
   },
   calendarDay: {
     width: "14.28%",
@@ -292,6 +429,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.PrimaryGray,
     marginBottom: 4,
+  },
+  dayNumberDisabled: {
+    opacity: 0.3,
   },
   dotsContainer: {
     flexDirection: "row",

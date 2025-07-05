@@ -13,15 +13,18 @@ import { setChallenges } from "@/src/store/challengesSlice";
 import { fetchUserHabits, fetchUserChallenges } from "@/src/service/apiService";
 import ConfirmationModal from "../../modals/DeleteAccountModal";
 import HabitIcon from "./HabitIcon";
+import FrequencyChip from "./FrequencyChip";
 
 interface ChallengeHabitCardProps {
   habit: HabitData;
   challengeId: string;
+  onHabitRemoved?: () => void;
 }
 
 const ChallengeHabitCard: React.FC<ChallengeHabitCardProps> = ({
   habit,
   challengeId,
+  onHabitRemoved,
 }) => {
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
@@ -42,6 +45,7 @@ const ChallengeHabitCard: React.FC<ChallengeHabitCardProps> = ({
       const updatedChallengeHabits = currentChallenge.habits.filter(
         (id: string) => id !== habit.id
       );
+
       await updateChallengeHabits(challengeId, updatedChallengeHabits);
 
       const [updatedHabits, updatedChallenges] = await Promise.all([
@@ -51,6 +55,12 @@ const ChallengeHabitCard: React.FC<ChallengeHabitCardProps> = ({
 
       dispatch(setHabits(updatedHabits));
       dispatch(setChallenges(updatedChallenges));
+
+      setIsDeleteConfirmationVisible(false);
+
+      if (onHabitRemoved) {
+        onHabitRemoved();
+      }
     } catch (error) {
       console.error("Error removing habit from challenge:", error);
     }
@@ -60,9 +70,15 @@ const ChallengeHabitCard: React.FC<ChallengeHabitCardProps> = ({
     <View style={styles.container}>
       <View style={styles.habitInfo}>
         <HabitIcon category={habit.category} />
-        <ThemedText style={styles.habitName} bold>
-          {habit.name}
-        </ThemedText>
+        <View style={styles.habitDetails}>
+          <ThemedText style={styles.habitName} bold>
+            {habit.name}
+          </ThemedText>
+          <FrequencyChip
+            frequency={habit.frequency}
+            selectedDays={habit.selectedDays || []}
+          />
+        </View>
       </View>
 
       <TouchableOpacity
@@ -98,11 +114,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
   },
+  habitDetails: {
+    flex: 1,
+    marginStart: 10,
+  },
   habitName: {
     fontSize: 16,
     marginStart: 10,
     color: Colors.PrimaryGray,
     maxWidth: "80%",
+    marginBottom: 5,
   },
   deleteButton: {
     padding: 5,

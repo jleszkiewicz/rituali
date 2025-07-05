@@ -167,6 +167,7 @@ export default function ChallengeInfoScreen() {
           challengeId={challenge.id}
           headerColor={Colors.PrimaryGray}
           onAddHabit={handleAddHabit}
+          onHabitRemoved={loadChallenge}
         />
 
         <ThemedText style={styles.sectionTitle} bold>
@@ -179,6 +180,7 @@ export default function ChallengeInfoScreen() {
           challengeStartDate={challenge.startDate}
           challengeEndDate={challenge.endDate}
           hideLegend={true}
+          habits={challengeHabits}
         />
 
         <PrimaryButton

@@ -245,11 +245,6 @@ const ProfileScreen = () => {
             />
           </View>
           <ProfileOption
-            icon={"card-outline" as keyof typeof Ionicons.glyphMap}
-            label={t("subscription")}
-            onPress={() => {}}
-          />
-          <ProfileOption
             icon={"trash" as keyof typeof Ionicons.glyphMap}
             label={t("delete_account")}
             onPress={() => setIsDeleteModalVisible(true)}
