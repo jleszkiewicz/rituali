@@ -6,7 +6,6 @@ import { t } from "@/src/service/translateService";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
-import FrequencyChip from "../HomeScreen/HabitCard/FrequencyChip";
 
 interface SharedChallengeHabitsProps {
   habits: HabitData[];
@@ -76,10 +75,6 @@ export const SharedChallengeHabits = ({
             <ThemedText style={styles.habitName} bold>
               {habit.name}
             </ThemedText>
-            <FrequencyChip
-              frequency={habit.frequency}
-              selectedDays={habit.selectedDays || []}
-            />
           </View>
           <View style={styles.statsColumn}>
             {participants.map((participant) => {

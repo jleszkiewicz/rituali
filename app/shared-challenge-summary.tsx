@@ -13,12 +13,13 @@ import { ChallengeHeader } from "@/components/ChallengeSummary/ChallengeHeader";
 import { ChallengeDates } from "@/components/ChallengeSummary/ChallengeDates";
 import { ChallengeStats } from "@/components/ChallengeSummary/ChallengeStats";
 import { ChallengeHabits } from "@/components/ChallengeSummary/ChallengeHabits";
-import { ChallengeCompletionCalendar } from "@/components/ChallengeSummary/ChallengeCompletionCalendar";
+import CompletionStats from "@/components/SharedChallengeScreen/CompletionStats";
 import { t } from "@/src/service/translateService";
 import { HabitData } from "@/components/AddHabitModal/types";
 import { ChallengeData } from "@/components/AddChallengeModal/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@/src/store";
+import { selectUserId } from "@/src/store/userSlice";
 import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 import ScreenHeader from "@/components/Commons/ScreenHeader";
 import { ThemedText } from "@/components/Commons/ThemedText";
@@ -77,6 +78,7 @@ export default function SharedChallengeSummaryScreen() {
   const habits: HabitData[] = useSelector(
     (state: RootState) => state.habits.habits
   );
+  const userId = useSelector(selectUserId);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   const refreshPhotoUrls = async () => {
@@ -273,11 +275,12 @@ export default function SharedChallengeSummaryScreen() {
               {t("completion_calendar_description")}
             </ThemedText>
 
-            <ChallengeCompletionCalendar
-              startDate={startDate}
-              endDate={endDate}
-              challengeId={challengeId as string}
-              showLegend={true}
+            <CompletionStats
+              participants={participants}
+              currentUserId={userId}
+              challengeStartDate={challenge?.startDate || ""}
+              challengeEndDate={challenge?.endDate || ""}
+              hideLegend={false}
               habits={challengeHabits}
             />
 
