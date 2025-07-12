@@ -33,6 +33,19 @@ import {
 import { Linking } from "react-native";
 import PrimaryButton from "@/components/Commons/PrimaryButton";
 import ProfileOption from "@/components/ProfileScreen/ProfileOption";
+import {
+  requestNotificationPermissions,
+  checkNotificationPermissions,
+  cancelAllNotifications,
+  subscribeToFriendRequestNotifications,
+  subscribeToChallengeInvitationNotifications,
+  scheduleDailyReminderNotification,
+  cancelDailyReminderNotifications,
+} from "@/src/service/notificationsService";
+import {
+  registerDailyReminderTask,
+  unregisterDailyReminderTask,
+} from "@/src/service/backgroundTaskService";
 
 const ProfileScreen = () => {
   const { logout, deleteAccount, updateDisplayName } = useAuth();
@@ -41,6 +54,8 @@ const ProfileScreen = () => {
   const email = useSelector(selectEmail);
   const displayName = useSelector(selectDisplayName);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [dailyRemindersEnabled, setDailyRemindersEnabled] = useState(false);
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
@@ -56,6 +71,24 @@ const ProfileScreen = () => {
       const url = await fetchProfilePhotoUrl(userId);
       setAvatarUrl(url);
     })();
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      checkNotificationPermissions().then((enabled) => {
+        setNotificationsEnabled(enabled);
+      });
+
+      const unsubscribeFriendRequests =
+        subscribeToFriendRequestNotifications(userId);
+      const unsubscribeChallengeInvitations =
+        subscribeToChallengeInvitationNotifications(userId);
+
+      return () => {
+        unsubscribeFriendRequests();
+        unsubscribeChallengeInvitations();
+      };
+    }
   }, [userId]);
 
   const handlePickAvatar = async () => {
@@ -99,6 +132,47 @@ const ProfileScreen = () => {
       setIsEditingName(false);
     } else {
       Alert.alert(t("error"), result.error || t("update_name_error"));
+    }
+  };
+
+  const toggleNotifications = async () => {
+    try {
+      if (!notificationsEnabled) {
+        const granted = await requestNotificationPermissions();
+        if (granted) {
+          setNotificationsEnabled(true);
+        } else {
+          Alert.alert(t("error"), t("notifications_permission_denied"));
+        }
+      } else {
+        await cancelAllNotifications();
+        setNotificationsEnabled(false);
+        setDailyRemindersEnabled(false);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const toggleDailyReminders = async () => {
+    try {
+      if (!dailyRemindersEnabled) {
+        if (!notificationsEnabled) {
+          const granted = await requestNotificationPermissions();
+          if (!granted) {
+            Alert.alert(t("error"), t("notifications_permission_denied"));
+            return;
+          }
+          setNotificationsEnabled(true);
+        }
+        await registerDailyReminderTask();
+        setDailyRemindersEnabled(true);
+      } else {
+        await unregisterDailyReminderTask();
+        setDailyRemindersEnabled(false);
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -178,7 +252,45 @@ const ProfileScreen = () => {
             label={t("contact_us")}
             onPress={() => Linking.openURL("mailto:rituali@contact")}
           />
-
+          <View style={styles.switchRow}>
+            <View style={styles.leftSwitchContainer}>
+              <Ionicons
+                name="notifications-outline"
+                size={22}
+                color={Colors.PrimaryGray}
+                style={{ width: 28 }}
+              />
+              <ThemedText style={styles.optionLabel}>
+                {t("notifications")}
+              </ThemedText>
+            </View>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={toggleNotifications}
+              trackColor={{ false: Colors.LightGray, true: Colors.HotPink }}
+              thumbColor={Colors.White}
+            />
+          </View>
+          <View style={styles.switchRow}>
+            <View style={styles.leftSwitchContainer}>
+              <Ionicons
+                name="time-outline"
+                size={22}
+                color={Colors.PrimaryGray}
+                style={{ width: 28 }}
+              />
+              <ThemedText style={styles.optionLabel}>
+                {t("daily_reminders")}
+              </ThemedText>
+            </View>
+            <Switch
+              value={dailyRemindersEnabled}
+              onValueChange={toggleDailyReminders}
+              trackColor={{ false: Colors.LightGray, true: Colors.HotPink }}
+              thumbColor={Colors.White}
+              disabled={!notificationsEnabled}
+            />
+          </View>
           <ProfileOption
             icon={"trash" as keyof typeof Ionicons.glyphMap}
             label={t("delete_account")}
@@ -293,7 +405,20 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginStart: 10,
   },
-
+  switchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 16,
+    paddingStart: 24,
+    paddingEnd: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.LightGray,
+  },
+  leftSwitchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   nameContainer: {
     flexDirection: "row",
     alignItems: "center",
