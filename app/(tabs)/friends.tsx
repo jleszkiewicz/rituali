@@ -6,7 +6,7 @@ import { t } from "@/src/service/translateService";
 import { useSelector } from "react-redux";
 import { selectUserId } from "@/src/store/userSlice";
 import { fetchFriends } from "@/src/service/apiService";
-import { subscribeToPokeNotifications } from "@/src/service/notificationsService";
+
 import FriendRequestForm from "@/components/FriendsScreen/FriendRequestForm";
 import PendingFriendRequests from "@/components/FriendsScreen/PendingFriendRequests";
 import FriendsList from "@/components/FriendsScreen/FriendsList";
@@ -45,16 +45,6 @@ const FriendsScreen = () => {
     if (userId) {
       fetchFriendsList();
     }
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId || isSubscribedRef.current) return;
-    const unsubscribe = subscribeToPokeNotifications(userId);
-    isSubscribedRef.current = true;
-    return () => {
-      unsubscribe();
-      isSubscribedRef.current = false;
-    };
   }, [userId]);
 
   const handleRefresh = async () => {

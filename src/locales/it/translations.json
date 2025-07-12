@@ -66,7 +66,7 @@
   "language_code": "it",
   "profile": "Profilo",
   "email": "Email",
-  "notifications": "Notifiche",
+  
   "logout": "Esci",
   "delete_account": "Elimina Account",
   "delete_account_confirmation_title": "Elimina Account",
@@ -74,8 +74,7 @@
   "error": "Errore",
   "logout_error": "Si è verificato un errore durante il logout. Riprova.",
   "delete_account_error": "Si è verificato un errore durante l'eliminazione del tuo account. Riprova.",
-  "notifications_permission_denied": "Per abilitare le notifiche, devi concedere i permessi nelle impostazioni dell'app.",
-  "notifications_error": "Si è verificato un errore durante la configurazione delle notifiche. Riprova.",
+  
   "challenge_title": "Sfida:",
   "other_habits": "Altri",
   "starts_in": "Inizia tra",

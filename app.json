@@ -18,10 +18,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.rituali.app",
       "icon": "./assets/images/icon-ios.png",
-      "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to let you share photos.",
-        "UIBackgroundModes": ["remote-notification"]
-      }
+              "infoPlist": {
+          "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to let you share photos."
+        }
     },
     "android": {
       "adaptiveIcon": {
@@ -40,7 +39,7 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION"
       ],
-      "useNextNotificationsApi": true,
+
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -62,7 +61,7 @@
       "expo-localization",
       "@react-native-community/datetimepicker",
       [
-        "expo-notifications",
+  
         {
           "icon": "./assets/images/icon-android.png",
           "color": "#ffffff"

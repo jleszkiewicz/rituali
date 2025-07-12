@@ -66,7 +66,7 @@
   "language_code": "fr",
   "profile": "Profil",
   "email": "Email",
-  "notifications": "Notifications",
+  
   "logout": "Déconnexion",
   "delete_account": "Supprimer le Compte",
   "delete_account_confirmation_title": "Supprimer le Compte",
@@ -74,8 +74,7 @@
   "error": "Erreur",
   "logout_error": "Une erreur s'est produite lors de la déconnexion. Veuillez réessayer.",
   "delete_account_error": "Une erreur s'est produite lors de la suppression de votre compte. Veuillez réessayer.",
-  "notifications_permission_denied": "Pour activer les notifications, vous devez accorder les autorisations dans les paramètres de l'application.",
-  "notifications_error": "Une erreur s'est produite lors de la configuration des notifications. Veuillez réessayer.",
+  
   "challenge_title": "Défi :",
   "other_habits": "Autres",
   "starts_in": "Commence dans",

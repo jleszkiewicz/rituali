@@ -99,11 +99,6 @@ export const FriendCard: React.FC<FriendCardProps> = ({
         <View style={styles.menu}>
           <View style={styles.menuContent}>
             <TouchableOpacity style={styles.menuItem} onPress={handlePoke}>
-              <Ionicons
-                name="notifications-outline"
-                size={20}
-                color={Colors.PrimaryGray}
-              />
               <ThemedText style={styles.menuText}>{t("poke")}</ThemedText>
             </TouchableOpacity>
 

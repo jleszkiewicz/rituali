@@ -66,7 +66,7 @@
   "language_code": "de",
   "profile": "Profil",
   "email": "E-Mail",
-  "notifications": "Benachrichtigungen",
+  
   "logout": "Abmelden",
   "delete_account": "Konto Löschen",
   "delete_account_confirmation_title": "Konto Löschen",
@@ -74,8 +74,7 @@
   "error": "Fehler",
   "logout_error": "Bei der Abmeldung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
   "delete_account_error": "Beim Löschen Ihres Kontos ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
-  "notifications_permission_denied": "Um Benachrichtigungen zu aktivieren, müssen Sie die Berechtigungen in den App-Einstellungen erteilen.",
-  "notifications_error": "Bei der Konfiguration der Benachrichtigungen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+  
   "challenge_title": "Herausforderung:",
   "other_habits": "Andere",
   "starts_in": "Beginnt in",

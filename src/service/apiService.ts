@@ -1091,40 +1091,7 @@ export const sendPoke = async (senderId: string, receiverId: string): Promise<bo
   }
 };
 
-export const subscribeToPokeNotifications = (userId: string, onPokeReceived: (senderName: string) => void) => {
-  const channel = supabase
-    .channel('poke_notifications')
-    .on(
-      'postgres_changes' as any,
-      {
-        event: '*',
-        schema: 'public',
-        table: 'friend_pokes',
-        filter: `receiver_id=eq.${userId}`
-      },
-      (payload: { new: { sender_id: string } }) => {
-        try {
-          supabase
-            .from('user_profiles')
-            .select('name')
-            .eq('id', payload.new.sender_id)
-            .single()
-            .then(({ data }) => {
-              if (data?.name) {
-                onPokeReceived(data.name);
-              }
-            });
-        } catch (error) {
-          console.error('Error handling poke notification:', error);
-        }
-      }
-    )
-    .subscribe();
 
-  return () => {
-    supabase.removeChannel(channel);
-  };
-};
 
 export const markChallengeAsViewed = async (challengeId: string): Promise<ChallengeData> => {
   try {

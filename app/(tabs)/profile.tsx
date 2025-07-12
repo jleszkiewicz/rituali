@@ -19,7 +19,6 @@ import ScreenHeader from "@/components/Commons/ScreenHeader";
 import { t } from "@/src/service/translateService";
 import { Ionicons } from "@expo/vector-icons";
 import ConfirmationModal from "@/components/modals/DeleteAccountModal";
-import * as Notifications from "expo-notifications";
 import {
   selectUserId,
   selectEmail,
@@ -34,13 +33,6 @@ import {
 import { Linking } from "react-native";
 import PrimaryButton from "@/components/Commons/PrimaryButton";
 import ProfileOption from "@/components/ProfileScreen/ProfileOption";
-import {
-  requestNotificationPermissions,
-  scheduleUncompletedHabitsCheck,
-  cancelAllNotifications,
-  subscribeToFriendRequestNotifications,
-  subscribeToChallengeInvitationNotifications,
-} from "@/src/service/notificationsService";
 
 const ProfileScreen = () => {
   const { logout, deleteAccount, updateDisplayName } = useAuth();
@@ -49,7 +41,7 @@ const ProfileScreen = () => {
   const email = useSelector(selectEmail);
   const displayName = useSelector(selectDisplayName);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState(displayName || "");
@@ -64,24 +56,6 @@ const ProfileScreen = () => {
       const url = await fetchProfilePhotoUrl(userId);
       setAvatarUrl(url);
     })();
-  }, [userId]);
-
-  useEffect(() => {
-    if (userId) {
-      Notifications.getPermissionsAsync().then(({ status }) => {
-        setNotificationsEnabled(status === "granted");
-      });
-
-      const unsubscribeFriendRequests =
-        subscribeToFriendRequestNotifications(userId);
-      const unsubscribeChallengeInvitations =
-        subscribeToChallengeInvitationNotifications(userId);
-
-      return () => {
-        unsubscribeFriendRequests();
-        unsubscribeChallengeInvitations();
-      };
-    }
   }, [userId]);
 
   const handlePickAvatar = async () => {
@@ -125,27 +99,6 @@ const ProfileScreen = () => {
       setIsEditingName(false);
     } else {
       Alert.alert(t("error"), result.error || t("update_name_error"));
-    }
-  };
-
-  const toggleNotifications = async () => {
-    try {
-      if (!notificationsEnabled) {
-        const granted = await requestNotificationPermissions();
-        if (granted) {
-          setNotificationsEnabled(true);
-          if (userId) {
-            await scheduleUncompletedHabitsCheck(userId);
-          }
-        } else {
-          Alert.alert(t("error"), t("notifications_permission_denied"));
-        }
-      } else {
-        await cancelAllNotifications();
-        setNotificationsEnabled(false);
-      }
-    } catch (error) {
-      console.error(error);
     }
   };
 
@@ -225,25 +178,7 @@ const ProfileScreen = () => {
             label={t("contact_us")}
             onPress={() => Linking.openURL("mailto:rituali@contact")}
           />
-          <View style={styles.switchRow}>
-            <View style={styles.leftSwitchConatiner}>
-              <Ionicons
-                name="notifications-outline"
-                size={22}
-                color={Colors.PrimaryGray}
-                style={{ width: 28 }}
-              />
-              <ThemedText style={styles.optionLabel}>
-                {t("notifications")}
-              </ThemedText>
-            </View>
-            <Switch
-              value={notificationsEnabled}
-              onValueChange={toggleNotifications}
-              trackColor={{ false: Colors.LightGray, true: Colors.HotPink }}
-              thumbColor={Colors.White}
-            />
-          </View>
+
           <ProfileOption
             icon={"trash" as keyof typeof Ionicons.glyphMap}
             label={t("delete_account")}
@@ -358,20 +293,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginStart: 10,
   },
-  switchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 16,
-    paddingStart: 24,
-    paddingEnd: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.LightGray,
-  },
-  leftSwitchConatiner: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
+
   nameContainer: {
     flexDirection: "row",
     alignItems: "center",
