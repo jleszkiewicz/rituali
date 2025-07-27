@@ -32,6 +32,7 @@ import {
 import { Linking } from "react-native";
 import PrimaryButton from "@/components/Commons/PrimaryButton";
 import ProfileOption from "@/components/ProfileScreen/ProfileOption";
+import { SubscriptionSection } from "@/components/ProfileScreen/SubscriptionSection";
 import {
   requestNotificationPermissions,
   checkNotificationPermissions,
@@ -314,6 +315,8 @@ const ProfileScreen = () => {
             shouldShowBottomBorder={false}
           />
         </View>
+
+        {userId && <SubscriptionSection userId={userId} />}
         <PrimaryButton onPress={handleLogout} style={styles.logoutRow}>
           <Ionicons name="log-out-outline" size={22} color={Colors.White} />
           <ThemedText style={styles.logoutText}>{t("logout")}</ThemedText>

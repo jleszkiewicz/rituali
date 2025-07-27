@@ -1,5 +1,12 @@
 import * as React from "react";
-import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  Modal,
+} from "react-native";
 import { ThemedText } from "../ThemedText";
 import { Colors } from "@/constants/Colors";
 import { t } from "@/src/service/translateService";
@@ -8,6 +15,7 @@ import { getPricing, formatPrice } from "@/src/constants/Pricing";
 import { PricingOption } from "./PricingOption";
 import { FeatureList } from "./FeatureList";
 import { TrialButton } from "./TrialButton";
+import { iapService } from "@/src/service/iapService";
 
 interface SubscriptionModalProps {
   isVisible: boolean;
@@ -25,16 +33,53 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   const [selectedPlan, setSelectedPlan] = React.useState<"monthly" | "yearly">(
     "yearly"
   );
+  const [isLoading, setIsLoading] = React.useState(false);
   const pricing = getPricing(t("language_code"));
-
-  if (!isVisible) return null;
 
   const handlePlanSelect = (plan: "monthly" | "yearly") => {
     setSelectedPlan(plan);
   };
 
+  const handlePurchase = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+    try {
+      await iapService.initialize();
+
+      const purchase = await iapService.purchaseSubscription(selectedPlan);
+
+      await iapService.finishTransaction(purchase);
+
+      const isValid = await iapService.validateReceipt(purchase);
+
+      if (isValid) {
+        Alert.alert(t("success"), t("subscription_purchased_successfully"), [
+          {
+            text: t("ok"),
+            onPress: () => {
+              onSubscribe(selectedPlan);
+              onClose();
+            },
+          },
+        ]);
+      } else {
+        throw new Error("Receipt validation failed");
+      }
+    } catch (error) {
+      console.error("Purchase error:", error);
+      Alert.alert(
+        t("error"),
+        error instanceof Error ? error.message : t("purchase_failed"),
+        [{ text: t("ok") }]
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <View style={styles.overlay}>
+    <Modal visible={isVisible} animationType="slide" onRequestClose={onClose}>
       <View style={styles.container}>
         <LinearGradient
           colors={[Colors.HotPink, Colors.ButterYellow]}
@@ -76,8 +121,23 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                   onSelect={() => handlePlanSelect("yearly")}
                 />
               </View>
-
-              <TrialButton onPress={onStartTrial} />
+              <TouchableOpacity
+                style={[
+                  styles.purchaseButton,
+                  isLoading && styles.purchaseButtonDisabled,
+                ]}
+                onPress={handlePurchase}
+                disabled={isLoading}
+              >
+                <ThemedText
+                  style={[
+                    styles.purchaseButtonText,
+                    isLoading && styles.purchaseButtonTextDisabled,
+                  ]}
+                >
+                  {isLoading ? t("processing") : t("start_your_membership")}
+                </ThemedText>
+              </TouchableOpacity>
 
               <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                 <ThemedText style={styles.closeButtonText}>
@@ -88,29 +148,13 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
           </ScrollView>
         </LinearGradient>
       </View>
-    </View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 9999,
-    elevation: 5,
-  },
   container: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 10000,
-    elevation: 6,
+    flex: 1,
   },
   gradient: {
     flex: 1,
@@ -145,6 +189,28 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
     marginTop: 10,
+  },
+  purchaseButton: {
+    backgroundColor: Colors.ButterYellow,
+    paddingVertical: 15,
+    borderRadius: 25,
+    alignItems: "center",
+    marginBottom: 10,
+    paddingHorizontal: 50,
+  },
+  purchaseButtonDisabled: {
+    backgroundColor: Colors.LightGray,
+    opacity: 0.6,
+  },
+  purchaseButtonText: {
+    color: Colors.PrimaryGray,
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  purchaseButtonTextDisabled: {
+    color: Colors.PrimaryGray,
+    opacity: 0.6,
   },
   closeButton: {
     padding: 15,
