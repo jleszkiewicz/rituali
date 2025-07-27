@@ -131,7 +131,6 @@
   "onboarding_stats_description": "Analizuj swoje postępy i świętuj sukcesy",
   "onboarding_start_button": "Zaczynamy",
   "login_required": "Musisz być zalogowany, aby rozpocząć wyzwanie",
-  "success": "Sukces",
   "challenge_started": "Wyzwanie zostało rozpoczęte",
   "challenge_start_error": "Wystąpił błąd podczas rozpoczynania wyzwania",
   "contact_us": "Skontaktuj się z nami",
@@ -154,7 +153,6 @@
   "delete_photo_confirmation": "Czy jesteś pewien, że chcesz usunąć to zdjęcie?",
   "pick_photo": "Wybierz zdjęcie",
   "downloads": "Pobierania",
-  "subscription": "Subskrypcja",
   "friends": "Znajomi",
   "sending": "Wysyłanie...",
   "send_friend_request": "Wyślij zaproszenie",
@@ -289,8 +287,6 @@
   "subscription_active": "Subskrypcja aktywna",
   "no_active_subscription": "Brak aktywnej subskrypcji",
   "plan_type": "Typ planu",
-  "start_date": "Data rozpoczęcia",
-  "end_date": "Data zakończenia",
   "auto_renew": "Automatyczne odnowienie",
   "yes": "Tak",
   "no": "Nie",
@@ -301,7 +297,5 @@
   "subscription_updated_successfully": "Subskrypcja została zaktualizowana pomyślnie!",
   "subscription_update_failed": "Nie udało się zaktualizować subskrypcji",
   "trial_started_successfully": "Okres próbny został rozpoczęty pomyślnie!",
-  "trial_start_failed": "Nie udało się rozpocząć okresu próbnego",
-  "loading": "Ładowanie",
-  "cancel": "Anuluj"
+  "trial_start_failed": "Nie udało się rozpocząć okresu próbnego"
 }
