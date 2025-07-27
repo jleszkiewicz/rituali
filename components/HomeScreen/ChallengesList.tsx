@@ -15,7 +15,7 @@ interface ChallengesListProps {
 }
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const PAGE_WIDTH = SCREEN_WIDTH - 40;
+const PAGE_WIDTH = SCREEN_WIDTH - 20;
 const ITEM_MARGIN = 10;
 const CARD_WIDTH = (PAGE_WIDTH - ITEM_MARGIN) / 2;
 

@@ -23,9 +23,8 @@ import DiscoverChallengesTab from "@/components/ChallengesScreen/DiscoverChallen
 import { StartChallengeModal } from "@/components/ChallengesScreen/StartChallengeModal";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const PAGE_WIDTH = SCREEN_WIDTH - 20;
+const PAGE_WIDTH = SCREEN_WIDTH;
 const ITEM_MARGIN = 10;
-const SCREEN_WRAPPER_PADDING = 20;
 
 const ChallengesScreen = () => {
   const dispatch = useDispatch();
@@ -131,8 +130,6 @@ const ChallengesScreen = () => {
             recommendedChallenges={recommendedChallenges}
             isLoading={isLoading}
             onChallengePress={handleChallengePress}
-            SCREEN_WIDTH={SCREEN_WIDTH}
-            SCREEN_WRAPPER_PADDING={SCREEN_WRAPPER_PADDING}
           />
         )}
       </View>

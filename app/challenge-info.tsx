@@ -157,10 +157,7 @@ export default function ChallengeInfoScreen() {
 
   return (
     <ScreenWrapper>
-      <ScreenHeader
-        title={challenge.name}
-        onBack={() => router.push("/challenges")}
-      />
+      <ScreenHeader title={challenge.name} onBack={() => router.back()} />
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <HabitsSection
           habits={challengeHabits}

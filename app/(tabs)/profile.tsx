@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -21,7 +21,6 @@ import { Ionicons } from "@expo/vector-icons";
 import ConfirmationModal from "@/components/modals/DeleteAccountModal";
 import {
   selectUserId,
-  selectEmail,
   selectDisplayName,
   clearUserData,
 } from "@/src/store/userSlice";
@@ -39,8 +38,6 @@ import {
   cancelAllNotifications,
   subscribeToFriendRequestNotifications,
   subscribeToChallengeInvitationNotifications,
-  scheduleDailyReminderNotification,
-  cancelDailyReminderNotifications,
 } from "@/src/service/notificationsService";
 import {
   registerDailyReminderTask,
@@ -51,16 +48,18 @@ const ProfileScreen = () => {
   const { logout, deleteAccount, updateDisplayName } = useAuth();
   const router = useRouter();
   const userId = useSelector(selectUserId);
-  const email = useSelector(selectEmail);
   const displayName = useSelector(selectDisplayName);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [dailyRemindersEnabled, setDailyRemindersEnabled] = useState(false);
-
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState(displayName || "");
   const dispatch = useDispatch();
+  const subscriptionRef = useRef<{
+    friendRequests?: () => void;
+    challengeInvitations?: () => void;
+  }>({});
   const { pickImage, isLoading: isUploading } = useImageUpload({
     onError: (error) => Alert.alert(t("error"), error.message),
   });
@@ -78,17 +77,34 @@ const ProfileScreen = () => {
       checkNotificationPermissions().then((enabled) => {
         setNotificationsEnabled(enabled);
       });
-
-      const unsubscribeFriendRequests =
-        subscribeToFriendRequestNotifications(userId);
-      const unsubscribeChallengeInvitations =
-        subscribeToChallengeInvitationNotifications(userId);
-
-      return () => {
-        unsubscribeFriendRequests();
-        unsubscribeChallengeInvitations();
-      };
     }
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    if (subscriptionRef.current.friendRequests) {
+      subscriptionRef.current.friendRequests();
+    }
+    if (subscriptionRef.current.challengeInvitations) {
+      subscriptionRef.current.challengeInvitations();
+    }
+
+    subscriptionRef.current.friendRequests =
+      subscribeToFriendRequestNotifications(userId);
+    subscriptionRef.current.challengeInvitations =
+      subscribeToChallengeInvitationNotifications(userId);
+
+    return () => {
+      if (subscriptionRef.current.friendRequests) {
+        subscriptionRef.current.friendRequests();
+        subscriptionRef.current.friendRequests = undefined;
+      }
+      if (subscriptionRef.current.challengeInvitations) {
+        subscriptionRef.current.challengeInvitations();
+        subscriptionRef.current.challengeInvitations = undefined;
+      }
+    };
   }, [userId]);
 
   const handlePickAvatar = async () => {

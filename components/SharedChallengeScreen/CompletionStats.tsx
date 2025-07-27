@@ -178,23 +178,23 @@ export default function CompletionStats({
 
           return (
             <View key={participant.id} style={styles.participantStats}>
-              <View style={styles.participantHeader}>
-                <View style={styles.nameContainer}>
-                  <View
-                    style={[
-                      styles.participantDot,
-                      {
-                        backgroundColor: getParticipantColor(
-                          participant.id,
-                          participantsWithStats.findIndex(
-                            (p) => p.id === participant.id
-                          )
-                        ),
-                      },
-                    ]}
-                  />
-                  <ThemedText style={styles.participantName}>
-                    {participant.display_name?.replace(" ", "\n") || "User"}
+              <View style={styles.nameContainer}>
+                <View
+                  style={[
+                    styles.participantDot,
+                    {
+                      backgroundColor: getParticipantColor(
+                        participant.id,
+                        participantsWithStats.findIndex(
+                          (p) => p.id === participant.id
+                        )
+                      ),
+                    },
+                  ]}
+                />
+                <View style={styles.nameAndTrophyContainer}>
+                  <ThemedText style={styles.participantName} numberOfLines={2}>
+                    {participant.display_name || "User"}
                   </ThemedText>
                   {!hideLegend && (
                     <Image
@@ -204,24 +204,24 @@ export default function CompletionStats({
                     />
                   )}
                 </View>
-                <View style={styles.statsRow}>
-                  <View style={styles.statItem}>
-                    <ThemedText style={styles.statValue}>
-                      {averageCompletion}%
-                    </ThemedText>
-                    <ThemedText style={styles.statLabel}>
-                      {t("average_completion")}
-                    </ThemedText>
-                  </View>
+              </View>
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <ThemedText style={styles.statValue}>
+                    {averageCompletion}%
+                  </ThemedText>
+                  <ThemedText style={styles.statLabel}>
+                    {t("average_completion")}
+                  </ThemedText>
+                </View>
 
-                  <View style={styles.statItem}>
-                    <ThemedText style={styles.statValue}>
-                      {perfectDays}
-                    </ThemedText>
-                    <ThemedText style={styles.statLabel}>
-                      {t("perfect_days")}
-                    </ThemedText>
-                  </View>
+                <View style={styles.statItem}>
+                  <ThemedText style={styles.statValue}>
+                    {perfectDays}
+                  </ThemedText>
+                  <ThemedText style={styles.statLabel}>
+                    {t("perfect_days")}
+                  </ThemedText>
                 </View>
               </View>
             </View>
@@ -285,14 +285,18 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     marginBottom: 20,
+    justifyContent: "space-between",
   },
   participantStats: {
     marginBottom: 16,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
   },
   participantHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255, 255, 255, 0.1)",
@@ -300,7 +304,13 @@ const styles = StyleSheet.create({
   nameContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 6,
+    marginRight: 2,
+    flex: 1,
+    minWidth: 0,
+  },
+  nameAndTrophyContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
   },
   participantDot: {
@@ -312,6 +322,7 @@ const styles = StyleSheet.create({
   participantName: {
     fontSize: 16,
     color: Colors.White,
+    flexWrap: "wrap",
   },
   youLabel: {
     color: Colors.ButterYellow,
@@ -321,10 +332,12 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: "row",
     gap: 8,
+    flexShrink: 0,
   },
   statItem: {
     alignItems: "flex-end",
-    minWidth: 60,
+    minWidth: 50,
+    maxWidth: 70,
   },
   statValue: {
     fontSize: 20,
@@ -338,7 +351,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     textAlign: "right",
     lineHeight: 16,
-    width: "60%",
+    width: "100%",
   },
   calendarContainer: {
     marginTop: 10,

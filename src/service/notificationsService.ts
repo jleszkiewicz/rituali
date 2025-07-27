@@ -120,9 +120,23 @@ export const sendChallengeInvitationNotification = async (senderName: string, ch
   }
 };
 
+const activeChannels = new Map<string, any>();
+
 export const subscribeToFriendRequestNotifications = (userId: string) => {
+  const channelName = `friend_request_notifications_${userId}`;
+  
+  if (activeChannels.has(channelName)) {
+    return () => {
+      const channel = activeChannels.get(channelName);
+      if (channel) {
+        supabase.removeChannel(channel);
+        activeChannels.delete(channelName);
+      }
+    };
+  }
+
   const channel = supabase
-    .channel('friend_request_notifications')
+    .channel(channelName)
     .on(
       'postgres_changes' as any,
       {
@@ -149,14 +163,29 @@ export const subscribeToFriendRequestNotifications = (userId: string) => {
     )
     .subscribe();
 
+  activeChannels.set(channelName, channel);
+
   return () => {
     supabase.removeChannel(channel);
+    activeChannels.delete(channelName);
   };
 };
 
 export const subscribeToChallengeInvitationNotifications = (userId: string) => {
+  const channelName = `challenge_invitation_notifications_${userId}`;
+  
+  if (activeChannels.has(channelName)) {
+    return () => {
+      const channel = activeChannels.get(channelName);
+      if (channel) {
+        supabase.removeChannel(channel);
+        activeChannels.delete(channelName);
+      }
+    };
+  }
+
   const channel = supabase
-    .channel('challenge_invitation_notifications')
+    .channel(channelName)
     .on(
       'postgres_changes' as any,
       {
@@ -189,8 +218,11 @@ export const subscribeToChallengeInvitationNotifications = (userId: string) => {
     )
     .subscribe();
 
+  activeChannels.set(channelName, channel);
+
   return () => {
     supabase.removeChannel(channel);
+    activeChannels.delete(channelName);
   };
 };
 

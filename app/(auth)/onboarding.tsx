@@ -8,7 +8,7 @@ import PageIndicator from "@/components/Commons/PageIndicator";
 import { t } from "@/src/service/translateService";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const PAGE_WIDTH = SCREEN_WIDTH - 40;
+const PAGE_WIDTH = SCREEN_WIDTH - 20;
 
 const onboardingData = [
   {

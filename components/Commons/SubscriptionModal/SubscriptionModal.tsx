@@ -119,11 +119,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 20,
   },
   content: {
-    width: "90%",
-    maxWidth: 400,
     padding: 20,
     alignItems: "center",
   },

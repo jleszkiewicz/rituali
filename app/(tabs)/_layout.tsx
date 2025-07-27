@@ -121,25 +121,7 @@ export default function TabsLayout() {
     <View style={styles.root}>
       <Tabs
         tabBar={(props) => (
-          <View
-            style={{
-              position: "absolute",
-              left: 20,
-              right: 20,
-              bottom: 16,
-              borderRadius: 24,
-              elevation: 2,
-              borderWidth: 0.2,
-              borderColor: Colors.LightGray,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.12,
-              shadowRadius: 2,
-              backgroundColor: Colors.OffWhite,
-              height: Platform.OS === "ios" ? 85 : 61,
-              justifyContent: "center",
-            }}
-          >
+          <View style={styles.tab}>
             <BottomTabBar {...props} />
           </View>
         )}
@@ -280,5 +262,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.5,
     elevation: 5,
+  },
+  tab: {
+    position: "absolute",
+    left: 20,
+    right: 20,
+    bottom: 16,
+    borderRadius: 24,
+    elevation: 2,
+    borderWidth: 0.2,
+    borderColor: Colors.LightGray,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.12,
+    shadowRadius: 2,
+    backgroundColor: Colors.OffWhite,
+    height: 61,
+    justifyContent: "center",
   },
 });

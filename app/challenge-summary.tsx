@@ -38,7 +38,7 @@ import PageIndicator from "@/components/Commons/PageIndicator";
 import EmptyHabitsList from "@/components/HomeScreen/EmptyHabitsList";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const PAGE_WIDTH = SCREEN_WIDTH - 40;
+const PAGE_WIDTH = SCREEN_WIDTH - 20;
 
 type PhotoType = "before" | "after";
 
@@ -203,7 +203,7 @@ export default function ChallengeSummaryScreen() {
     <ScreenWrapper>
       <ScreenHeader
         title={t("challenge_summary")}
-        onBack={() => router.push("/challenges")}
+        onBack={() => router.back()}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}

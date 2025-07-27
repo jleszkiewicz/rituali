@@ -18,6 +18,7 @@ import Loading from "@/components/Commons/Loading";
 import { AppRoutes } from "@/src/routes/AppRoutes";
 import FrequencyChip from "@/components/HomeScreen/HabitCard/FrequencyChip";
 import React from "react";
+import ScreenWrapper from "@/components/Commons/ScreenWrapper";
 
 const HabitSummaryScreen = () => {
   const { habitId } = useLocalSearchParams();
@@ -69,7 +70,7 @@ const HabitSummaryScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <ScreenWrapper>
       <ScreenHeader title={t("habit_summary")} onBack={() => router.back()} />
 
       <ScrollView
@@ -148,7 +149,7 @@ const HabitSummaryScreen = () => {
           />
         </>
       )}
-    </View>
+    </ScreenWrapper>
   );
 };
 
@@ -160,9 +161,7 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  scrollContent: {
-    padding: 20,
-  },
+  scrollContent: {},
   habitInfo: {
     marginBottom: 24,
   },

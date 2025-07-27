@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
     color: Colors.PrimaryGray,
     marginBottom: 10,
     textAlign: "center",
+    lineHeight: 30,
   },
   description: {
     fontSize: 16,

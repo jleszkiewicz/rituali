@@ -8,8 +8,8 @@ import Carousel from "react-native-reanimated-carousel";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const ITEMS_PER_PAGE = 7;
-const ITEM_WIDTH = (SCREEN_WIDTH - 40) / ITEMS_PER_PAGE;
-const PAGE_WIDTH = SCREEN_WIDTH - 40;
+const ITEM_WIDTH = (SCREEN_WIDTH - 20) / ITEMS_PER_PAGE;
+const PAGE_WIDTH = SCREEN_WIDTH - 20;
 
 const generateDays = (daysBefore = 30, daysAfter = 30) => {
   const days = [];

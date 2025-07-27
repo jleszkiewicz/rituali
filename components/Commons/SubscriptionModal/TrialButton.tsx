@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     color: Colors.HotPink,
     fontSize: 18,
     fontWeight: "bold",
+    textAlign: "center",
   },
   trialButtonSubtext: {
     color: Colors.PrimaryGray,

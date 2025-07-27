@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setHabits } from "@/src/store/habitsSlice";
 import { selectUserId } from "@/src/store/userSlice";
 import { fetchUserHabits } from "@/src/service/apiService";
+import React from "react";
 
 interface ScreenWrapperProps {
   children: React.ReactNode;
@@ -73,26 +74,29 @@ const ScreenWrapper = ({
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <>
       {!showOfflineScreen || isConnected ? (
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={[Colors.PrimaryPink]}
-              tintColor={Colors.PrimaryPink}
-            />
-          }
-        >
-          {children}
-        </ScrollView>
+        <SafeAreaView style={styles.container}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={styles.content}
+            contentContainerStyle={styles.contentContainer}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[Colors.PrimaryPink]}
+                tintColor={Colors.PrimaryPink}
+              />
+            }
+          >
+            {children}
+          </ScrollView>
+        </SafeAreaView>
       ) : (
         <OfflineScreen />
       )}
-    </SafeAreaView>
+    </>
   );
 };
 
@@ -108,7 +112,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexGrow: 1,
-    marginHorizontal: 20,
+    marginHorizontal: 10,
     paddingBottom: 80,
   },
 });

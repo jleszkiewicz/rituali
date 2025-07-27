@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: Colors.PrimaryGray,
     marginVertical: 16,
+    textAlign: "center",
   },
   description: {
     fontSize: 16,

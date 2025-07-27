@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   dateLabel: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.PrimaryGray,
     opacity: 0.7,
     marginBottom: 2,

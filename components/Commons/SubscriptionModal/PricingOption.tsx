@@ -40,8 +40,8 @@ export const PricingOption: React.FC<PricingOptionProps> = ({
       </ThemedText>
       <ThemedText style={styles.price}>{price}</ThemedText>
       <ThemedText style={styles.period}>
-        per {type === "monthly" ? t("month") : t("year")} after 7 days free
-        trial
+        {t("per")} {type === "monthly" ? t("month") : t("year")}{" "}
+        {t("after_free_trial")}
       </ThemedText>
     </TouchableOpacity>
   );
@@ -61,12 +61,9 @@ const styles = StyleSheet.create({
   selectedOption: {
     borderColor: Colors.HotPink,
     backgroundColor: Colors.White,
-    transform: [{ scale: 1.1 }],
     borderWidth: 3,
   },
-  recommended: {
-    borderColor: Colors.HotPink,
-  },
+  recommended: {},
   recommendedBadge: {
     position: "absolute",
     top: -15,

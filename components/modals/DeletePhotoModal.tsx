@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    marginHorizontal: -20,
+    marginHorizontal: -10,
     justifyContent: "center",
     alignItems: "center",
     zIndex: 9999,

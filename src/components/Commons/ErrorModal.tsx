@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: Colors.PrimaryRed,
     marginBottom: 10,
+    lineHeight: 30,
   },
   modalText: {
     fontSize: 16,

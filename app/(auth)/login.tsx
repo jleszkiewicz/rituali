@@ -22,8 +22,8 @@ export default function LoginScreen() {
   const { showErrorModal, errorMessage, showError, hideError } =
     useErrorModal();
   const router = useRouter();
-  const [email, setEmail] = useState("asku1997@gmail.com");
-  const [password, setPassword] = useState("Werginas1!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({
     email: "",

@@ -46,6 +46,6 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: 16,
     color: Colors.White,
-    flex: 1,
+    maxWidth: "90%",
   },
 });

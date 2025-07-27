@@ -13,16 +13,12 @@ interface DiscoverChallengesTabProps {
   recommendedChallenges: RecommendedChallengeData[];
   isLoading: boolean;
   onChallengePress: (challenge: RecommendedChallengeData) => void;
-  SCREEN_WIDTH: number;
-  SCREEN_WRAPPER_PADDING: number;
 }
 
 const DiscoverChallengesTab: React.FC<DiscoverChallengesTabProps> = ({
   recommendedChallenges,
   isLoading,
   onChallengePress,
-  SCREEN_WIDTH,
-  SCREEN_WRAPPER_PADDING,
 }) => {
   if (recommendedChallenges.length === 0 && !isLoading) {
     return (
@@ -92,11 +88,11 @@ const styles = StyleSheet.create({
   },
   recommendedCardContainer: {
     marginBottom: 4,
-    width: (Dimensions.get("window").width - 40 - 10) / 2,
+    width: (Dimensions.get("window").width - 20 - 10) / 2,
     flex: 0,
   },
   fullWidthCard: {
-    width: Dimensions.get("window").width - 40,
+    width: Dimensions.get("window").width - 20,
     flex: 0,
   },
 });

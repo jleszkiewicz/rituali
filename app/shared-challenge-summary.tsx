@@ -44,7 +44,7 @@ import { SharedChallengeStats } from "@/components/ChallengeSummary/SharedChalle
 import { Podium } from "@/components/SharedChallengeScreen/Podium";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const PAGE_WIDTH = SCREEN_WIDTH - 40;
+const PAGE_WIDTH = SCREEN_WIDTH - 20;
 
 type PhotoType = "before" | "after";
 
@@ -219,7 +219,7 @@ export default function SharedChallengeSummaryScreen() {
     <ScreenWrapper>
       <ScreenHeader
         title={t("shared_challenge_summary")}
-        onBack={() => router.push("/challenges")}
+        onBack={() => router.back()}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
